@@ -47,6 +47,7 @@
 
       <!-- Tags -->
       <h6 class="post-tags">
+        tags:
         <span v-for="(tag, index) in extractTags(post).split(',')" :key="index" class="tag">
           <a href="#" @click.prevent="fetchPostsByTag(tag.trim())">
             {{ tag.trim() }}
@@ -107,7 +108,7 @@ export default {
     // Extract the geotag
     const extractGeotag = (post) => {
       const cleanedPost = removeMetadata(post)
-      const geotagMatch = cleanedPost.match(/\[(.*?)\]\((https:\/\/maps\.app\.goo\.gl\/[^\s\)]+)\)/)
+      const geotagMatch = cleanedPost.match(/\[(.*?)\]\((https:\/\/maps\.app\.goo\.gl\/[^\s)]+)\)/)
       return geotagMatch
         ? {
             text: geotagMatch[1],
@@ -120,7 +121,7 @@ export default {
 const removeGeotag = (content) => {
   // Remove the geotag link and clean up extra newlines
   return content
-    .replace(/\[.*?\]\(https:\/\/maps\.app\.goo\.gl\/[^\s\)]+\)\s*/g, '')
+    .replace(/\[.*?\]\(https:\/\/maps\.app\.goo\.gl\/[^\s)]+\)\s*/g, '')
     .replace(/\n{3,}/g, '\n\n')
     .trim();
 };
@@ -266,10 +267,7 @@ const removeGeotag = (content) => {
 
 .tag {
   display: inline-block; /* Ensure tags don't overlap */
-  margin: 5px 5px; /* Add spacing between tags */
-  padding: 5px 5px; /* Add padding inside each tag */
-  background-color: #f0f0f0; /* Light background color for tags */
-  border-radius: 5px; /* Rounded corners for a cleaner look */
+  margin: 2px 2px; /* Add spacing between tags */
   font-size: 0.85em; /* Adjust font size within each tag */
 }
 
