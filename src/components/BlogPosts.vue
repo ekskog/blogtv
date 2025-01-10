@@ -9,8 +9,16 @@
           <tr>
             <!-- Image -->
             <td class="post-image">
-              <img :src="getImageUrl(post)" alt="Post Image" class="thumbnail" />
+              <figure class="figure-wrapper">
+                <img :src="getImageUrl(post)" alt="Post Image" class="thumbnail" />
+                <figcaption v-if="extractGeotag(post)" class="image-caption">
+                  <a :href="extractGeotag(post)?.url" target="_blank" rel="noopener noreferrer">
+                    {{ extractGeotag(post)?.text }}
+                  </a>
+                </figcaption>
+              </figure>
             </td>
+
             <!-- Title and Markdown-rendered content -->
             <td class="post-content">
               <table class="nested-table">
@@ -22,7 +30,10 @@
                   </tr>
                   <tr>
                     <td>
-                      <div class="markdown-container" v-html="renderMarkdown(removeMetadata(post))"></div>
+                      <div
+                        class="markdown-container"
+                        v-html="renderMarkdown(removeGeotag(removeMetadata(post)))"
+                      ></div>
                     </td>
                   </tr>
                 </tbody>
@@ -47,80 +58,101 @@
 </template>
 
 <script>
-import { ref, onMounted } from "vue";
-import { marked } from "marked"; // Import the marked library
+import { ref, onMounted } from 'vue'
+import { marked } from 'marked' // Import the marked library
 
 export default {
-  name: "BlogPost",
+  name: 'BlogPost',
   setup() {
-    const posts = ref([]); // Holds the fetched posts
+    const posts = ref([]) // Holds the fetched posts
 
     // Fetch posts from the backend
     const fetchPosts = async () => {
       try {
-        const response = await fetch("https://blogt.hbvu.su/posts");
+        const response = await fetch('https://blogt.hbvu.su/posts')
         if (!response.ok) {
-          throw new Error("Failed to fetch posts");
+          throw new Error('Failed to fetch posts')
         }
-        const data = await response.json();
-        posts.value = data; // Store the fetched array in `posts`
+        const data = await response.json()
+        posts.value = data // Store the fetched array in `posts`
         //console.log("Fetched Posts:", posts.value); // Log fetched posts
       } catch (error) {
-        console.error("Error fetching posts:", error);
+        console.error('Error fetching posts:', error)
       }
-    };
+    }
 
     // Extract title from post
     const extractTitle = (post) => {
-      const titleMatch = post.match(/^Title:\s*(.+)$/m); // Regex to match Title line
-      const title = titleMatch ? titleMatch[1].trim() : "Untitled"; // Return just the title text
+      const titleMatch = post.match(/^Title:\s*(.+)$/m) // Regex to match Title line
+      const title = titleMatch ? titleMatch[1].trim() : 'Untitled' // Return just the title text
       //console.log("Extracted Title:", title); // Log extracted title
-      return title;
-    };
+      return title
+    }
 
     // Remove metadata lines (Date, Tags, Title) from post content
     const removeMetadata = (post) => {
-      const cleanedPost = post.replace(/^(Date:.*|Tags:.*|Title:.*)$/gm, '').trim(); // Remove metadata lines
+      const cleanedPost = post.replace(/^(Date:.*|Tags:.*|Title:.*)$/gm, '').trim() // Remove metadata lines
       //console.log("Cleaned Post Content:", cleanedPost); // Log cleaned post content
-      return cleanedPost;
-    };
+      return cleanedPost
+    }
 
     // Extract tags from post
     const extractTags = (post) => {
-      const tagsMatch = post.match(/^Tags:\s*(.+)$/m); // Regex to match Tags line
-      const tags = tagsMatch ? tagsMatch[1].trim() : "No Tags"; // Return tags or default
+      const tagsMatch = post.match(/^Tags:\s*(.+)$/m) // Regex to match Tags line
+      const tags = tagsMatch ? tagsMatch[1].trim() : 'No Tags' // Return tags or default
       //console.log("Extracted Tags:", tags); // Log extracted tags
-      return tags;
-    };
+      return tags
+    }
+
+    // Extract the geotag
+    const extractGeotag = (post) => {
+      const cleanedPost = removeMetadata(post)
+      const geotagMatch = cleanedPost.match(/\[(.*?)\]\((https:\/\/maps\.app\.goo\.gl\/[^\s\)]+)\)/)
+      return geotagMatch
+        ? {
+            text: geotagMatch[1],
+            url: geotagMatch[2],
+          }
+        : null
+    }
+
+// New function to remove geotag from the content
+const removeGeotag = (content) => {
+  // Remove the geotag link and clean up extra newlines
+  return content
+    .replace(/\[.*?\]\(https:\/\/maps\.app\.goo\.gl\/[^\s\)]+\)\s*/g, '')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+};
 
     // Render Markdown content as HTML
     const renderMarkdown = (markdown) => {
-      return marked(markdown); // Convert Markdown to HTML
-    };
+      return marked(markdown) // Convert Markdown to HTML
+    }
 
     // Generate image URL based on Date metadata
     const getImageUrl = (post) => {
-      const dateMatch = post.match(/^Date:\s*(\d{2})(\d{2})(\d{4})$/m); // Match Date in YYYYMMDD format
+      const dateMatch = post.match(/^Date:\s*(\d{2})(\d{2})(\d{4})$/m) // Match Date in YYYYMMDD format
       if (dateMatch) {
-        const day = dateMatch[1];
-        const month = dateMatch[2];
-        const year = dateMatch[3];
-        console.log(year, month, day); // Log extracted date
-        let dateUrl = `https://objects.hbvu.su/blotpix/${year}/${month}/${day}.jpeg`; // Construct image URL correctly
-        console.log(dateUrl); // Construct image URL correctly
+        const day = dateMatch[1]
+        const month = dateMatch[2]
+        const year = dateMatch[3]
+        console.log(year, month, day) // Log extracted date
+        let dateUrl = `https://objects.hbvu.su/blotpix/${year}/${month}/${day}.jpeg` // Construct image URL correctly
+        console.log(dateUrl) // Construct image URL correctly
 
-        return dateUrl; // Construct image URL correctly
+        return dateUrl // Construct image URL correctly
       }
-      console.error("Invalid Date format in metadata:", post);
-      return ""; // Return empty string if no valid date is found
-    };
+      console.error('Invalid Date format in metadata:', post)
+      return '' // Return empty string if no valid date is found
+    }
 
     // Fetch posts when the component is mounted
-    onMounted(fetchPosts);
+    onMounted(fetchPosts)
 
-    return { posts, extractTitle, removeMetadata, extractTags, renderMarkdown, getImageUrl };
+    return { posts, extractTitle, removeMetadata, extractTags, renderMarkdown, getImageUrl, extractGeotag, removeGeotag }
   },
-};
+}
 </script>
 
 <style scoped>
@@ -178,10 +210,30 @@ export default {
 }
 
 .thumbnail {
-  width: 100%;  /* Full width of the container */
-  height: auto;  /* Maintain aspect ratio */
-  max-width: 2800px;  /* Updated from 150px to 200px */
-  border:#333 1px solid;  /* Add border around the image */
+  width: 100%; /* Full width of the container */
+  height: auto; /* Maintain aspect ratio */
+  max-width: 2800px; /* Updated from 150px to 200px */
+  border: #333 1px solid; /* Add border around the image */
+}
+
+.figure-wrapper {
+  margin: 0;
+  position: relative;
+}
+
+.image-caption {
+  margin-top: 5px;
+  font-size: 0.8em;
+  text-align: center;
+}
+
+.image-caption a {
+  color: #000;
+  text-decoration: none;
+}
+
+.image-caption a:hover {
+  text-decoration: underline;
 }
 
 @media (max-width: 768px) {
@@ -204,6 +256,7 @@ export default {
 
 .post-content {
   padding-left: 20px;
+  vertical-align: top;  /* Add this line */
 }
 
 .post-tags {
@@ -229,7 +282,6 @@ export default {
   color: #007bff; /* Change color on hover for better interactivity */
   text-decoration: underline; /* Optional: add underline on hover */
 }
-
 
 /* Responsive Design */
 @media (max-width: 768px) {
