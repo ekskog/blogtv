@@ -55,19 +55,30 @@
         </span>
       </h6>
     </div>
+
+    <!-- Pagination Controls -->
+    <div class="pagination-controls">
+      <button @click="fetchPreviousPage" :disabled="isFirstPage" class="pagination-button">
+        Previous Posts
+      </button>
+      <button @click="fetchNextPage" :disabled="posts.length < 5" class="pagination-button">
+        Next Posts
+      </button>
+    </div>
   </div>
 </template>
 
 <script>
 import { ref, onMounted } from 'vue'
-import { marked } from 'marked' // Import the marked library
+import { marked } from 'marked'
 
 export default {
   name: 'BlogPost',
   setup() {
-    const posts = ref([]) // Holds the fetched posts
+    const posts = ref([])
+    const isFirstPage = ref(true)
+    const currentFirstPostDate = ref(null)
 
-    // Fetch posts from the backend
     const fetchPosts = async () => {
       try {
         const response = await fetch('https://blogtbe.hbvu.su/posts')
@@ -75,37 +86,33 @@ export default {
           throw new Error('Failed to fetch posts')
         }
         const data = await response.json()
-        posts.value = data // Store the fetched array in `posts`
-        //console.log("Fetched Posts:", posts.value); // Log fetched posts
+        posts.value = data
+        isFirstPage.value = true
+        if (data.length > 0) {
+          currentFirstPostDate.value = extractDate(data[0])
+        }
       } catch (error) {
         console.error('Error fetching posts:', error)
       }
     }
 
-    // Extract title from post
     const extractTitle = (post) => {
-      const titleMatch = post.match(/^Title:\s*(.+)$/m) // Regex to match Title line
-      const title = titleMatch ? titleMatch[1].trim() : 'Untitled' // Return just the title text
-      //console.log("Extracted Title:", title); // Log extracted title
+      const titleMatch = post.match(/^Title:\s*(.+)$/m)
+      const title = titleMatch ? titleMatch[1].trim() : 'Untitled'
       return title
     }
 
-    // Remove metadata lines (Date, Tags, Title) from post content
     const removeMetadata = (post) => {
-      const cleanedPost = post.replace(/^(Date:.*|Tags:.*|Title:.*)$/gm, '').trim() // Remove metadata lines
-      //console.log("Cleaned Post Content:", cleanedPost); // Log cleaned post content
+      const cleanedPost = post.replace(/^(Date:.*|Tags:.*|Title:.*)$/gm, '').trim()
       return cleanedPost
     }
 
-    // Extract tags from post
     const extractTags = (post) => {
-      const tagsMatch = post.match(/^Tags:\s*(.+)$/m) // Regex to match Tags line
-      const tags = tagsMatch ? tagsMatch[1].trim() : 'No Tags' // Return tags or default
-      //console.log("Extracted Tags:", tags); // Log extracted tags
+      const tagsMatch = post.match(/^Tags:\s*(.+)$/m)
+      const tags = tagsMatch ? tagsMatch[1].trim() : 'No Tags'
       return tags
     }
 
-    // Extract the geotag
     const extractGeotag = (post) => {
       const cleanedPost = removeMetadata(post)
       const geotagMatch = cleanedPost.match(/\[(.*?)\]\((https:\/\/maps\.app\.goo\.gl\/[^\s)]+)\)/)
@@ -117,53 +124,145 @@ export default {
         : null
     }
 
-// New function to remove geotag from the content
-const removeGeotag = (content) => {
-  // Remove the geotag link and clean up extra newlines
-  return content
-    .replace(/\[.*?\]\(https:\/\/maps\.app\.goo\.gl\/[^\s)]+\)\s*/g, '')
-    .replace(/\n{3,}/g, '\n\n')
-    .trim();
-};
-
-    // Render Markdown content as HTML
-    const renderMarkdown = (markdown) => {
-      return marked(markdown) // Convert Markdown to HTML
+    const removeGeotag = (content) => {
+      return content
+        .replace(/\[.*?\]\(https:\/\/maps\.app\.goo\.gl\/[^\s)]+\)\s*/g, '')
+        .replace(/\n{3,}/g, '\n\n')
+        .trim()
     }
 
-    // Generate image URL based on Date metadata
+    const extractDate = (post) => {
+      const dateMatch = post.match(/^Date:\s*(\d{2})(\d{2})(\d{4})$/m)
+      return dateMatch ? `${dateMatch[1]}${dateMatch[2]}${dateMatch[3]}` : null
+    }
+
+    const renderMarkdown = (markdown) => {
+      return marked(markdown)
+    }
+
     const getImageUrl = (post) => {
-      const dateMatch = post.match(/^Date:\s*(\d{2})(\d{2})(\d{4})$/m) // Match Date in YYYYMMDD format
+      const dateMatch = post.match(/^Date:\s*(\d{2})(\d{2})(\d{4})$/m)
       if (dateMatch) {
         const day = dateMatch[1]
         const month = dateMatch[2]
         const year = dateMatch[3]
-        console.log(year, month, day) // Log extracted date
-        let dateUrl = `https://objects.hbvu.su/blotpix/${year}/${month}/${day}.jpeg` // Construct image URL correctly
-        console.log(dateUrl) // Construct image URL correctly
-
-        return dateUrl // Construct image URL correctly
+        let dateUrl = `https://objects.hbvu.su/blotpix/${year}/${month}/${day}.jpeg`
+        return dateUrl
       }
       console.error('Invalid Date format in metadata:', post)
-      return '' // Return empty string if no valid date is found
+      return ''
     }
 
-    // Fetch posts when the component is mounted
+    const fetchNextPage = async () => {
+      if (posts.value.length === 0) return
+
+      const lastPost = posts.value[posts.value.length - 1]
+      const lastPostDate = extractDate(lastPost)
+
+      // Convert DDMMYYYY to a Date object
+      const day = lastPostDate.substring(0, 2)
+      const month = lastPostDate.substring(2, 4)
+      const year = lastPostDate.substring(4, 8)
+
+      const date = new Date(year, month - 1, day) // month is 0-based in JavaScript
+
+      // Subtract one day
+      date.setDate(date.getDate() - 1)
+
+      // Format back to DDMMYYYY
+      const prevDay = String(date.getDate()).padStart(2, '0')
+      const prevMonth = String(date.getMonth() + 1).padStart(2, '0') // Add 1 because getMonth() is 0-based
+      const prevYear = date.getFullYear()
+
+      const dateToFetch = `${prevDay}${prevMonth}${prevYear}`
+
+      try {
+        const response = await fetch(`https://blogtbe.hbvu.su/posts/from/${dateToFetch}`)
+        if (!response.ok) {
+          throw new Error('Failed to fetch next posts')
+        }
+        const data = await response.json()
+        if (data.length > 0) {
+          posts.value = data
+          isFirstPage.value = false
+          currentFirstPostDate.value = extractDate(data[0])
+        }
+      } catch (error) {
+        console.error('Error fetching next posts:', error)
+      }
+    }
+
+    const fetchPreviousPage = async () => {
+      if (!currentFirstPostDate.value) return
+
+      // Convert DDMMYYYY to a Date object
+      const day = currentFirstPostDate.value.substring(0, 2)
+      const month = currentFirstPostDate.value.substring(2, 4)
+      const year = currentFirstPostDate.value.substring(4, 8)
+
+      const date = new Date(year, month - 1, day) // month is 0-based in JavaScript
+
+      // Add one day
+      date.setDate(date.getDate() + 1)
+
+      // Format back to DDMMYYYY
+      const nextDay = String(date.getDate()).padStart(2, '0')
+      const nextMonth = String(date.getMonth() + 1).padStart(2, '0') // Add 1 because getMonth() is 0-based
+      const nextYear = date.getFullYear()
+
+      const dateToFetch = `${nextDay}${nextMonth}${nextYear}`
+
+      try {
+        // First check if this would take us beyond the latest posts
+        const latestResponse = await fetch('https://blogtbe.hbvu.su/posts')
+        const latestData = await latestResponse.json()
+        const latestFirstDate = extractDate(latestData[0])
+
+        // Only proceed if we're not already at the latest posts
+        if (dateToFetch <= latestFirstDate) {
+          const response = await fetch(`https://blogtbe.hbvu.su/posts/from/${dateToFetch}`)
+          if (!response.ok) {
+            throw new Error('Failed to fetch previous posts')
+          }
+          const data = await response.json()
+          if (data.length > 0) {
+            posts.value = data
+            isFirstPage.value = dateToFetch === latestFirstDate
+            currentFirstPostDate.value = extractDate(data[0])
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching previous posts:', error)
+      }
+    }
+
     onMounted(fetchPosts)
 
-    return { posts, extractTitle, removeMetadata, extractTags, renderMarkdown, getImageUrl, extractGeotag, removeGeotag }
+    return {
+      posts,
+      extractTitle,
+      removeMetadata,
+      extractTags,
+      renderMarkdown,
+      getImageUrl,
+      extractGeotag,
+      removeGeotag,
+      fetchNextPage,
+      fetchPreviousPage,
+      isFirstPage,
+    }
   },
 }
 </script>
 
 <style scoped>
 .markdown-container a {
-  text-decoration: none !important; /* Force no underline */
-  color: inherit; /* Optional: Match surrounding text color */
+  text-decoration: none !important;
+  color: inherit;
 }
 
 .markdown-container a:hover {
-  text-decoration: underline !important; /* Optional: Add underline on hover */
+  text-decoration: underline !important;
 }
 
 .blog-posts {
@@ -172,7 +271,6 @@ const removeGeotag = (content) => {
 
 .post {
   margin-bottom: 60px;
-  /* Increased vertical spacing between posts */
 }
 
 .post:not(:last-child)::after {
@@ -180,23 +278,17 @@ const removeGeotag = (content) => {
   display: block;
   width: 100%;
   border-top: 2px solid #e0e0e0;
-  /* Subtle, light grey separator */
   margin-top: 40px;
-  /* Space above the separator */
   margin-bottom: 40px;
-  /* Space below the separator */
 }
 
 .post-title {
   font-size: 1.2em;
-  /* Adjust size as needed */
   margin: 0;
-  /* Remove default margin */
 }
 
 .padding {
   height: 20px;
-  /* Add vertical spacing */
 }
 
 .post-layout {
@@ -206,15 +298,14 @@ const removeGeotag = (content) => {
 
 .post-image {
   width: 250px;
-  /* Updated from 150px to 200px for desktop */
   vertical-align: top;
 }
 
 .thumbnail {
-  width: 100%; /* Full width of the container */
-  height: auto; /* Maintain aspect ratio */
-  max-width: 2800px; /* Updated from 150px to 200px */
-  border: #333 1px solid; /* Add border around the image */
+  width: 100%;
+  height: auto;
+  max-width: 2800px;
+  border: #333 1px solid;
 }
 
 .figure-wrapper {
@@ -237,55 +328,70 @@ const removeGeotag = (content) => {
   text-decoration: underline;
 }
 
+.post-content {
+  padding-left: 20px;
+  vertical-align: top;
+}
+
+.post-tags {
+  font-size: 0.9em;
+  margin-top: 10px;
+}
+
+.tag {
+  display: inline-block;
+  margin: 2px 2px;
+  font-size: 0.85em;
+}
+
+.tag a {
+  text-decoration: none;
+  color: #333;
+}
+
+.tag a:hover {
+  color: #007bff;
+  text-decoration: underline;
+}
+
+.pagination-controls {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 40px;
+  padding: 0 20px;
+}
+
+.pagination-button {
+  padding: 8px 16px;
+  background-color: #f0f0f0;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.pagination-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pagination-button:not(:disabled):hover {
+  background-color: #e0e0e0;
+}
+
 @media (max-width: 768px) {
   .post-image {
     width: calc(100% - 20px);
-    /* Full width minus padding */
     padding: 10px;
-    /* Add padding around the image */
   }
 
   .thumbnail {
     max-width: none;
-    /* Remove desktop max-width restriction */
     width: 100%;
-    /* Make the image take up the full container width */
     height: auto;
-    /* Maintain aspect ratio */
   }
-}
 
-.post-content {
-  padding-left: 20px;
-  vertical-align: top;  /* Add this line */
-}
-
-.post-tags {
-  font-size: 0.9em; /* Reduce font size for tags */
-  margin-top: 10px; /* Add some spacing above the tags */
-}
-
-.tag {
-  display: inline-block; /* Ensure tags don't overlap */
-  margin: 2px 2px; /* Add spacing between tags */
-  font-size: 0.85em; /* Adjust font size within each tag */
-}
-
-.tag a {
-  text-decoration: none; /* Remove underline from tag links */
-  color: #333; /* Set a neutral color for links */
-}
-
-.tag a:hover {
-  color: #007bff; /* Change color on hover for better interactivity */
-  text-decoration: underline; /* Optional: add underline on hover */
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
   .post-layout {
     display: block;
-    /* Stack rows */
   }
 
   .post-image,
@@ -297,7 +403,6 @@ const removeGeotag = (content) => {
 
   .thumbnail {
     margin-bottom: 20px;
-    /* Add spacing between image and content */
   }
 }
 </style>
