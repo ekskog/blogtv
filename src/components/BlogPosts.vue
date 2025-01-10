@@ -70,7 +70,7 @@ export default {
     // Fetch posts from the backend
     const fetchPosts = async () => {
       try {
-        const response = await fetch('https://blogt.hbvu.su/posts')
+        const response = await fetch('https://blogtbe.hbvu.su/posts')
         if (!response.ok) {
           throw new Error('Failed to fetch posts')
         }
