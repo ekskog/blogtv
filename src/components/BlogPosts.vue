@@ -58,7 +58,7 @@ export default {
     // Fetch posts from the backend
     const fetchPosts = async () => {
       try {
-        const response = await fetch("https://blogt.hbvu.su/");
+        const response = await fetch("https://blogt.hbvu.su/posts");
         if (!response.ok) {
           throw new Error("Failed to fetch posts");
         }
@@ -172,18 +172,16 @@ export default {
 }
 
 .post-image {
-  width: 200px;
+  width: 250px;
   /* Updated from 150px to 200px for desktop */
   vertical-align: top;
 }
 
 .thumbnail {
-  width: 100%;
-  /* Full width of the container */
-  height: auto;
-  /* Maintain aspect ratio */
-  max-width: 200px;
-  /* Updated from 150px to 200px */
+  width: 100%;  /* Full width of the container */
+  height: auto;  /* Maintain aspect ratio */
+  max-width: 2800px;  /* Updated from 150px to 200px */
+  border:#333 1px solid;  /* Add border around the image */
 }
 
 @media (max-width: 768px) {
