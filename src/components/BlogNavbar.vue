@@ -5,11 +5,9 @@
         <i :class="['fas', menuOpen ? 'fa-times' : 'fa-bars']"></i>
       </button>
     </div>
-
     <div class="logo">
       <img src="@/assets/logo.png" alt="App Logo" />
     </div>
-
     <!-- Full Menu (visible on larger screens) -->
     <nav class="full-menu" v-if="!isSmallScreen">
       <ul>
@@ -19,7 +17,6 @@
         <li><router-link to="/rimg">RandomImage</router-link></li>
       </ul>
     </nav>
-
     <!-- Mobile Menu -->
     <nav v-if="menuOpen && isSmallScreen" class="mobile-menu">
       <ul>
@@ -33,7 +30,6 @@
 </template>
 
 <script>
-// Script remains exactly the same as before
 import { ref, onMounted, onUnmounted } from "vue";
 
 export default {
@@ -89,7 +85,7 @@ header {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-left: auto; /* This will push the logo to the right by default */
+  margin-left: 0; /* Changed from auto to 0 */
 }
 
 .logo img {
@@ -98,7 +94,8 @@ header {
 }
 
 .full-menu {
-  margin-left: 40px; /* Give some space between logo and menu on desktop */
+  margin-left: auto; /* Added to push menu to the right */
+  margin-right: 20px; /* Added for some spacing from the right edge */
 }
 
 .full-menu ul {
@@ -184,12 +181,10 @@ header {
   .full-menu {
     display: none;
   }
-
   .logo {
-    margin-left: auto; /* Ensure logo stays right-aligned on mobile */
-    margin-right: 20px; /* Add some spacing from the right edge */
+    margin-left: auto;
+    margin-right: 20px;
   }
-
   .hamburger {
     display: block;
   }

@@ -76,38 +76,39 @@ export default {
 <style scoped>
 .image-container {
   position: relative;
+  width: 100%; /* Ensure container takes full width */
+  max-width: 500px; /* Limit max width on larger screens */
+  margin: auto; /* Center the container */
 }
 
-/* Thumbnail styling (500x500 pixels) */
 .thumbnail {
-  width: 500px;
-  height: 500px;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1 / 1; /* Maintain square aspect ratio */
   object-fit: cover;
   cursor: pointer;
   border: rgba(0, 0, 0, 0.8) 1px solid;
 }
 
-/* Overlay styling */
 .overlay {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100vw; /* Full width */
-  height: 100vh; /* Full height */
-  background-color: rgba(0, 0, 0, 0.8); /* Semi-transparent background */
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.8);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 9999; /* Ensure it appears above all other elements */
+  z-index: 9999;
 }
 
-/* Full-size image in overlay */
 .full-image {
   max-width: 90%;
   max-height: 90%;
+  object-fit: contain; /* Ensure image scales nicely within overlay */
 }
 
-/* Close button styling */
 .close-button {
   position: absolute;
   top: 20px;
@@ -124,13 +125,14 @@ export default {
 }
 
 .close-button:hover {
-  background-color: #f5f5f5; /* Slight hover effect */
+  background-color: #f5f5f5;
 }
 
 .selected-date {
   font-size: 16px;
   color: #333;
   margin-top: 10px;
+  text-align: center;
 }
 
 .refresh-link {
@@ -144,4 +146,16 @@ export default {
 .refresh-link:hover {
   text-decoration: underline;
 }
+@media (max-width: 768px) {
+  .selected-date {
+    font-size: 14px;
+  }
+
+  .close-button {
+    width: 30px;
+    height: 30px;
+    font-size: 16px;
+  }
+}
+
 </style>

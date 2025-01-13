@@ -2,6 +2,8 @@
   <div class="blog-posts">
     <div v-for="(post, index) in posts" :key="index" class="post">
       <div class="padding"></div>
+      <!-- Mobile-only title -->
+      <h2 class="post-title mobile-title">{{ extractTitle(post) }}</h2>
 
       <!-- Table layout for image and content -->
       <table class="post-layout">
@@ -25,7 +27,8 @@
                 <tbody>
                   <tr>
                     <td>
-                      <h2 class="post-title">{{ extractTitle(post) }}</h2>
+                      <!-- Desktop-only title -->
+                      <h2 class="post-title desktop-title">{{ extractTitle(post) }}</h2>
                     </td>
                   </tr>
                   <tr>
@@ -45,15 +48,21 @@
 
       <div class="padding"></div>
 
-      <!-- Tags -->
+      <!-- Tags with separators -->
       <h6 class="post-tags">
         tags:
-        <span v-for="(tag, index) in extractTags(post).split(',')" :key="index" class="tag">
-          <a href="#" @click.prevent="fetchPostsByTag(tag.trim())">
-            {{ tag.trim() }}
-          </a>
+        <span v-for="(tag, index) in extractTags(post).split(',')" :key="index">
+          <span class="tag">
+            <a href="#" @click.prevent="fetchPostsByTag(tag.trim())">
+              {{ tag.trim() }}
+            </a>
+          </span>
+          <span v-if="index < extractTags(post).split(',').length - 1" class="tag-separator">|</span>
         </span>
       </h6>
+
+      <!-- Post date -->
+      <div class="post-date">{{ formatDate(extractDate(post)) }}</div>
     </div>
 
     <!-- Pagination Controls -->
@@ -136,6 +145,21 @@ export default {
       return dateMatch ? `${dateMatch[1]}${dateMatch[2]}${dateMatch[3]}` : null
     }
 
+    const formatDate = (dateStr) => {
+      if (!dateStr) return ''
+      const day = dateStr.substring(0, 2)
+      const month = dateStr.substring(2, 4)
+      const year = dateStr.substring(4, 8)
+
+      const months = [
+        'January', 'February', 'March', 'April', 'May', 'June',
+        'July', 'August', 'September', 'October', 'November', 'December'
+      ]
+
+      const monthIndex = parseInt(month, 10) - 1
+      return `${day} ${months[monthIndex]} ${year}`
+    }
+
     const renderMarkdown = (markdown) => {
       return marked(markdown)
     }
@@ -159,19 +183,15 @@ export default {
       const lastPost = posts.value[posts.value.length - 1]
       const lastPostDate = extractDate(lastPost)
 
-      // Convert DDMMYYYY to a Date object
       const day = lastPostDate.substring(0, 2)
       const month = lastPostDate.substring(2, 4)
       const year = lastPostDate.substring(4, 8)
 
-      const date = new Date(year, month - 1, day) // month is 0-based in JavaScript
-
-      // Subtract one day
+      const date = new Date(year, month - 1, day)
       date.setDate(date.getDate() - 1)
 
-      // Format back to DDMMYYYY
       const prevDay = String(date.getDate()).padStart(2, '0')
-      const prevMonth = String(date.getMonth() + 1).padStart(2, '0') // Add 1 because getMonth() is 0-based
+      const prevMonth = String(date.getMonth() + 1).padStart(2, '0')
       const prevYear = date.getFullYear()
 
       const dateToFetch = `${prevDay}${prevMonth}${prevYear}`
@@ -195,30 +215,24 @@ export default {
     const fetchPreviousPage = async () => {
       if (!currentFirstPostDate.value) return
 
-      // Convert DDMMYYYY to a Date object
       const day = currentFirstPostDate.value.substring(0, 2)
       const month = currentFirstPostDate.value.substring(2, 4)
       const year = currentFirstPostDate.value.substring(4, 8)
 
-      const date = new Date(year, month - 1, day) // month is 0-based in JavaScript
-
-      // Add one day
+      const date = new Date(year, month - 1, day)
       date.setDate(date.getDate() + 1)
 
-      // Format back to DDMMYYYY
       const nextDay = String(date.getDate()).padStart(2, '0')
-      const nextMonth = String(date.getMonth() + 1).padStart(2, '0') // Add 1 because getMonth() is 0-based
+      const nextMonth = String(date.getMonth() + 1).padStart(2, '0')
       const nextYear = date.getFullYear()
 
       const dateToFetch = `${nextDay}${nextMonth}${nextYear}`
 
       try {
-        // First check if this would take us beyond the latest posts
         const latestResponse = await fetch('https://blogtbe.hbvu.su/posts')
         const latestData = await latestResponse.json()
         const latestFirstDate = extractDate(latestData[0])
 
-        // Only proceed if we're not already at the latest posts
         if (dateToFetch <= latestFirstDate) {
           const response = await fetch(`https://blogtbe.hbvu.su/posts/from/${dateToFetch}`)
           if (!response.ok) {
@@ -250,6 +264,8 @@ export default {
       fetchNextPage,
       fetchPreviousPage,
       isFirstPage,
+      formatDate,
+      extractDate
     }
   },
 }
@@ -285,6 +301,11 @@ export default {
 .post-title {
   font-size: 1.2em;
   margin: 0;
+  padding: 10px 0;
+}
+
+.mobile-title {
+  display: none;
 }
 
 .padding {
@@ -311,12 +332,15 @@ export default {
 .figure-wrapper {
   margin: 0;
   position: relative;
+  display: inline-block;
+  width: 100%;
 }
 
 .image-caption {
-  margin-top: 5px;
+  margin-top: 2px;
   font-size: 0.8em;
   text-align: center;
+  padding: 0;
 }
 
 .image-caption a {
@@ -336,11 +360,17 @@ export default {
 .post-tags {
   font-size: 0.9em;
   margin-top: 10px;
+  margin-bottom: 5px;
 }
 
 .tag {
   display: inline-block;
-  margin: 2px 2px;
+  font-size: 0.85em;
+}
+
+.tag-separator {
+  margin: 0 8px;
+  color: #666;
   font-size: 0.85em;
 }
 
@@ -352,6 +382,13 @@ export default {
 .tag a:hover {
   color: #007bff;
   text-decoration: underline;
+}
+
+.post-date {
+  font-size: 0.5em;
+  color: #666;
+  margin-top: 5px;
+  font-style: italic;
 }
 
 .pagination-controls {
@@ -379,6 +416,17 @@ export default {
 }
 
 @media (max-width: 768px) {
+  .mobile-title {
+    display: block;
+    padding: 15px 10px;
+    margin-bottom: 10px;
+    font-size: 1.4em;
+  }
+
+  .desktop-title {
+    display: none;
+  }
+
   .post-image {
     width: calc(100% - 20px);
     padding: 10px;
@@ -403,6 +451,22 @@ export default {
 
   .thumbnail {
     margin-bottom: 20px;
+  }
+
+  .image-caption {
+    font-size: 0.7em;
+    margin-top: 0px;
+  }
+
+  .post-content {
+    padding: 0 10px;
+  }
+
+  .post-date {
+    margin-top: 3px;
+    font-size: 0.5em;
+    padding: 0 10px;
+    margin-bottom: 10px;
   }
 }
 </style>
