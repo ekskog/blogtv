@@ -33,10 +33,7 @@
                   </tr>
                   <tr>
                     <td>
-                      <div
-                        class="markdown-container"
-                        v-html="renderMarkdown(removeGeotag(removeMetadata(post)))"
-                      ></div>
+                      <div class="markdown-container" v-html="renderMarkdown(removeGeotag(removeMetadata(post)))"></div>
                     </td>
                   </tr>
                 </tbody>
@@ -49,8 +46,10 @@
       <div class="padding"></div>
 
       <!-- Tags with separators -->
-      <h6 class="post-tags">
-        tags:
+      <h6>
+        <router-link :to="{ name: 'Post', params: { date: formatDate(extractDate(post)) } }" class="date-link">
+          <span class="post-date">{{ formatDate(extractDate(post)) }}: </span>
+        </router-link>
         <span v-for="(tag, index) in extractTags(post).split(',')" :key="index">
           <span class="tag">
             <a href="#" @click.prevent="fetchPostsByTag(tag.trim())">
@@ -60,9 +59,6 @@
           <span v-if="index < extractTags(post).split(',').length - 1" class="tag-separator">|</span>
         </span>
       </h6>
-
-      <!-- Post date -->
-      <div class="post-date">{{ formatDate(extractDate(post)) }}</div>
     </div>
 
     <!-- Pagination Controls -->
@@ -127,9 +123,9 @@ export default {
       const geotagMatch = cleanedPost.match(/\[(.*?)\]\((https:\/\/maps\.app\.goo\.gl\/[^\s)]+)\)/)
       return geotagMatch
         ? {
-            text: geotagMatch[1],
-            url: geotagMatch[2],
-          }
+          text: geotagMatch[1],
+          url: geotagMatch[2],
+        }
         : null
     }
 
@@ -152,8 +148,18 @@ export default {
       const year = dateStr.substring(4, 8)
 
       const months = [
-        'January', 'February', 'March', 'April', 'May', 'June',
-        'July', 'August', 'September', 'October', 'November', 'December'
+        'January',
+        'February',
+        'March',
+        'April',
+        'May',
+        'June',
+        'July',
+        'August',
+        'September',
+        'October',
+        'November',
+        'December',
       ]
 
       const monthIndex = parseInt(month, 10) - 1
@@ -265,24 +271,17 @@ export default {
       fetchPreviousPage,
       isFirstPage,
       formatDate,
-      extractDate
+      extractDate,
     }
   },
 }
 </script>
 
 <style scoped>
-.markdown-container a {
-  text-decoration: none !important;
-  color: inherit;
-}
-
-.markdown-container a:hover {
-  text-decoration: underline !important;
-}
-
 .blog-posts {
   padding: 20px;
+  text-align: left;
+  /* Ensure all text is left-aligned */
 }
 
 .post {
@@ -302,6 +301,8 @@ export default {
   font-size: 1.2em;
   margin: 0;
   padding: 10px 0;
+  text-align: left;
+  /* Left-align the title */
 }
 
 .mobile-title {
@@ -315,11 +316,15 @@ export default {
 .post-layout {
   width: 100%;
   border-collapse: collapse;
+  text-align: left;
+  /* Ensure table content is left-aligned */
 }
 
 .post-image {
   width: 250px;
   vertical-align: top;
+  text-align: left;
+  /* Left-align the image */
 }
 
 .thumbnail {
@@ -334,12 +339,15 @@ export default {
   position: relative;
   display: inline-block;
   width: 100%;
+  text-align: left;
+  /* Left-align the figure */
 }
 
 .image-caption {
   margin-top: 2px;
   font-size: 0.8em;
-  text-align: center;
+  text-align: left;
+  /* Left-align the caption */
   padding: 0;
 }
 
@@ -355,12 +363,16 @@ export default {
 .post-content {
   padding-left: 20px;
   vertical-align: top;
+  text-align: left;
+  /* Left-align the content */
 }
 
 .post-tags {
   font-size: 0.9em;
   margin-top: 10px;
   margin-bottom: 5px;
+  text-align: left;
+  /* Left-align the tags */
 }
 
 .tag {
@@ -387,8 +399,11 @@ export default {
 .post-date {
   font-size: 0.5em;
   color: #666;
-  margin-top: 5px;
   font-style: italic;
+}
+
+.date-link {
+  text-decoration: none !important;
 }
 
 .pagination-controls {
@@ -418,9 +433,10 @@ export default {
 @media (max-width: 768px) {
   .mobile-title {
     display: block;
-    padding: 15px 10px;
     margin-bottom: 10px;
     font-size: 1.4em;
+    text-align: left;
+    /* Left-align the mobile title */
   }
 
   .desktop-title {
@@ -428,18 +444,26 @@ export default {
   }
 
   .post-image {
-    width: calc(100% - 20px);
-    padding: 10px;
+    width: 100%;
+    /* Ensure the image takes full width */
+    padding: 0;
+    /* Remove padding */
+    text-align: left;
+    /* Left-align the mobile image */
   }
 
   .thumbnail {
     max-width: none;
     width: 100%;
     height: auto;
+    margin: 0;
+    /* Remove margin */
   }
 
   .post-layout {
     display: block;
+    text-align: left;
+    /* Ensure mobile layout is left-aligned */
   }
 
   .post-image,
@@ -447,6 +471,8 @@ export default {
     display: block;
     width: 100%;
     padding-left: 0;
+    text-align: left;
+    /* Left-align mobile content */
   }
 
   .thumbnail {
@@ -455,18 +481,22 @@ export default {
 
   .image-caption {
     font-size: 0.7em;
-    margin-top: 0px;
+    margin-bottom: 10px;
+    text-align: center;
+    /* Left-align mobile caption */
   }
 
   .post-content {
-    padding: 0 10px;
+    text-align: left;
+    /* Left-align mobile content */
   }
 
   .post-date {
     margin-top: 3px;
     font-size: 0.5em;
-    padding: 0 10px;
     margin-bottom: 10px;
+    text-align: left;
+    /* Left-align mobile date */
   }
 }
 </style>

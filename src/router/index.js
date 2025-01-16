@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
 import Home from "../components/BlogHome.vue";
+import Post from "../components/BlogPost.vue";
 import Posts from "../components/BlogPosts.vue";
 import Search from "../components/BlogSearch.vue";
 import RandomImage from "../components/BlogRandomimage.vue";
@@ -9,6 +10,11 @@ const routes = [
   { path: "/posts", component: Posts },
   { path: "/search", component: Search },
   { path: "/rimg", component: RandomImage },
+  {
+    path: '/post/:date',
+    name: 'Post',
+    component: Post  }
+
 ];
 
 const router = createRouter({
