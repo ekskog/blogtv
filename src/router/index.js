@@ -8,7 +8,11 @@ import RandomImage from '../components/BlogRandomimage.vue'
 const routes = [
   { path: '/', component: Home },
   { path: '/posts', component: Posts },
-  { path: '/search', component: Search },
+  {
+    path: '/search',
+    name: 'search',
+    component: Search,
+  },
   { path: '/rimg', component: RandomImage },
   // In your router config
   {

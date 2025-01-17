@@ -96,7 +96,7 @@ export default {
         if (!response.ok) {
           throw new Error('Failed to fetch posts')
         }
-        const data = await response.json()
+        const data = await response.json();
         posts.value = data
         isFirstPage.value = true
         if (data.length > 0) {
@@ -376,26 +376,7 @@ export default {
   /* Left-align the tags */
 }
 
-.tag {
-  display: inline-block;
-  font-size: 0.85em;
-}
 
-.tag-separator {
-  margin: 0 8px;
-  color: #666;
-  font-size: 0.85em;
-}
-
-.tag a {
-  text-decoration: none;
-  color: #333;
-}
-
-.tag a:hover {
-  color: #007bff;
-  text-decoration: underline;
-}
 
 .post-date {
   font-size: 0.5em;

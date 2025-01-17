@@ -36,6 +36,26 @@ body {
     font-family: 'Nunito Sans', sans-serif;
 }
 
+.tag {
+  display: inline-block;
+  font-size: 0.85em;
+}
+
+.tag-separator {
+  margin: 0 8px;
+  color: #666;
+  font-size: 0.85em;
+}
+
+.tag a {
+  text-decoration: none;
+  color: #333;
+}
+
+.tag a:hover {
+  color: #007bff;
+  text-decoration: underline;
+}
 
 .figure-wrapper {
   margin: 0;
