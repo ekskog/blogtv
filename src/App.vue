@@ -17,12 +17,12 @@ export default {
 </script>
 
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;700&display=swap');
 #app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
+  font-family: 'Nunito Sans', sans-serif;
 }
-</style>
 
-<style>
 /* Ensure content starts below navbar */
 #app {
   padding-top: 60px; /* Adjust based on your navbar height */
@@ -31,6 +31,50 @@ export default {
   padding-left: 15px;
   padding-right: 15px;
 }
+
+body {
+    font-family: 'Nunito Sans', sans-serif;
+}
+
+
+.figure-wrapper {
+  margin: 0;
+  position: relative;
+  display: inline-block;
+  width: 100%;
+  text-align: left;
+  /* Left-align the figure */
+}
+
+.image-caption {
+    font-size: 0.7em;
+    margin-bottom: 10px;
+    text-align: center;
+    /* Left-align mobile caption */
+  }
+
+.image-caption {
+  margin-top: 0px;
+  font-size: 0.8em;
+  /* Left-align the caption */
+  padding: 0;
+}
+
+.image-caption a {
+  color: #000;
+  text-decoration: none;
+}
+
+.image-caption a:hover {
+  text-decoration: underline;
+}
+
+.markdown-container {
+  font-size: 0.7em;
+  line-height: 1.6;
+  /* Left-align the markdown content */
+}
+
 .markdown-container a {
   text-decoration: none !important;
 }

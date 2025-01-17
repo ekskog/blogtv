@@ -47,9 +47,13 @@
 
       <!-- Tags with separators -->
       <h6>
-        <router-link :to="{ name: 'Post', params: { date: formatDate(extractDate(post)) } }" class="date-link">
+        <router-link :to="{
+          name: 'Post',
+          params: { date: formatDate(extractDate(post)) }
+        }" class="date-link" @click="setPost(post)">
           <span class="post-date">{{ formatDate(extractDate(post)) }}: </span>
         </router-link>
+
         <span v-for="(tag, index) in extractTags(post).split(',')" :key="index">
           <span class="tag">
             <a href="#" @click.prevent="fetchPostsByTag(tag.trim())">
@@ -76,6 +80,8 @@
 <script>
 import { ref, onMounted } from 'vue'
 import { marked } from 'marked'
+import { postStore } from '@/stores/posts';
+
 
 export default {
   name: 'BlogPost',
@@ -274,6 +280,11 @@ export default {
       extractDate,
     }
   },
+  methods: {
+    setPost(post) {
+      postStore.setCurrentPost(post);
+    }
+  }
 }
 </script>
 
@@ -300,9 +311,19 @@ export default {
 .post-title {
   font-size: 1.2em;
   margin: 0;
-  padding: 10px 0;
+  padding: 0px 0;
   text-align: left;
   /* Left-align the title */
+}
+
+.markdown-container {
+  max-width: 300px;
+  /* If you want the content to wrap */
+  word-wrap: break-word;
+}
+
+.nested-table {
+  margin-top: 0;  /* Remove any default table margin */
 }
 
 .mobile-title {
@@ -330,40 +351,16 @@ export default {
 .thumbnail {
   width: 100%;
   height: auto;
-  max-width: 2800px;
+  max-width: 500px;
   border: #333 1px solid;
 }
 
-.figure-wrapper {
-  margin: 0;
-  position: relative;
-  display: inline-block;
-  width: 100%;
-  text-align: left;
-  /* Left-align the figure */
-}
-
-.image-caption {
-  margin-top: 2px;
-  font-size: 0.8em;
-  text-align: left;
-  /* Left-align the caption */
-  padding: 0;
-}
-
-.image-caption a {
-  color: #000;
-  text-decoration: none;
-}
-
-.image-caption a:hover {
-  text-decoration: underline;
-}
 
 .post-content {
   padding-left: 20px;
   vertical-align: top;
   text-align: left;
+
   /* Left-align the content */
 }
 
@@ -479,12 +476,7 @@ export default {
     margin-bottom: 20px;
   }
 
-  .image-caption {
-    font-size: 0.7em;
-    margin-bottom: 10px;
-    text-align: center;
-    /* Left-align mobile caption */
-  }
+
 
   .post-content {
     text-align: left;
