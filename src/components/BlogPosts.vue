@@ -51,7 +51,7 @@
           name: 'Post',
           params: { date: formatDate(extractDate(post)) }
         }" class="date-link" @click="setPost(post)">
-          <span class="post-date">{{ formatDate(extractDate(post)) }}: </span>
+          <span class="post-date">{{ formatDate(extractDate(post)) }} </span>
         </router-link>
 
         <span v-for="(tag, index) in extractTags(post).split(',')" :key="index">
@@ -310,6 +310,7 @@ export default {
 
 .post-title {
   font-size: 1.2em;
+  color: purple;
   margin: 0;
   padding: 0px 0;
   text-align: left;
@@ -357,11 +358,14 @@ export default {
 
 
 .post-content {
-  padding-left: 20px;
+  padding-left: 30px;
   vertical-align: top;
   text-align: left;
-
   /* Left-align the content */
+}
+
+.post-content td {
+  padding-top: 0;
 }
 
 .post-tags {
@@ -396,7 +400,8 @@ export default {
 .post-date {
   font-size: 0.5em;
   color: #666;
-  font-style: italic;
+  font-style: bold;
+  padding-right: 20px;
 }
 
 .date-link {
@@ -438,6 +443,7 @@ export default {
 
   .desktop-title {
     display: none;
+    border: 1px solid red;
   }
 
   .post-image {
