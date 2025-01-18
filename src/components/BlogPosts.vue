@@ -33,10 +33,7 @@
                   </tr>
                   <tr>
                     <td>
-                      <div
-                        class="markdown-container"
-                        v-html="renderMarkdown(removeGeotag(removeMetadata(post)))"
-                      ></div>
+                      <div class="markdown-container" v-html="renderMarkdown(removeGeotag(removeMetadata(post)))"></div>
                     </td>
                   </tr>
                 </tbody>
@@ -50,26 +47,22 @@
 
       <!-- Tags with separators -->
       <h6>
-        <router-link
-          :to="{
-            name: 'Post',
-            params: { date: formatDate(extractDate(post)) },
-          }"
-          class="date-link"
-          @click="setPost(post)"
-        >
-          <span class="post-date">{{ formatDate(extractDate(post)) }} </span>
+        <router-link :to="{
+          name: 'Post',
+          params: { date: formatDate(extractDate(post)) },
+        }" class="post-date" @click="setPost(post)">
+          <span >{{ formatDate(extractDate(post)) }} </span>
         </router-link>
-
         <span v-for="(tag, index) in extractTags(post).split(',')" :key="index">
           <span class="tag">
-            <a href="#" @click.prevent="fetchPostsByTag(tag.trim())">
+            <router-link :to="{
+              name: 'search',
+              query: { tag: tag.trim() }
+            }">
               {{ tag.trim() }}
-            </a>
+            </router-link>
           </span>
-          <span v-if="index < extractTags(post).split(',').length - 1" class="tag-separator"
-            >|</span
-          >
+          <span v-if="index < extractTags(post).split(',').length - 1" class="tag-separator">|</span>
         </span>
       </h6>
     </div>
@@ -137,9 +130,9 @@ export default {
       const geotagMatch = cleanedPost.match(/\[(.*?)\]\((https:\/\/maps\.app\.goo\.gl\/[^\s)]+)\)/)
       return geotagMatch
         ? {
-            text: geotagMatch[1],
-            url: geotagMatch[2],
-          }
+          text: geotagMatch[1],
+          url: geotagMatch[2],
+        }
         : null
     }
 
@@ -332,7 +325,8 @@ export default {
 }
 
 .nested-table {
-  margin-top: 0; /* Remove any default table margin */
+  margin-top: 0;
+  /* Remove any default table margin */
 }
 
 .mobile-title {
@@ -385,13 +379,15 @@ export default {
 
 .post-date {
   font-size: 0.5em;
-  color: #666;
   font-style: bold;
   padding-right: 20px;
+  text-decoration: none !important;
+  color: black;
 }
 
-.date-link {
-  text-decoration: none !important;
+
+.post-date:hover {
+  color: purple;
 }
 
 .pagination-controls {
@@ -454,6 +450,7 @@ export default {
     /* If you want the content to wrap */
     word-wrap: break-word;
   }
+
   .post-layout {
     display: block;
     text-align: left;

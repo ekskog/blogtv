@@ -183,7 +183,7 @@ export default {
 .page-title {
   width: 80%;
   margin: 0 auto 40px;
-  font-size: 24px;
+  font-size: 20px;
   font-weight: bold;
   text-align: center;
   color: #333;
@@ -194,6 +194,8 @@ export default {
   margin: 0 auto;
   border-collapse: collapse;
   table-layout: fixed;
+  font-size: 12px;
+
 }
 
 .custom-table th,
@@ -234,13 +236,15 @@ export default {
   background-color: #ffffff;
 }
 
+/* Pagination */
+
 .pagination {
   width: 80%;
   margin: 20px auto 0;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 14px;
+  font-size: 10px;
   color: #333;
 }
 
@@ -291,6 +295,25 @@ export default {
 
 .link-style:hover {
   text-decoration: underline;
-  cursor: pointer;
+}
+
+@media screen and (max-width: 768px) {
+  .pagination {
+    flex-direction: column;
+    gap: 15px;
+    /* Adds space between the info and controls */
+  }
+
+  .pagination-info {
+    text-align: center;
+    /* Centers the text on mobile */
+    width: 100%;
+  }
+
+  .pagination-controls {
+    width: 100%;
+    justify-content: center;
+    /* Centers the controls on mobile */
+  }
 }
 </style>
