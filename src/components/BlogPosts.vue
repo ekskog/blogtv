@@ -33,7 +33,10 @@
                   </tr>
                   <tr>
                     <td>
-                      <div class="markdown-container" v-html="renderMarkdown(removeGeotag(removeMetadata(post)))"></div>
+                      <div
+                        class="markdown-container"
+                        v-html="renderMarkdown(removeGeotag(removeMetadata(post)))"
+                      ></div>
                     </td>
                   </tr>
                 </tbody>
@@ -47,10 +50,14 @@
 
       <!-- Tags with separators -->
       <h6>
-        <router-link :to="{
-          name: 'Post',
-          params: { date: formatDate(extractDate(post)) }
-        }" class="date-link" @click="setPost(post)">
+        <router-link
+          :to="{
+            name: 'Post',
+            params: { date: formatDate(extractDate(post)) },
+          }"
+          class="date-link"
+          @click="setPost(post)"
+        >
           <span class="post-date">{{ formatDate(extractDate(post)) }} </span>
         </router-link>
 
@@ -60,7 +67,9 @@
               {{ tag.trim() }}
             </a>
           </span>
-          <span v-if="index < extractTags(post).split(',').length - 1" class="tag-separator">|</span>
+          <span v-if="index < extractTags(post).split(',').length - 1" class="tag-separator"
+            >|</span
+          >
         </span>
       </h6>
     </div>
@@ -80,8 +89,7 @@
 <script>
 import { ref, onMounted } from 'vue'
 import { marked } from 'marked'
-import { postStore } from '@/stores/posts';
-
+import { postStore } from '@/stores/posts'
 
 export default {
   name: 'BlogPost',
@@ -96,7 +104,7 @@ export default {
         if (!response.ok) {
           throw new Error('Failed to fetch posts')
         }
-        const data = await response.json();
+        const data = await response.json()
         posts.value = data
         isFirstPage.value = true
         if (data.length > 0) {
@@ -129,9 +137,9 @@ export default {
       const geotagMatch = cleanedPost.match(/\[(.*?)\]\((https:\/\/maps\.app\.goo\.gl\/[^\s)]+)\)/)
       return geotagMatch
         ? {
-          text: geotagMatch[1],
-          url: geotagMatch[2],
-        }
+            text: geotagMatch[1],
+            url: geotagMatch[2],
+          }
         : null
     }
 
@@ -282,9 +290,9 @@ export default {
   },
   methods: {
     setPost(post) {
-      postStore.setCurrentPost(post);
-    }
-  }
+      postStore.setCurrentPost(post)
+    },
+  },
 }
 </script>
 
@@ -324,7 +332,7 @@ export default {
 }
 
 .nested-table {
-  margin-top: 0;  /* Remove any default table margin */
+  margin-top: 0; /* Remove any default table margin */
 }
 
 .mobile-title {
@@ -356,7 +364,6 @@ export default {
   border: #333 1px solid;
 }
 
-
 .post-content {
   padding-left: 30px;
   vertical-align: top;
@@ -375,8 +382,6 @@ export default {
   text-align: left;
   /* Left-align the tags */
 }
-
-
 
 .post-date {
   font-size: 0.5em;
@@ -444,6 +449,11 @@ export default {
     /* Remove margin */
   }
 
+  .markdown-container {
+    max-width: 100%;
+    /* If you want the content to wrap */
+    word-wrap: break-word;
+  }
   .post-layout {
     display: block;
     text-align: left;
@@ -462,8 +472,6 @@ export default {
   .thumbnail {
     margin-bottom: 20px;
   }
-
-
 
   .post-content {
     text-align: left;

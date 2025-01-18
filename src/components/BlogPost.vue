@@ -2,7 +2,7 @@
 <template>
   <div class="single-post">
     <div v-if="post">
-      <h2 class="post-title desktop-title">{{ extractTitle(post) }}</h2>
+      <h2 class="post-title" >{{ extractTitle(post) }}</h2>
 
       <!-- Image -->
       <div class="post-image">
@@ -109,6 +109,12 @@ export default {
 </script>
 
 <style scoped>
+.single-post {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
 .post-date {
   font-size: 0.5em;
   color: #666;
@@ -118,7 +124,7 @@ export default {
 }
 
 .markdown-container {
-  max-width: 500px;
+  max-width: 100%;
   /* If you want the content to wrap */
   word-wrap: break-word;
 }
@@ -131,8 +137,77 @@ export default {
 }
 
 .figure-wrapper {
-  width: 500px;
+  width: 100%;
   vertical-align: top;
   text-align: left;
+}
+
+@media (max-width: 768px) {
+  .mobile-title {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 1.4em;
+    text-align: left;
+    /* Left-align the mobile title */
+  }
+
+  .desktop-title {
+    display: none;
+    border: 1px solid red;
+  }
+
+  .post-image {
+    width: 100%;
+    /* Ensure the image takes full width */
+    padding: 0;
+    /* Remove padding */
+    text-align: left;
+    /* Left-align the mobile image */
+  }
+
+  .thumbnail {
+    max-width: 100%;
+    height: auto;
+    margin: 0;
+    /* Remove margin */
+  }
+
+  .markdown-container {
+    max-width: 100%;
+    /* If you want the content to wrap */
+    word-wrap: break-word;
+  }
+
+  .post-layout {
+    display: block;
+    text-align: left;
+    /* Ensure mobile layout is left-aligned */
+  }
+
+  .post-image,
+  .post-content {
+    display: block;
+    width: 100%;
+    padding-left: 0;
+    text-align: left;
+    /* Left-align mobile content */
+  }
+
+  .thumbnail {
+    margin-bottom: 20px;
+  }
+
+  .post-content {
+    text-align: left;
+    /* Left-align mobile content */
+  }
+
+  .post-date {
+    margin-top: 3px;
+    font-size: 0.5em;
+    margin-bottom: 10px;
+    text-align: left;
+    /* Left-align mobile date */
+  }
 }
 </style>
