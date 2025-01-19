@@ -1,17 +1,16 @@
 <template>
-  <div class="archive-container">
-    <h1>Blog Archive</h1>
+  <div>
+    <h3>Blog Archive</h3>
     <div v-if="archive">
       <ul class="year-list">
         <li v-for="(months, year) in archive" :key="year">
           <strong @click="toggleYear(year)" :class="{ active: expandedYear === year }">{{ year }}</strong>
           <ul v-if="expandedYear === year" class="month-list">
             <li v-for="month in sortedMonths(months)" :key="month">
-              <span @click="toggleMonth(month)" :class="{ active: expandedMonth === month }">{{ month }}</span>
-              <ul v-if="expandedMonth === month" class="day-list">
-                <li v-for="day in months[month]" :key="day" @click="getPost(`${day}${month}${year}`)"
-                  class="clickable-day">{{ day }}</li>
-              </ul>
+              <span @click="toggleMonth(month)" :class="{ active: expandedMonth === month }">{{ getMonthName(month) }}</span>
+              <div v-if="expandedMonth === month" class="day-grid">
+                <span v-for="day in months[month]" :key="day" @click="getPost(`${day}${month}${year}`)" class="clickable-day">{{ day }}</span>
+              </div>
             </li>
           </ul>
         </li>
@@ -64,8 +63,6 @@ export default {
       }
     },
     async getPost(date) {
-
-      console.log('Archive >> pening post:', date);
       const posts = ref([]);
       try {
         const response = await fetch(`https://blogtbe.hbvu.su/posts/${date}`);
@@ -83,14 +80,16 @@ export default {
         alert(error);
       }
     },
-
-
-
-
-
-
     sortedMonths(months) {
       return Object.keys(months).sort((a, b) => parseInt(a) - parseInt(b));
+    },
+    getMonthName(month) {
+      console.log('Archive >>> month:', month);
+      const monthNames = [
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+      ];
+      return monthNames[parseInt(month, 10) - 1];
     },
     formatDate(dateStr) {
       console.log('dateStr:', dateStr);
@@ -137,8 +136,7 @@ h1 {
 }
 
 .year-list,
-.month-list,
-.day-list {
+.month-list {
   list-style: none;
   padding: 0;
 }
@@ -171,14 +169,17 @@ span.active {
   margin-left: 20px;
 }
 
-.day-list {
+.day-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(30px, 1fr));
+  gap: 5px;
   margin-left: 40px;
 }
 
 .clickable-day {
   cursor: pointer;
   color: #007bff;
-  text-decoration: underline;
+  text-decoration: none;
 }
 
 .clickable-day:hover {
