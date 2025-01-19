@@ -52,18 +52,12 @@ export default {
     }
   },
   methods: {
-    displayPost() {
-      if (this.post) {
-        return this.post.content
-      } else {
-        return 'Post not found'
-      }
-    },
     renderMarkdown(markdown) {
       return marked(markdown)
     },
     getImageUrl(post) {
       const dateMatch = post.match(/Date:\s*(\d{2})(\d{2})(\d{4})/);
+      console.log('dateMatch:', dateMatch);
       if (dateMatch) {
         const day = dateMatch[1]
         const month = dateMatch[2]
@@ -96,6 +90,7 @@ export default {
         : null
     },
     extractTitle(post) {
+
       const titleMatch = post.match(/Title:\s*([^\n]+)/);
       const title = titleMatch ? titleMatch[1].trim() : 'Untitled'
       return title

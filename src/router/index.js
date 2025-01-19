@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Home from '../components/BlogHome.vue'
+import Archive from '../components/BlogArchive.vue'
 import Post from '../components/BlogPost.vue'
 import Posts from '../components/BlogPosts.vue'
 import Search from '../components/BlogSearch.vue'
@@ -7,6 +8,7 @@ import RandomImage from '../components/BlogRandomimage.vue'
 
 const routes = [
   { path: '/', component: Home },
+  { path: '/archive', component: Archive },
   { path: '/posts', component: Posts },
   {
     path: '/search',
@@ -14,7 +16,6 @@ const routes = [
     component: Search,
   },
   { path: '/rimg', component: RandomImage },
-  // In your router config
   {
     path: '/post/:date',
     name: 'Post',

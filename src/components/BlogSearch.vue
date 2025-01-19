@@ -1,16 +1,32 @@
 <template>
   <div class="blog-search">
-    <h3 class="page-title">Search Results for Tag: {{ searchTag }}</h3>
+    <!-- Manual Search Input -->
+    <div class="manual-search">
+      <input
+        v-model="manualTag"
+        type="text"
+        placeholder="Enter a tag to search"
+        class="search-input"
+      />
+      <button @click="handleManualSearch" class="search-button">Search</button>
+    </div>
 
-    <!-- Loading state -->
+    <!-- Title -->
+    <h3 v-if="searchTag" class="page-title">Search Results for Tag: {{ searchTag }}</h3>
+
+    <!-- Default State -->
+    <div v-if="!searchTag && !loading" class="text-center py-4 text-gray-600">
+    </div>
+
+    <!-- Loading State -->
     <div v-if="loading" class="text-center py-4">Loading results...</div>
 
-    <!-- Error state -->
+    <!-- Error State -->
     <div v-else-if="error" class="text-red-600 py-4">
       {{ error }}
     </div>
 
-    <!-- Results table -->
+    <!-- Results Table -->
     <div v-else-if="searchResults.length" class="search-results">
       <table class="custom-table">
         <thead>
@@ -32,13 +48,13 @@
       </table>
     </div>
 
-    <!-- No results state -->
-    <div v-else class="text-center py-4 text-gray-600">
+    <!-- No Results State -->
+    <div v-else-if="searchTag" class="text-center py-4 text-gray-600">
       No posts found for tag "{{ searchTag }}"
     </div>
 
-    <!-- Pagination controls -->
-    <div class="pagination mt-4">
+    <!-- Pagination -->
+    <div v-if="searchResults.length" class="pagination mt-4">
       <div class="pagination-info">
         Showing {{ startIndex + 1 }}-{{ endIndex }} of {{ searchResults.length }} results
       </div>
@@ -46,7 +62,7 @@
         <button @click="currentPage--" :disabled="currentPage === 1" class="pagination-btn">
           Previous
         </button>
-        <span class="pagination-page-info"> Page {{ currentPage }} of {{ totalPages }} </span>
+        <span class="pagination-page-info">Page {{ currentPage }} of {{ totalPages }}</span>
         <button @click="currentPage++" :disabled="currentPage === totalPages" class="pagination-btn">
           Next
         </button>
@@ -56,71 +72,78 @@
 </template>
 
 <script>
-import { ref } from 'vue'
-import { postStore } from '@/stores/posts' // Assuming postStore is imported
+import { ref } from 'vue';
+import { postStore } from '@/stores/posts';
 
 export default {
   name: 'BlogSearch',
   data() {
     return {
       searchTag: '',
+      manualTag: '',
       searchResults: [],
       loading: false,
       error: null,
       currentPage: 1,
       resultsPerPage: 10,
-      posts: [], // List of posts for the search results
-    }
+    };
   },
   computed: {
     totalPages() {
-      return Math.ceil(this.searchResults.length / this.resultsPerPage)
+      return Math.ceil(this.searchResults.length / this.resultsPerPage);
     },
     paginatedResults() {
-      const start = (this.currentPage - 1) * this.resultsPerPage
-      const end = start + this.resultsPerPage
-      return this.searchResults.slice(start, end)
+      const start = (this.currentPage - 1) * this.resultsPerPage;
+      const end = start + this.resultsPerPage;
+      return this.searchResults.slice(start, end);
     },
     startIndex() {
-      return (this.currentPage - 1) * this.resultsPerPage
+      return (this.currentPage - 1) * this.resultsPerPage;
     },
     endIndex() {
-      return Math.min(this.startIndex + this.resultsPerPage, this.searchResults.length)
+      return Math.min(this.startIndex + this.resultsPerPage, this.searchResults.length);
     },
   },
   created() {
-    this.searchTag = this.$route.query.tag
-    this.performSearch()
+    this.searchTag = this.$route.query.tag;
+    if (this.searchTag) {
+      this.performSearch();
+    }
   },
   methods: {
     async performSearch() {
-      this.loading = true
-      this.error = null
-      this.searchResults = []
-      this.currentPage = 1 // Reset to first page on new search
+      this.loading = true;
+      this.error = null;
+      this.searchResults = [];
+      this.currentPage = 1;
 
       try {
+        console.log('Searching for tag:', this.searchTag);
         const response = await fetch(
-          `https://blogtbe.hbvu.su/tags/${encodeURIComponent(this.searchTag)}`,
-        )
+          `https://blogtbe.hbvu.su/tags/${encodeURIComponent(this.searchTag)}`
+        );
         if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`)
+          throw new Error(`HTTP error! status: ${response.status}`);
         }
-        this.searchResults = await response.json()
+        this.searchResults = await response.json();
       } catch (err) {
-        this.error = 'Failed to fetch search results. Please try again later.'
-        console.error('Search error:', err)
+        this.error = 'Failed to fetch search results. Please try again later.';
+        console.error('Search error:', err);
       } finally {
-        this.loading = false
+        this.loading = false;
       }
     },
+    async handleManualSearch() {
+      if (!this.manualTag.trim()) return;
+      this.searchTag = this.manualTag.trim();
+      this.performSearch();
+    },
     formatDate(dateStr) {
-      if (!dateStr) return ''
-
-      const year = dateStr.substring(0, 4)
-      const month = dateStr.substring(4, 6)
-      const day = dateStr.substring(6, 8)
-
+      console.log('dateStr:', dateStr);
+      if (!dateStr) return '';
+      const day = dateStr.substring(0, 2);
+      const month = dateStr.substring(2, 4);
+      const year = dateStr.substring(4, 8);
       const months = [
         'January',
         'February',
@@ -134,49 +157,45 @@ export default {
         'October',
         'November',
         'December',
-      ]
-
-      const monthIndex = parseInt(month, 10) - 1
-      return `${day} ${months[monthIndex]} ${year}`
+      ];
+      const monthIndex = parseInt(month, 10) - 1;
+      return `${day} ${months[monthIndex]} ${year}`;
     },
     async openPost(date) {
-      const posts = ref([])
-
+      console.log('Opening post:', date);
+      const posts = ref([]);
       try {
-        // Fetch post content from the backend
-        const response = await fetch(`https://blogtbe.hbvu.su/posts/${date}`)
+        const response = await fetch(`https://blogtbe.hbvu.su/posts/${date}`);
         if (!response.ok) {
-          throw new Error('Post not found')
+          throw new Error('Post not found');
         }
-        const data = await response.json()
-        posts.value = data
-        const postContent = posts.value[0]
-
-        // Store the fetched post in the state
-        postStore.setCurrentPost(postContent)
-        let postDate = this.formatDate(date)
-
-        // Navigate to BlogPost component
-        this.$router.push({ name: 'Post', params: { date: postDate } })
+        const data = await response.json();
+        posts.value = data;
+        const postContent = posts.value[0];
+        postStore.setCurrentPost(postContent);
+        const postDate = this.formatDate(date);
+        console.log('Navigating to post:', postDate);
+        this.$router.push({ name: 'Post', params: { date: postDate } });
       } catch (error) {
-        alert(error)
+        alert(error);
       }
     },
     formatTitle(title) {
       return title
         .split(' ')
         .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-        .join(' ')
+        .join(' ');
     },
-
   },
   watch: {
     '$route.query.tag'(newTag) {
-      this.searchTag = newTag
-      this.performSearch()
+      this.searchTag = newTag;
+      if (newTag) {
+        this.performSearch();
+      }
     },
   },
-}
+};
 </script>
 
 <style scoped>
@@ -189,13 +208,40 @@ export default {
   color: #333;
 }
 
+.manual-search {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+  gap: 10px;
+}
+
+.search-input {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: 250px;
+}
+
+.search-button {
+  padding: 8px 16px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.search-button:hover {
+  background-color: #0056b3;
+}
+
 .custom-table {
   width: 80%;
   margin: 0 auto;
   border-collapse: collapse;
   table-layout: fixed;
   font-size: 12px;
-
 }
 
 .custom-table th,
@@ -218,16 +264,6 @@ export default {
   background-color: #f1f1f1;
 }
 
-.custom-table th:first-child,
-.custom-table td:first-child {
-  width: 50%;
-}
-
-.custom-table th:last-child,
-.custom-table td:last-child {
-  width: 50%;
-}
-
 .custom-table tbody tr:nth-child(odd) {
   background-color: #f9f9f9;
 }
@@ -235,8 +271,6 @@ export default {
 .custom-table tbody tr:nth-child(even) {
   background-color: #ffffff;
 }
-
-/* Pagination */
 
 .pagination {
   width: 80%;
@@ -266,9 +300,7 @@ export default {
   color: #333;
   border-radius: 4px;
   cursor: pointer;
-  transition:
-    background-color 0.2s,
-    color 0.2s;
+  transition: background-color 0.2s, color 0.2s;
 }
 
 .pagination-btn:hover {
@@ -286,8 +318,6 @@ export default {
   color: #444;
 }
 
-/* Styling for clickable date */
-/* Add this CSS to ensure the date link is styled as clickable */
 .link-style {
   color: #007bff;
   text-decoration: none;
@@ -301,13 +331,13 @@ export default {
   .pagination {
     flex-direction: column;
     gap: 15px;
-    /* Adds space between the info and controls */
   }
 
   .pagination-info {
     text-align: center;
-    /* Centers the text on mobile */
     width: 100%;
+
+
   }
 
   .pagination-controls {

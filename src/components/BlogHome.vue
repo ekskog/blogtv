@@ -1,9 +1,9 @@
 <template>
-  <div>Home Component</div>
+  <div>This is not It</div>
 </template>
 
 <script>
 export default {
-  name: "Home",
+  name: "BlogHome",
 };
 </script>

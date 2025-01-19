@@ -11,7 +11,7 @@
     <!-- Full Menu (visible on larger screens) -->
     <nav class="full-menu" v-if="!isSmallScreen">
       <ul>
-        <li><router-link to="/">Home</router-link></li>
+        <li><router-link to="/archive">Archive</router-link></li>
         <li><router-link to="/posts">Posts</router-link></li>
         <li><router-link to="/search">Search</router-link></li>
         <li><router-link to="/rimg">RandomImage</router-link></li>
@@ -20,7 +20,7 @@
     <!-- Mobile Menu -->
     <nav v-if="menuOpen && isSmallScreen" class="mobile-menu">
       <ul>
-        <li><router-link to="/" @click="closeMenu">Home</router-link></li>
+        <li><router-link to="/archive" @click="closeMenu">Archive</router-link></li>
         <li><router-link to="/posts" @click="closeMenu">Posts</router-link></li>
         <li><router-link to="/search" @click="closeMenu">Search</router-link></li>
         <li><router-link to="/rimg" @click="closeMenu">RandomImage</router-link></li>
