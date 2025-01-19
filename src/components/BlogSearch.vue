@@ -38,7 +38,7 @@
         <tbody>
           <tr v-for="post in paginatedResults" :key="post.date">
             <td>
-              <a @click.prevent="openPost(post.date)" class="link-style">
+              <a @click.prevent="getPost(post.date)" class="link-style">
                 {{ formatDate(post.date) }}
               </a>
             </td>
@@ -161,7 +161,7 @@ export default {
       const monthIndex = parseInt(month, 10) - 1;
       return `${day} ${months[monthIndex]} ${year}`;
     },
-    async openPost(date) {
+    async getPost(date) {
       console.log('Opening post:', date);
       const posts = ref([]);
       try {

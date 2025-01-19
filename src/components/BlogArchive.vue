@@ -9,7 +9,8 @@
             <li v-for="month in sortedMonths(months)" :key="month">
               <span @click="toggleMonth(month)" :class="{ active: expandedMonth === month }">{{ month }}</span>
               <ul v-if="expandedMonth === month" class="day-list">
-                <li v-for="day in months[month]" :key="day" @click="navigateToPost(day, month, year)" class="clickable-day">{{ day }}</li>
+                <li v-for="day in months[month]" :key="day" @click="getPost(`${day}${month}${year}`)"
+                  class="clickable-day">{{ day }}</li>
               </ul>
             </li>
           </ul>
@@ -23,6 +24,9 @@
 </template>
 
 <script>
+import { ref } from 'vue';
+import { postStore } from '@/stores/posts';
+
 export default {
   data() {
     return {
@@ -59,11 +63,32 @@ export default {
         this.expandedMonth = month;
       }
     },
-    navigateToPost(day, month, year) {
-      const date = `${day}${month}${year}`;
-      const postDate = this.formatDate(date);
+    async getPost(date) {
+
+      console.log('Archive >> pening post:', date);
+      const posts = ref([]);
+      try {
+        const response = await fetch(`https://blogtbe.hbvu.su/posts/${date}`);
+        if (!response.ok) {
+          throw new Error('Post not found');
+        }
+        const data = await response.json();
+        posts.value = data;
+        const postContent = posts.value[0];
+        postStore.setCurrentPost(postContent);
+        const postDate = this.formatDate(date);
         console.log('Navigating to post:', postDate);
-        this.$router.push({ name: 'Post', params: { date: postDate } });    },
+        this.$router.push({ name: 'Post', params: { date: postDate } });
+      } catch (error) {
+        alert(error);
+      }
+    },
+
+
+
+
+
+
     sortedMonths(months) {
       return Object.keys(months).sort((a, b) => parseInt(a) - parseInt(b));
     },
@@ -111,16 +136,19 @@ h1 {
   color: #333;
 }
 
-.year-list, .month-list, .day-list {
+.year-list,
+.month-list,
+.day-list {
   list-style: none;
   padding: 0;
 }
 
-.year-list > li {
+.year-list>li {
   margin: 10px 0;
 }
 
-strong, span {
+strong,
+span {
   display: block;
   padding: 10px;
   cursor: pointer;
@@ -128,11 +156,13 @@ strong, span {
   transition: background-color 0.3s;
 }
 
-strong:hover, span:hover {
+strong:hover,
+span:hover {
   background-color: #e0e0e0;
 }
 
-strong.active, span.active {
+strong.active,
+span.active {
   background-color: #007bff;
   color: white;
 }
