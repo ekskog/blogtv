@@ -51,7 +51,7 @@
           name: 'Post',
           params: { date: formatDate(extractDate(post)) },
         }" class="post-date" @click="setPost(post)">
-          <span >{{ formatDate(extractDate(post)) }} </span>
+          <span>{{ formatDate(extractDate(post)) }}</span>
         </router-link>
         <span v-for="(tag, index) in extractTags(post).split(',')" :key="index">
           <span class="tag">
@@ -69,11 +69,14 @@
 
     <!-- Pagination Controls -->
     <div class="pagination-controls">
-      <button @click="fetchPreviousPage" :disabled="isFirstPage" class="pagination-button">
-        Previous Posts
+      <button @click="fetchPreviousPage" :disabled="isFirstPage || isLoading" class="pagination-button">
+        {{ isLoading ? 'Loading...' : 'Previous Posts' }}
       </button>
-      <button @click="fetchNextPage" :disabled="posts.length < 5" class="pagination-button">
-        Next Posts
+      <button @click="fetchFirstPage" :disabled="isFirstPage || isLoading" class="pagination-button">
+        {{ isLoading ? 'Loading...' : 'Latest Posts' }}
+      </button>
+      <button @click="fetchNextPage" :disabled="posts.length < 5 || isLoading" class="pagination-button">
+        {{ isLoading ? 'Loading...' : 'Next Posts' }}
       </button>
     </div>
   </div>
@@ -85,26 +88,20 @@ import { marked } from 'marked'
 import { postStore } from '@/stores/posts'
 
 export default {
-  name: 'BlogPost',
+  name: 'BlogPosts',
   setup() {
     const posts = ref([])
     const isFirstPage = ref(true)
     const currentFirstPostDate = ref(null)
+    const isLoading = ref(false)
 
     const fetchPosts = async () => {
       try {
-        const response = await fetch('https://blogtbe.hbvu.su/posts')
-        if (!response.ok) {
-          throw new Error('Failed to fetch posts')
-        }
-        const data = await response.json()
-        posts.value = data
-        isFirstPage.value = true
-        if (data.length > 0) {
-          currentFirstPostDate.value = extractDate(data[0])
-        }
+        fetchFirstPage();
       } catch (error) {
         console.error('Error fetching posts:', error)
+      } finally {
+        isLoading.value = false
       }
     }
 
@@ -190,26 +187,50 @@ export default {
       return ''
     }
 
+    const fetchFirstPage = async () => {
+      try {
+        isLoading.value = true
+        const response = await fetch('https://blogtbe.hbvu.su/posts')
+        if (!response.ok) {
+          throw new Error('Failed to fetch posts')
+        }
+        const data = await response.json()
+        posts.value = data
+        isFirstPage.value = true
+        if (data.length > 0) {
+          currentFirstPostDate.value = extractDate(data[0])
+        }
+      } catch (error) {
+        console.error('Error fetching posts:', error)
+      } finally {
+        isLoading.value = false
+      }
+    }
+
     const fetchNextPage = async () => {
       if (posts.value.length === 0) return
 
-      const lastPost = posts.value[posts.value.length - 1]
-      const lastPostDate = extractDate(lastPost)
-
-      const day = lastPostDate.substring(0, 2)
-      const month = lastPostDate.substring(2, 4)
-      const year = lastPostDate.substring(4, 8)
-
-      const date = new Date(year, month - 1, day)
-      date.setDate(date.getDate() - 1)
-
-      const prevDay = String(date.getDate()).padStart(2, '0')
-      const prevMonth = String(date.getMonth() + 1).padStart(2, '0')
-      const prevYear = date.getFullYear()
-
-      const dateToFetch = `${prevDay}${prevMonth}${prevYear}`
-
       try {
+        isLoading.value = true
+        const lastPost = posts.value[posts.value.length - 1]
+        const lastPostDate = extractDate(lastPost);
+        console.log('lastPostDate:', lastPostDate);
+
+        const day = lastPostDate.substring(0, 2)
+        const month = lastPostDate.substring(2, 4)
+        const year = lastPostDate.substring(4, 8)
+
+        const date = new Date(year, month - 1, day)
+        date.setDate(date.getDate() - 1)
+
+        const prevDay = String(date.getDate()).padStart(2, '0')
+        const prevMonth = String(date.getMonth() + 1).padStart(2, '0')
+        const prevYear = date.getFullYear()
+
+        const dateToFetch = `${prevDay}${prevMonth}${prevYear}`
+
+        console.log('Fetching next posts from:', dateToFetch);
+
         const response = await fetch(`https://blogtbe.hbvu.su/posts/from/${dateToFetch}`)
         if (!response.ok) {
           throw new Error('Failed to fetch next posts')
@@ -222,46 +243,52 @@ export default {
         }
       } catch (error) {
         console.error('Error fetching next posts:', error)
+      } finally {
+        isLoading.value = false
       }
     }
 
     const fetchPreviousPage = async () => {
-      if (!currentFirstPostDate.value) return
-
-      const day = currentFirstPostDate.value.substring(0, 2)
-      const month = currentFirstPostDate.value.substring(2, 4)
-      const year = currentFirstPostDate.value.substring(4, 8)
-
-      const date = new Date(year, month - 1, day)
-      date.setDate(date.getDate() + 1)
-
-      const nextDay = String(date.getDate()).padStart(2, '0')
-      const nextMonth = String(date.getMonth() + 1).padStart(2, '0')
-      const nextYear = date.getFullYear()
-
-      const dateToFetch = `${nextDay}${nextMonth}${nextYear}`
+      if (!currentFirstPostDate.value) return;
 
       try {
-        const latestResponse = await fetch('https://blogtbe.hbvu.su/posts')
-        const latestData = await latestResponse.json()
-        const latestFirstDate = extractDate(latestData[0])
+        isLoading.value = true;
+        const day = currentFirstPostDate.value.substring(0, 2);
+        const month = currentFirstPostDate.value.substring(2, 4);
+        const year = currentFirstPostDate.value.substring(4, 8);
+
+        const date = new Date(year, month - 1, day);
+        date.setDate(date.getDate() + 10); // Move forward by 10 days to get the previous page
+
+        const nextDay = String(date.getDate()).padStart(2, '0');
+        const nextMonth = String(date.getMonth() + 1).padStart(2, '0');
+        const nextYear = date.getFullYear();
+
+        const dateToFetch = `${nextDay}${nextMonth}${nextYear}`;
+
+        const latestResponse = await fetch('https://blogtbe.hbvu.su/posts');
+        const latestData = await latestResponse.json();
+        const latestFirstDate = extractDate(latestData[0]);
 
         if (dateToFetch <= latestFirstDate) {
-          const response = await fetch(`https://blogtbe.hbvu.su/posts/from/${dateToFetch}`)
+          const response = await fetch(`https://blogtbe.hbvu.su/posts/from/${dateToFetch}`);
           if (!response.ok) {
-            throw new Error('Failed to fetch previous posts')
+            throw new Error('Failed to fetch previous posts');
           }
-          const data = await response.json()
+          const data = await response.json();
           if (data.length > 0) {
-            posts.value = data
-            isFirstPage.value = dateToFetch === latestFirstDate
-            currentFirstPostDate.value = extractDate(data[0])
+            posts.value = data;
+            isFirstPage.value = dateToFetch === latestFirstDate;
+            currentFirstPostDate.value = extractDate(data[0]);
           }
         }
       } catch (error) {
-        console.error('Error fetching previous posts:', error)
+        console.error('Error fetching previous posts:', error);
+      } finally {
+        isLoading.value = false;
       }
-    }
+    };
+
 
     onMounted(fetchPosts)
 
@@ -274,11 +301,13 @@ export default {
       getImageUrl,
       extractGeotag,
       removeGeotag,
+      fetchFirstPage,
       fetchNextPage,
       fetchPreviousPage,
       isFirstPage,
       formatDate,
       extractDate,
+      isLoading,
     }
   },
   methods: {
@@ -293,7 +322,6 @@ export default {
 .blog-posts {
   padding: 20px;
   text-align: left;
-  /* Ensure all text is left-aligned */
 }
 
 .post {
@@ -315,18 +343,16 @@ export default {
   margin: 0;
   padding: 0px 0;
   text-align: left;
-  /* Left-align the title */
+  text-transform: uppercase;
 }
 
 .markdown-container {
-  max-width: 300px;
-  /* If you want the content to wrap */
+  max-width: 400px;
   word-wrap: break-word;
 }
 
 .nested-table {
   margin-top: 0;
-  /* Remove any default table margin */
 }
 
 .mobile-title {
@@ -341,14 +367,12 @@ export default {
   width: 100%;
   border-collapse: collapse;
   text-align: left;
-  /* Ensure table content is left-aligned */
 }
 
 .post-image {
   width: 250px;
   vertical-align: top;
   text-align: left;
-  /* Left-align the image */
 }
 
 .thumbnail {
@@ -362,7 +386,6 @@ export default {
   padding-left: 30px;
   vertical-align: top;
   text-align: left;
-  /* Left-align the content */
 }
 
 .post-content td {
@@ -374,7 +397,6 @@ export default {
   margin-top: 10px;
   margin-bottom: 5px;
   text-align: left;
-  /* Left-align the tags */
 }
 
 .post-date {
@@ -384,7 +406,6 @@ export default {
   text-decoration: none !important;
   color: black;
 }
-
 
 .post-date:hover {
   color: purple;
@@ -420,21 +441,16 @@ export default {
     margin-bottom: 10px;
     font-size: 1.4em;
     text-align: left;
-    /* Left-align the mobile title */
   }
 
   .desktop-title {
     display: none;
-    border: 1px solid red;
   }
 
   .post-image {
     width: 100%;
-    /* Ensure the image takes full width */
     padding: 0;
-    /* Remove padding */
     text-align: left;
-    /* Left-align the mobile image */
   }
 
   .thumbnail {
@@ -442,19 +458,16 @@ export default {
     width: 100%;
     height: auto;
     margin: 0;
-    /* Remove margin */
   }
 
   .markdown-container {
     max-width: 100%;
-    /* If you want the content to wrap */
     word-wrap: break-word;
   }
 
   .post-layout {
     display: block;
     text-align: left;
-    /* Ensure mobile layout is left-aligned */
   }
 
   .post-image,
@@ -463,7 +476,6 @@ export default {
     width: 100%;
     padding-left: 0;
     text-align: left;
-    /* Left-align mobile content */
   }
 
   .thumbnail {
@@ -472,7 +484,6 @@ export default {
 
   .post-content {
     text-align: left;
-    /* Left-align mobile content */
   }
 
   .post-date {
@@ -480,7 +491,6 @@ export default {
     font-size: 0.5em;
     margin-bottom: 10px;
     text-align: left;
-    /* Left-align mobile date */
   }
 }
 </style>
