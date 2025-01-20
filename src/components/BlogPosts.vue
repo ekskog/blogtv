@@ -49,9 +49,9 @@
       <h6>
         <router-link :to="{
           name: 'Post',
-          params: { date: formatDate(extractDate(post)) },
+          params: { date: extractDate(post) },
         }" class="post-date" @click="setPost(post)">
-          <span>{{ formatDate(extractDate(post)) }}</span>
+          <span>{{ extractDate(post) }}</span>
         </router-link>
         <span v-for="(tag, index) in extractTags(post).split(',')" :key="index">
           <span class="tag">
@@ -142,32 +142,7 @@ export default {
 
     const extractDate = (post) => {
       const dateMatch = post.match(/^Date:\s*(\d{2})(\d{2})(\d{4})$/m)
-      return dateMatch ? `${dateMatch[1]}${dateMatch[2]}${dateMatch[3]}` : null
-    }
-
-    const formatDate = (dateStr) => {
-      if (!dateStr) return ''
-      const day = dateStr.substring(0, 2)
-      const month = dateStr.substring(2, 4)
-      const year = dateStr.substring(4, 8)
-
-      const months = [
-        'January',
-        'February',
-        'March',
-        'April',
-        'May',
-        'June',
-        'July',
-        'August',
-        'September',
-        'October',
-        'November',
-        'December',
-      ]
-
-      const monthIndex = parseInt(month, 10) - 1
-      return `${day} ${months[monthIndex]} ${year}`
+      return dateMatch ? `${dateMatch[1]}${dateMatch[2]}${dateMatch[3]}` : null // Changed date format to YYYYMMDD
     }
 
     const renderMarkdown = (markdown) => {
@@ -214,11 +189,10 @@ export default {
         isLoading.value = true
         const lastPost = posts.value[posts.value.length - 1]
         const lastPostDate = extractDate(lastPost);
-        console.log('lastPostDate:', lastPostDate);
 
-        const day = lastPostDate.substring(0, 2)
-        const month = lastPostDate.substring(2, 4)
-        const year = lastPostDate.substring(4, 8)
+        const day = lastPostDate.substring(6, 8)
+        const month = lastPostDate.substring(4, 6)
+        const year = lastPostDate.substring(0, 4)
 
         const date = new Date(year, month - 1, day)
         date.setDate(date.getDate() - 1)
@@ -227,9 +201,7 @@ export default {
         const prevMonth = String(date.getMonth() + 1).padStart(2, '0')
         const prevYear = date.getFullYear()
 
-        const dateToFetch = `${prevDay}${prevMonth}${prevYear}`
-
-        console.log('Fetching next posts from:', dateToFetch);
+        const dateToFetch = `${prevYear}${prevMonth}${prevDay}`
 
         const response = await fetch(`https://blogtbe.hbvu.su/posts/from/${dateToFetch}`)
         if (!response.ok) {
@@ -253,9 +225,9 @@ export default {
 
       try {
         isLoading.value = true;
-        const day = currentFirstPostDate.value.substring(0, 2);
-        const month = currentFirstPostDate.value.substring(2, 4);
-        const year = currentFirstPostDate.value.substring(4, 8);
+        const year = currentFirstPostDate.value.substring(0, 4);
+        const month = currentFirstPostDate.value.substring(4, 6);
+        const day = currentFirstPostDate.value.substring(6, 8);
 
         const date = new Date(year, month - 1, day);
         date.setDate(date.getDate() + 10); // Move forward by 10 days to get the previous page
@@ -264,7 +236,7 @@ export default {
         const nextMonth = String(date.getMonth() + 1).padStart(2, '0');
         const nextYear = date.getFullYear();
 
-        const dateToFetch = `${nextDay}${nextMonth}${nextYear}`;
+        const dateToFetch = `${nextYear}${nextMonth}${nextDay}`;
 
         const latestResponse = await fetch('https://blogtbe.hbvu.su/posts');
         const latestData = await latestResponse.json();
@@ -289,7 +261,6 @@ export default {
       }
     };
 
-
     onMounted(fetchPosts)
 
     return {
@@ -305,7 +276,6 @@ export default {
       fetchNextPage,
       fetchPreviousPage,
       isFirstPage,
-      formatDate,
       extractDate,
       isLoading,
     }
@@ -317,6 +287,7 @@ export default {
   },
 }
 </script>
+
 
 <style scoped>
 .blog-posts {
@@ -370,7 +341,7 @@ export default {
 }
 
 .post-image {
-  width: 250px;
+  width: 300px;
   vertical-align: top;
   text-align: left;
 }

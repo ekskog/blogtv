@@ -1,20 +1,36 @@
 <template>
   <div>
-    <h3>Blog Archive</h3>
     <div v-if="archive">
-      <ul class="year-list">
-        <li v-for="(months, year) in archive" :key="year">
-          <strong @click="toggleYear(year)" :class="{ active: expandedYear === year }">{{ year }}</strong>
-          <ul v-if="expandedYear === year" class="month-list">
-            <li v-for="month in sortedMonths(months)" :key="month">
-              <span @click="toggleMonth(month)" :class="{ active: expandedMonth === month }">{{ getMonthName(month) }}</span>
-              <div v-if="expandedMonth === month" class="day-grid">
-                <span v-for="day in months[month]" :key="day" @click="getPost(`${day}${month}${year}`)" class="clickable-day">{{ day }}</span>
+
+      <div class="year-display">
+        <h4>{{ currentYear }}</h4>
+
+        <div class="month-grid">
+          <div v-for="month in sortedMonths(currentYear)" :key="month" class="month-tile" @click="toggleMonth(month)">
+            <span>{{ getMonthName(month) }}</span>
+            <div v-if="expandedMonth === month" class="days-grid">
+              <div v-for="day in generateDays(month)" :key="day" class="day-tile"
+                @click="handleDayClick(day, month, currentYear)">
+                {{ day }}
               </div>
-            </li>
-          </ul>
-        </li>
-      </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+
+      <div class="pagination-controls">
+        <button @click="prevYear" :disabled="currentYear === earliestYear" class="pagination-button">
+          {{ 'Previous Year' }}
+        </button>
+
+        <button @click="nextYear" :disabled="currentYear === latestYear" class="pagination-button">
+          {{ 'Next Year' }}
+        </button>
+      </div>
+
+
     </div>
     <div v-else>
       Loading...
@@ -30,42 +46,21 @@ export default {
   data() {
     return {
       archive: null,
-      expandedYear: null,
+      currentYear: null,
       expandedMonth: null,
+      earliestYear: null,
+      latestYear: null,
     };
   },
   created() {
     this.fetchArchive();
   },
   methods: {
-    async fetchArchive() {
-      try {
-        const response = await fetch('https://blogtbe.hbvu.su/posts/archives');
-        this.archive = await response.json();
-      } catch (error) {
-        console.error('Error fetching archive:', error);
-      }
-    },
-    toggleYear(year) {
-      if (this.expandedYear === year) {
-        this.expandedYear = null;
-        this.expandedMonth = null;
-      } else {
-        this.expandedYear = year;
-        this.expandedMonth = null;
-      }
-    },
-    toggleMonth(month) {
-      if (this.expandedMonth === month) {
-        this.expandedMonth = null;
-      } else {
-        this.expandedMonth = month;
-      }
-    },
-    async getPost(date) {
+    async handleDayClick(day, month, currentYear) {
       const posts = ref([]);
+      let postDate = `${day}${month}${currentYear}`;
       try {
-        const response = await fetch(`https://blogtbe.hbvu.su/posts/${date}`);
+        const response = await fetch(`https://blogtbe.hbvu.su/posts/${postDate}`);
         if (!response.ok) {
           throw new Error('Post not found');
         }
@@ -73,116 +68,133 @@ export default {
         posts.value = data;
         const postContent = posts.value[0];
         postStore.setCurrentPost(postContent);
-        const postDate = this.formatDate(date);
-        console.log('Navigating to post:', postDate);
         this.$router.push({ name: 'Post', params: { date: postDate } });
       } catch (error) {
         alert(error);
       }
     },
-    sortedMonths(months) {
-      return Object.keys(months).sort((a, b) => parseInt(a) - parseInt(b));
+    async fetchArchive() {
+      try {
+        const response = await fetch('https://blogtbe.hbvu.su/posts/archives');
+        const data = await response.json();
+        this.archive = data;
+
+        // Set the current year to the latest year with posts
+        this.latestYear = Math.max(...Object.keys(this.archive));
+        this.earliestYear = Math.min(...Object.keys(this.archive));
+        this.currentYear = this.latestYear; // Start with the most recent year
+      } catch (error) {
+        console.error('Error fetching archive:', error);
+      }
+    },
+    prevYear() {
+      const years = Object.keys(this.archive)
+        .map(Number)
+        .sort((a, b) => a - b);
+
+      const currentIndex = years.indexOf(this.currentYear);
+      if (currentIndex > 0) {
+        this.currentYear = years[currentIndex - 1];
+        this.expandedMonth = null; // Collapse any expanded month
+      }
+    },
+    nextYear() {
+      const years = Object.keys(this.archive)
+        .map(Number)
+        .sort((a, b) => a - b);
+
+      const currentIndex = years.indexOf(this.currentYear);
+      if (currentIndex < years.length - 1) {
+        this.currentYear = years[currentIndex + 1];
+        this.expandedMonth = null; // Collapse any expanded month
+      }
+    },
+    toggleMonth(month) {
+      this.expandedMonth = this.expandedMonth === month ? null : month;
+    },
+    sortedMonths(year) {
+      return Object.keys(this.archive[year]).sort((a, b) => parseInt(a) - parseInt(b));
     },
     getMonthName(month) {
-      console.log('Archive >>> month:', month);
       const monthNames = [
         "January", "February", "March", "April", "May", "June",
         "July", "August", "September", "October", "November", "December"
       ];
       return monthNames[parseInt(month, 10) - 1];
     },
-    formatDate(dateStr) {
-      console.log('dateStr:', dateStr);
-      if (!dateStr) return '';
-      const day = dateStr.substring(0, 2);
-      const month = dateStr.substring(2, 4);
-      const year = dateStr.substring(4, 8);
-      const months = [
-        'January',
-        'February',
-        'March',
-        'April',
-        'May',
-        'June',
-        'July',
-        'August',
-        'September',
-        'October',
-        'November',
-        'December',
-      ];
-      const monthIndex = parseInt(month, 10) - 1;
-      return `${day} ${months[monthIndex]} ${year}`;
-    },
-  },
+    generateDays(month) {
+      // Fetch the days that have posts for the selected month
+      const daysWithPosts = this.archive[this.currentYear][month] || [];
+      return daysWithPosts;
+    }
+  }
+
 };
 </script>
 
 <style scoped>
-/* Add your styles here */
-.archive-container {
-  font-family: Arial, sans-serif;
-  max-width: 600px;
-  margin: 0 auto;
-  padding: 20px;
-  background-color: #f9f9f9;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+.year-navigation {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
 }
 
-h1 {
-  text-align: center;
-  color: #333;
-}
-
-.year-list,
-.month-list {
-  list-style: none;
-  padding: 0;
-}
-
-.year-list>li {
-  margin: 10px 0;
-}
-
-strong,
-span {
-  display: block;
+button {
   padding: 10px;
-  cursor: pointer;
+  background-color: #007bff;
+  color: white;
+  border: none;
   border-radius: 4px;
-  transition: background-color 0.3s;
+  cursor: pointer;
 }
 
-strong:hover,
-span:hover {
+button:disabled {
+  background-color: #ccc;
+}
+
+.year-display {
+  text-align: center;
+}
+
+.month-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.month-tile {
+  padding: 10px;
+  background-color: #f0f0f0;
+  border-radius: 4px;
+  cursor: pointer;
+  text-align: center;
+}
+
+.month-tile:hover {
   background-color: #e0e0e0;
 }
 
-strong.active,
-span.active {
+.month-tile.active {
   background-color: #007bff;
   color: white;
 }
 
-.month-list {
-  margin-left: 20px;
-}
-
-.day-grid {
+.days-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(30px, 1fr));
+  grid-template-columns: repeat(7, 1fr);
   gap: 5px;
-  margin-left: 40px;
+  margin-top: 10px;
 }
 
-.clickable-day {
-  cursor: pointer;
-  color: #007bff;
-  text-decoration: none;
+.day-tile {
+  padding: 5px;
+  background-color: #e0e0e0;
+  border-radius: 4px;
+  text-align: center;
 }
 
-.clickable-day:hover {
-  color: #0056b3;
+.day-tile:hover {
+  background-color: #ccc;
 }
 </style>

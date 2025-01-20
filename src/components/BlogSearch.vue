@@ -118,7 +118,6 @@ export default {
       this.currentPage = 1;
 
       try {
-        console.log('Searching for tag:', this.searchTag);
         const response = await fetch(
           `https://blogtbe.hbvu.su/tags/${encodeURIComponent(this.searchTag)}`
         );
@@ -138,31 +137,17 @@ export default {
       this.searchTag = this.manualTag.trim();
       this.performSearch();
     },
+
+    // Adjusted formatDate to handle DDMMYYYY
     formatDate(dateStr) {
-      console.log('dateStr:', dateStr);
       if (!dateStr) return '';
-      const day = dateStr.substring(0, 2);
-      const month = dateStr.substring(2, 4);
-      const year = dateStr.substring(4, 8);
-      const months = [
-        'January',
-        'February',
-        'March',
-        'April',
-        'May',
-        'June',
-        'July',
-        'August',
-        'September',
-        'October',
-        'November',
-        'December',
-      ];
-      const monthIndex = parseInt(month, 10) - 1;
-      return `${day} ${months[monthIndex]} ${year}`;
+      const day = dateStr.substring(0, 2);  // DD
+      const month = dateStr.substring(2, 4);  // MM
+      const year = dateStr.substring(4, 8);  // YYYY
+      return `${day}${month}${year}`; // Return in DDMMYYYY format
     },
+
     async getPost(date) {
-      console.log('Opening post:', date);
       const posts = ref([]);
       try {
         const response = await fetch(`https://blogtbe.hbvu.su/posts/${date}`);
@@ -174,12 +159,13 @@ export default {
         const postContent = posts.value[0];
         postStore.setCurrentPost(postContent);
         const postDate = this.formatDate(date);
-        console.log('Navigating to post:', postDate);
         this.$router.push({ name: 'Post', params: { date: postDate } });
       } catch (error) {
         alert(error);
       }
     },
+
+    // Title formatting remains the same
     formatTitle(title) {
       return title
         .split(' ')

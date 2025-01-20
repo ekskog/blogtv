@@ -36,7 +36,11 @@ body {
     font-family: 'Nunito Sans', sans-serif;
 }
 
-
+.h2 {
+  text-transform: capitalize;
+  font-size: 2.5em;
+  border:#007bff 1px solid;
+}
 .tag {
   display: inline-block;
   font-size: 0.85em;
