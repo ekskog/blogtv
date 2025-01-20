@@ -1,10 +1,12 @@
+
 <template>
   <div>
+    <header class="header">
+      <h2>The BLOGT Archive</h2>
+    </header>
     <div v-if="archive">
-
       <div class="year-display">
-        <h4>{{ currentYear }}</h4>
-
+        <h2>{{ currentYear }}</h2>
         <div class="month-grid">
           <div v-for="month in sortedMonths(currentYear)" :key="month" class="month-tile" @click="toggleMonth(month)">
             <span>{{ getMonthName(month) }}</span>
@@ -17,22 +19,16 @@
           </div>
         </div>
       </div>
-
-
-
       <div class="pagination-controls">
         <button @click="prevYear" :disabled="currentYear === earliestYear" class="pagination-button">
           {{ 'Previous Year' }}
         </button>
-
         <button @click="nextYear" :disabled="currentYear === latestYear" class="pagination-button">
           {{ 'Next Year' }}
         </button>
       </div>
-
-
     </div>
-    <div v-else>
+    <div v-else class="loading">
       Loading...
     </div>
   </div>
@@ -128,11 +124,16 @@ export default {
       return daysWithPosts;
     }
   }
-
 };
 </script>
 
 <style scoped>
+.header {
+  text-align: center;
+  padding: 20px;
+  background-color: #f8f9fa;
+}
+
 .year-navigation {
   display: flex;
   justify-content: space-between;
@@ -196,5 +197,17 @@ button:disabled {
 
 .day-tile:hover {
   background-color: #ccc;
+}
+
+.pagination-controls {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.loading {
+  text-align: center;
+  font-size: 18px;
+  padding: 20px;
 }
 </style>
