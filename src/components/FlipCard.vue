@@ -72,8 +72,8 @@ export default {
 
 .flip-card > div {
   width: 100%;
-  height: 0;
-  padding-top: 100%; /* maintain aspect ratio */
+  height: auto;
+  padding-top: 75%; /* maintain aspect ratio */
   text-align: center;
   transition: transform 0.6s;
   transform-style: preserve-3d;
