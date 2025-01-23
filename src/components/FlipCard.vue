@@ -78,6 +78,8 @@ export default {
   transition: transform 0.6s;
   transform-style: preserve-3d;
   position: relative;
+  border: blue 1px solid;
+
 }
 
 .flip-card .flipped {

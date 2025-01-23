@@ -1,8 +1,8 @@
 // src/utils/loadAlbums.js
 import albumMaMoM from '@/assets/albums/ma-mom/album.js';
 import songsMaMoM from '@/assets/albums/ma-mom/songs.js';
-import albumWernherWon from '@/assets/albums/wernher-won/album.js';
-import songsWernherWon from '@/assets/albums/wernher-won/songs.js';
+import albumWernherWon from '@/assets/albums/v2/album.js';
+import songsWernherWon from '@/assets/albums/v2/songs.js';
 
 const loadAlbums = () => {
   const albums = [

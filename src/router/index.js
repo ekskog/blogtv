@@ -7,7 +7,7 @@ import Posts from '@/components/BlogPosts.vue';
 import RandomImage from '@/components/BlogRandomimage.vue';
 import Search from '@/components/BlogSearch.vue';
 
-import TheHarp from '@/components/TheHarp.vue';
+import TheHarp from '@/components/TabbedHarp.vue';
 import MusicAlbum from '@/components/MusicAlbum.vue';
 
 import loadAlbums from '@/utils/loadAlbums';
