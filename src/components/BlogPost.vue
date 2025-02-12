@@ -57,6 +57,7 @@ import { marked } from 'marked';
 
 export default {
   name: 'BlogPost',
+
   data() {
     return {
       date: this.$route.params.date,

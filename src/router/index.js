@@ -31,13 +31,6 @@ const routes = [
     path: '/post/:date',
     name: 'Post',
     component: Post,
-    props: true,
-    // Add a beforeEnter guard to handle the post content
-    beforeEnter: (to, from, next) => {
-      // Store the post content in a temporary router state
-      to.meta.postContent = to.params.postContent
-      next()
-    },
   },
 ];
 
