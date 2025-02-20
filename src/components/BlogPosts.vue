@@ -13,11 +13,6 @@
             <td class="post-image">
               <figure class="figure-wrapper">
                 <img :src="getImageUrl(post)" alt="Post Image" class="thumbnail" />
-                <figcaption v-if="extractGeotag(post)" class="image-caption">
-                  <a :href="extractGeotag(post)?.url" target="_blank" rel="noopener noreferrer">
-                    {{ extractGeotag(post)?.text }}
-                  </a>
-                </figcaption>
               </figure>
             </td>
 
@@ -29,6 +24,11 @@
                     <td>
                       <!-- Desktop-only title -->
                       <h2 class="post-title desktop-title">{{ extractTitle(post) }}</h2>
+                      <p v-if="extractGeotag(post)" class="geotag">@
+                        <a :href="extractGeotag(post)?.url" target="_blank" rel="noopener noreferrer">
+                          {{ extractGeotag(post)?.text }}
+                        </a>
+                      </p>
                     </td>
                   </tr>
                   <tr>
@@ -317,6 +317,15 @@ export default {
   text-transform: uppercase;
 }
 
+.geotag {
+  font-size: 0.6em;
+  color: black;
+  margin-top: 1px;
+  margin-bottom: 5px;
+  /* Add some margin to separate geotag from other elements */
+  text-decoration: none;
+}
+
 .markdown-container {
   max-width: 400px;
   word-wrap: break-word;
@@ -324,6 +333,14 @@ export default {
 
 .nested-table {
   margin-top: 0;
+}
+
+.nested-table p {
+  margin: 0;
+}
+
+.nested-table a {
+text-decoration: none;
 }
 
 .mobile-title {
@@ -415,6 +432,7 @@ export default {
   }
 
   .desktop-title {
+    padding-bottom: 1px;
     display: none;
   }
 
@@ -462,6 +480,11 @@ export default {
     font-size: 0.5em;
     margin-bottom: 10px;
     text-align: left;
+  }
+
+  /* Add padding between image and post title on small screens */
+  .post img {
+    padding-bottom: 1em
   }
 }
 </style>

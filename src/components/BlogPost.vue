@@ -2,16 +2,15 @@
   <div class="single-post">
     <div v-if="post">
       <h2 class="post-title">{{ extractTitle(post) }}</h2>
-
+      <p v-if="extractGeotag(post)" class="geotag">@
+        <a :href="extractGeotag(post)?.url" target="_blank" rel="noopener noreferrer">
+          {{ extractGeotag(post)?.text }}
+        </a>
+      </p>
       <!-- Image -->
       <div class="post-image">
         <figure class="figure-wrapper">
           <img :src="getImageUrl(post)" alt="Post Image" class="thumbnail" />
-          <figcaption v-if="extractGeotag(post)" class="image-caption">
-            <a :href="extractGeotag(post)?.url" target="_blank" rel="noopener noreferrer">
-              {{ extractGeotag(post)?.text }}
-            </a>
-          </figcaption>
         </figure>
       </div>
 
@@ -200,6 +199,24 @@ export default {
   display: inline;
 }
 
+.post-title {
+  font-size: 1.2em;
+  color: purple;
+  margin: 0;
+  padding: 0px 0;
+  text-align: left;
+  text-transform: uppercase;
+}
+
+.geotag {
+  font-size: 0.6em;
+  color: black;
+  margin-top: 1px;
+  margin-bottom: 5px;
+  /* Add some margin to separate geotag from other elements */
+  text-decoration: none;
+}
+
 .markdown-container {
   max-width: 100%;
 }
@@ -213,6 +230,7 @@ export default {
 
 .figure-wrapper {
   width: 100%;
+  margin-top: 20px;
   vertical-align: top;
   text-align: left;
 }
