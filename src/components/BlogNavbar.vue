@@ -15,8 +15,6 @@
         <li><router-link to="/posts">Posts</router-link></li>
         <li><router-link to="/search">Search</router-link></li>
         <li><router-link to="/rimg">Random Picture</router-link></li>
-        <li><router-link to="/the-harp">The Harp</router-link></li>
-
       </ul>
     </nav>
     <!-- Mobile Menu -->
@@ -26,7 +24,6 @@
         <li><router-link to="/posts" @click="closeMenu">Posts</router-link></li>
         <li><router-link to="/search" @click="closeMenu">Search</router-link></li>
         <li><router-link to="/rimg" @click="closeMenu">RandomImage</router-link></li>
-        <li><router-link to="/the-harp" @click="closeMenu">The Harp</router-link></li>
       </ul>
     </nav>
   </header>

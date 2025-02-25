@@ -7,17 +7,7 @@ import Posts from '@/components/BlogPosts.vue';
 import RandomImage from '@/components/BlogRandomimage.vue';
 import Search from '@/components/BlogSearch.vue';
 
-import TheHarp from '@/components/TabbedHarp.vue';
-import MusicAlbum from '@/components/MusicAlbum.vue';
-
-import loadAlbums from '@/utils/loadAlbums';
-
-const albums = loadAlbums();
 const routes = [
-  {
-    path: '/the-harp',
-    component: TheHarp
-  },
   { path: '/', component: Home },
   { path: '/archive', component: Archive },
   { path: '/posts', component: Posts },
@@ -33,14 +23,6 @@ const routes = [
     component: Post,
   },
 ];
-
-albums.forEach(album => {
-  routes.push({
-    path: album.route,
-    component: MusicAlbum,
-    props: { albumName: album.name, songs: album.songs }
-  });
-});
 
 const router = createRouter({
   history: createWebHistory(),

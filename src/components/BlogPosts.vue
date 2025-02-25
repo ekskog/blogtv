@@ -1,50 +1,35 @@
 <template>
   <div class="blog-posts">
+    <h2>This is It</h2>
     <div v-for="(post, index) in posts" :key="index" class="post">
       <div class="padding"></div>
       <!-- Mobile-only title -->
       <h2 class="post-title mobile-title">{{ extractTitle(post) }}</h2>
+      <p v-if="extractGeotag(post)" class="geotag mobile-geotag">@
+        <a :href="extractGeotag(post)?.url" target="_blank" rel="noopener noreferrer">
+          {{ extractGeotag(post)?.text }}
+        </a>
+      </p>
+      <!-- Replace the table layout with this -->
+      <div class="post-layout">
+        <!-- Left panel - Image -->
+        <div class="post-image">
+          <img :src="getImageUrl(post)" alt="Post Image" class="thumbnail" />
+        </div>
 
-      <!-- Table layout for image and content -->
-      <table class="post-layout">
-        <tbody>
-          <tr>
-            <!-- Image -->
-            <td class="post-image">
-              <figure class="figure-wrapper">
-                <img :src="getImageUrl(post)" alt="Post Image" class="thumbnail" />
-              </figure>
-            </td>
-
-            <!-- Title and Markdown-rendered content -->
-            <td class="post-content">
-              <table class="nested-table">
-                <tbody>
-                  <tr>
-                    <td>
-                      <!-- Desktop-only title -->
-                      <h2 class="post-title desktop-title">{{ extractTitle(post) }}</h2>
-                      <p v-if="extractGeotag(post)" class="geotag">@
-                        <a :href="extractGeotag(post)?.url" target="_blank" rel="noopener noreferrer">
-                          {{ extractGeotag(post)?.text }}
-                        </a>
-                      </p>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <div class="markdown-container" v-html="renderMarkdown(removeGeotag(removeMetadata(post)))"></div>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-
-      <div class="padding"></div>
-
+        <!-- Right panel - Content -->
+        <div class="post-content">
+          <!-- Desktop-only title -->
+          <h2 class="post-title desktop-title">{{ extractTitle(post) }}</h2>
+          <p v-if="extractGeotag(post)" class="geotag desktop-geotag">@
+            <a :href="extractGeotag(post)?.url" target="_blank" rel="noopener noreferrer">
+              {{ extractGeotag(post)?.text }}
+            </a>
+          </p>
+          <!-- Markdown content -->
+          <div class="markdown-container" v-html="renderMarkdown(removeGeotag(removeMetadata(post)))"></div>
+        </div>
+      </div>
       <!-- Tags with separators -->
       <h6>
         <router-link :to="{
@@ -93,6 +78,7 @@ export default {
     const posts = ref([])
     const isFirstPage = ref(true)
     const currentFirstPostDate = ref(null)
+    const currentLastPostDate = ref(null)
     const isLoading = ref(false)
 
     const fetchPosts = async () => {
@@ -142,7 +128,7 @@ export default {
 
     const extractDate = (post) => {
       const dateMatch = post.match(/^Date:\s*(\d{2})(\d{2})(\d{4})$/m)
-      return dateMatch ? `${dateMatch[1]}${dateMatch[2]}${dateMatch[3]}` : null // Changed date format to YYYYMMDD
+      return dateMatch ? `${dateMatch[1]}${dateMatch[2]}${dateMatch[3]}` : null
     }
 
     const renderMarkdown = (markdown) => {
@@ -165,18 +151,22 @@ export default {
     const fetchFirstPage = async () => {
       try {
         isLoading.value = true
+        console.log('fetch latest posts...')
         const response = await fetch('https://blogtbe.hbvu.su/posts')
         if (!response.ok) {
-          throw new Error('Failed to fetch posts')
+          throw new Error('Failed to fetch first page posts')
         }
         const data = await response.json()
         posts.value = data
         isFirstPage.value = true
         if (data.length > 0) {
-          currentFirstPostDate.value = extractDate(data[0])
+          currentFirstPostDate.value = extractDate(data[0]);
+          currentLastPostDate.value = extractDate(data[data.length - 1]);
+          console.log('first page > Current First Post Date:', currentFirstPostDate.value);
+          console.log('first page > Current Last Post Date:', currentLastPostDate.value);
         }
       } catch (error) {
-        console.error('Error fetching posts:', error)
+        console.error('Error fetching first page posts:', error)
       } finally {
         isLoading.value = false
       }
@@ -184,24 +174,25 @@ export default {
 
     const fetchNextPage = async () => {
       if (posts.value.length === 0) return
+      console.log('fetch next page...')
 
       try {
         isLoading.value = true
-        const lastPost = posts.value[posts.value.length - 1]
-        const lastPostDate = extractDate(lastPost);
 
-        const day = lastPostDate.substring(6, 8)
-        const month = lastPostDate.substring(4, 6)
-        const year = lastPostDate.substring(0, 4)
+        console.log('fetchNextPage > Current First Post Date:', currentFirstPostDate.value);
+        console.log('fetchNextPage > Current Last Post Date:', currentLastPostDate.value);
 
-        const date = new Date(year, month - 1, day)
-        date.setDate(date.getDate() - 1)
+        const day = parseInt(currentLastPostDate.value.slice(0, 2), 10) - 1;
+        const month = parseInt(currentLastPostDate.value.slice(2, 4), 10) - 1; // JS months are 0-indexed
+        const year = parseInt(currentLastPostDate.value.slice(4), 10);
+        const prevDate = new Date(year, month, day);
 
-        const prevDay = String(date.getDate()).padStart(2, '0')
-        const prevMonth = String(date.getMonth() + 1).padStart(2, '0')
-        const prevYear = date.getFullYear()
+        const prevDay = String(prevDate.getDate()).padStart(2, '0')
+        const prevMonth = String(prevDate.getMonth() + 1).padStart(2, '0')
+        const prevYear = prevDate.getFullYear()
+        const dateToFetch = `${prevDay}${prevMonth}${prevYear}`
 
-        const dateToFetch = `${prevYear}${prevMonth}${prevDay}`
+        console.log('fetchNextPage > Will Fetch:', dateToFetch);
 
         const response = await fetch(`https://blogtbe.hbvu.su/posts/from/${dateToFetch}`)
         if (!response.ok) {
@@ -211,7 +202,8 @@ export default {
         if (data.length > 0) {
           posts.value = data
           isFirstPage.value = false
-          currentFirstPostDate.value = extractDate(data[0])
+          currentFirstPostDate.value = extractDate(data[0]);
+          currentLastPostDate.value = extractDate(data[data.length - 1]);
         }
       } catch (error) {
         console.error('Error fetching next posts:', error)
@@ -221,45 +213,50 @@ export default {
     }
 
     const fetchPreviousPage = async () => {
+      console.log('fetch previous page...')
       if (!currentFirstPostDate.value) return;
+      console.log('cfd: ', currentFirstPostDate);
 
       try {
         isLoading.value = true;
-        const year = currentFirstPostDate.value.substring(0, 4);
-        const month = currentFirstPostDate.value.substring(4, 6);
-        const day = currentFirstPostDate.value.substring(6, 8);
 
-        const date = new Date(year, month - 1, day);
-        date.setDate(date.getDate() + 10); // Move forward by 10 days to get the previous page
+        console.log('fetchPreviousPage > Current First Post Date:', currentFirstPostDate.value);
+        console.log('fetchPreviousPage > Current Last Post Date:', currentLastPostDate.value);
 
-        const nextDay = String(date.getDate()).padStart(2, '0');
-        const nextMonth = String(date.getMonth() + 1).padStart(2, '0');
-        const nextYear = date.getFullYear();
+        const day = parseInt(currentFirstPostDate.value.slice(0, 2), 10);
+        const month = parseInt(currentLastPostDate.value.slice(2, 4), 10) - 1; // JS months are 0-indexed
+        const year = parseInt(currentLastPostDate.value.slice(4), 10);
+        const date = new Date(year, month, day);
 
-        const dateToFetch = `${nextYear}${nextMonth}${nextDay}`;
+        const nextDate = new Date(date);
+        nextDate.setDate(nextDate.getDate() + 10);
+        console.log('This is the date 10 days after Date:', nextDate);
 
-        const latestResponse = await fetch('https://blogtbe.hbvu.su/posts');
-        const latestData = await latestResponse.json();
-        const latestFirstDate = extractDate(latestData[0]);
+        const nextDay = String(nextDate.getDate()).padStart(2, '0');
+        const nextMonth = String(nextDate.getMonth() + 1).padStart(2, '0'); // JS months are 0-indexed
+        const nextYear = nextDate.getFullYear();
 
-        if (dateToFetch <= latestFirstDate) {
-          const response = await fetch(`https://blogtbe.hbvu.su/posts/from/${dateToFetch}`);
-          if (!response.ok) {
-            throw new Error('Failed to fetch previous posts');
-          }
-          const data = await response.json();
-          if (data.length > 0) {
-            posts.value = data;
-            isFirstPage.value = dateToFetch === latestFirstDate;
-            currentFirstPostDate.value = extractDate(data[0]);
-          }
+        const dateToFetch = `${nextDay}${nextMonth}${nextYear}`;
+        console.log(`Date to fetch from: ${nextDay} - ${nextMonth} - ${nextYear}`);
+
+        const response = await fetch(`https://blogtbe.hbvu.su/posts/from/${dateToFetch}`)
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch next posts')
+        }
+        const data = await response.json()
+        if (data.length > 0) {
+          posts.value = data
+          isFirstPage.value = false
+          currentFirstPostDate.value = extractDate(data[0]);
+          currentLastPostDate.value = extractDate(data[data.length - 1]);
         }
       } catch (error) {
-        console.error('Error fetching previous posts:', error);
+        console.error('Error fetching next posts:', error)
       } finally {
-        isLoading.value = false;
+        isLoading.value = false
       }
-    };
+    }
 
     onMounted(fetchPosts)
 
@@ -287,7 +284,6 @@ export default {
   },
 }
 </script>
-
 
 <style scoped>
 .blog-posts {
@@ -329,51 +325,77 @@ export default {
 .markdown-container {
   max-width: 400px;
   word-wrap: break-word;
+  flex: 1;
+  overflow-y: scroll;
+  /* Changed from auto to scroll to always show */
+  scrollbar-width: thin;
+  /* For Firefox */
+  scrollbar-color: #888 #f1f1f1;
+  /* For Firefox */
 }
 
-.nested-table {
-  margin-top: 0;
+/* For Webkit browsers (Chrome, Safari, Edge) */
+.markdown-container::-webkit-scrollbar {
+  width: 8px;
 }
 
-.nested-table p {
-  margin: 0;
+.markdown-container::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
 }
 
-.nested-table a {
-text-decoration: none;
+.markdown-container::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
 }
 
-.mobile-title {
-  display: none;
+.markdown-container::-webkit-scrollbar-thumb:hover {
+  background: #555;
 }
+
+
+.mobile-title, .mobile-geotag {
+    display: none;
+  }
+  .desktop-title, .desktop-geotag {
+    display: block;
+  }
 
 .padding {
   height: 20px;
 }
 
 .post-layout {
+  display: flex;
+  gap: 30px;
   width: 100%;
-  border-collapse: collapse;
-  text-align: left;
+  align-items: flex-start;
+  /* Align items to the top */
 }
 
 .post-image {
-  width: 300px;
-  vertical-align: top;
-  text-align: left;
+  flex: 0 0 300px;
+  /* Fixed width, won't grow or shrink */
+  max-height: 300px;
+  /* Set explicit max height */
 }
 
 .thumbnail {
   width: 100%;
-  height: auto;
+  height: 100%;
+  object-fit: contain;
+  /* Maintain aspect ratio */
   max-width: 500px;
   border: #333 1px solid;
 }
 
 .post-content {
-  padding-left: 30px;
-  vertical-align: top;
-  text-align: left;
+  flex: 1;
+  min-width: 0;
+  height: 300px;
+  /* Match image height */
+  display: flex;
+  flex-direction: column;
 }
 
 .post-content td {
@@ -424,6 +446,11 @@ text-decoration: none;
 }
 
 @media (max-width: 768px) {
+  .post-layout {
+    height: auto;
+    /* Reset height for mobile */
+  }
+
   .mobile-title {
     display: block;
     margin-bottom: 10px;
@@ -434,6 +461,13 @@ text-decoration: none;
   .desktop-title {
     padding-bottom: 1px;
     display: none;
+  }
+
+  .desktop-geotag {
+    display: none;
+  }
+  .mobile-geotag {
+    display: block;
   }
 
   .post-image {
