@@ -1,6 +1,6 @@
 <template>
   <div class="blog-posts">
-    <h2>This is It</h2>
+    <h6>this is it...</h6>
     <div v-for="(post, index) in posts" :key="index" class="post">
       <div class="padding"></div>
       <!-- Mobile-only title -->
@@ -10,11 +10,11 @@
           {{ extractGeotag(post)?.text }}
         </a>
       </p>
-      <!-- Replace the table layout with this -->
       <div class="post-layout">
         <!-- Left panel - Image -->
         <div class="post-image">
           <img :src="getImageUrl(post)" alt="Post Image" class="thumbnail" />
+          <span class="caption">{{ calculateCaption(post) }}</span>
         </div>
 
         <!-- Right panel - Content -->
@@ -31,25 +31,27 @@
         </div>
       </div>
       <!-- Tags with separators -->
-      <h6>
-        <router-link :to="{
-          name: 'Post',
-          params: { date: extractDate(post) },
-        }" class="post-date" @click="setPost(post)">
-          <span>{{ extractDate(post) }}</span>
-        </router-link>
-        <span v-for="(tag, index) in extractTags(post).split(',')" :key="index">
-          <span class="tag">
-            <router-link :to="{
-              name: 'search',
-              query: { tag: tag.trim() }
-            }">
-              {{ tag.trim() }}
-            </router-link>
+      <div class="tags-container">
+        <h6>
+          <router-link :to="{
+            name: 'Post',
+            params: { date: extractDate(post) },
+          }" class="post-date" @click="setPost(post)">
+            <span>{{ extractDate(post) }}</span>
+          </router-link>
+          <span v-for="(tag, index) in extractTags(post).split(',')" :key="index">
+            <span class="tag">
+              <router-link :to="{
+                name: 'search',
+                query: { tag: tag.trim() }
+              }">
+                {{ tag.trim() }}
+              </router-link>
+            </span>
+            <span v-if="index < extractTags(post).split(',').length - 1" class="tag-separator">|</span>
           </span>
-          <span v-if="index < extractTags(post).split(',').length - 1" class="tag-separator">|</span>
-        </span>
-      </h6>
+        </h6>
+      </div>
     </div>
 
     <!-- Pagination Controls -->
@@ -71,6 +73,8 @@
 import { ref, onMounted } from 'vue'
 import { marked } from 'marked'
 import { postStore } from '@/stores/posts'
+import CryptoJS from 'crypto-js';
+
 
 export default {
   name: 'BlogPosts',
@@ -97,6 +101,10 @@ export default {
       return title
     }
 
+    const calculateCaption = (post) => {
+      const MD5Caption = CryptoJS.MD5(post).toString();
+      return MD5Caption;
+    }
     const removeMetadata = (post) => {
       const cleanedPost = post.replace(/^(Date:.*|Tags:.*|Title:.*)$/gm, '').trim()
       return cleanedPost
@@ -275,6 +283,7 @@ export default {
       isFirstPage,
       extractDate,
       isLoading,
+      calculateCaption
     }
   },
   methods: {
@@ -326,7 +335,7 @@ export default {
   max-width: 400px;
   word-wrap: break-word;
   flex: 1;
-  overflow-y: scroll;
+  overflow-y: auto;
   /* Changed from auto to scroll to always show */
   scrollbar-width: thin;
   /* For Firefox */
@@ -353,13 +362,15 @@ export default {
   background: #555;
 }
 
+.mobile-title,
+.mobile-geotag {
+  display: none;
+}
 
-.mobile-title, .mobile-geotag {
-    display: none;
-  }
-  .desktop-title, .desktop-geotag {
-    display: block;
-  }
+.desktop-title,
+.desktop-geotag {
+  display: block;
+}
 
 .padding {
   height: 20px;
@@ -389,6 +400,13 @@ export default {
   border: #333 1px solid;
 }
 
+.caption {
+  margin-top: 5px;
+  text-align: center;
+  display: block;
+  font-size: 0.2em;
+}
+
 .post-content {
   flex: 1;
   min-width: 0;
@@ -407,6 +425,10 @@ export default {
   margin-top: 10px;
   margin-bottom: 5px;
   text-align: left;
+}
+
+.tags-container {
+  margin-top: 55px;
 }
 
 .post-date {
@@ -453,7 +475,7 @@ export default {
 
   .mobile-title {
     display: block;
-    margin-bottom: 10px;
+    margin-bottom: 2px;
     font-size: 1.4em;
     text-align: left;
   }
@@ -466,6 +488,7 @@ export default {
   .desktop-geotag {
     display: none;
   }
+
   .mobile-geotag {
     display: block;
   }
@@ -503,6 +526,7 @@ export default {
 
   .thumbnail {
     margin-bottom: 20px;
+    margin-top: 20px;
   }
 
   .post-content {

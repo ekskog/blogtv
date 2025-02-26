@@ -11,6 +11,7 @@
       <div class="post-image">
         <figure class="figure-wrapper">
           <img :src="getImageUrl(post)" alt="Post Image" class="thumbnail" />
+          <span class="caption">{{ calculateCaption(post) }}</span>
         </figure>
       </div>
 
@@ -53,6 +54,7 @@
 import { ref } from 'vue';
 import { postStore } from '@/stores/posts';
 import { marked } from 'marked';
+import CryptoJS from 'crypto-js';
 
 export default {
   name: 'BlogPost',
@@ -120,6 +122,10 @@ export default {
       }
       console.error('Invalid Date format in metadata:', post);
       return '';
+    },
+    calculateCaption(post) {
+      const MD5Caption = CryptoJS.MD5(post).toString();
+      return MD5Caption;
     },
     extractTags(post) {
       const tagsMatch = post.match(/^Tags:\s*(.+)$/m);
@@ -218,6 +224,7 @@ export default {
 }
 
 .markdown-container {
+  margin-top: 30px;
   max-width: 100%;
 }
 
@@ -227,6 +234,14 @@ export default {
   max-width: 2800px;
   border: #333 1px solid;
 }
+
+.caption {
+  margin-top: 5px;
+  text-align: center;
+  display: block;
+  font-size: 0.2em;
+}
+
 
 .figure-wrapper {
   width: 100%;

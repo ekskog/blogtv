@@ -1,29 +1,40 @@
 <template>
-  <div class="image-container">
-    <!-- Resized image -->
-    <img :src="imageUrl" alt="Random Image" class="thumbnail" @click="showOverlay = true" />
+  <div>
+    <div class="image-container">
+      <!-- Resized image -->
+      <img :src="imageUrl" alt="Random Image" class="thumbnail" @click="showOverlay = true" />
 
-    <!-- Display the selected date -->
-    <p class="selected-date">This picture was taken on {{ selectedDate }}
-      <a href="#" class="refresh-link" @click.prevent="generateNewImage">(refresh)</a>
-    </p>
+      <!-- Display the selected date -->
+      <p class="selected-date">This picture was taken on {{ selectedDate }}
+        <a href="#" class="refresh-link" @click.prevent="generateNewImage">(refresh)</a>
+      </p>
+    </div>
 
-    <!-- Display analysis results -->
-    <div v-if="azResult" class="analysis-results">
-      <h3>Analysis Results</h3>
-      <p><strong>Description:</strong> {{ azResult.description }}</p>
-      <p><strong>Tags:</strong> {{ azResult.tags.join(', ') }}</p>
-      <div v-if="azResult.objects.length > 0">
-        <p><strong>Objects:</strong></p>
-        <ul>
-          <li v-for="obj in azResult.objects" :key="obj.object">{{ obj.object }} (confidence: {{ obj.confidence }})</li>
-        </ul>
+    <!-- Display analysis results or loading indicator -->
+    <div class="azure-eye">
+      <div v-if="loading" class="loading-container">
+        <div class="loading-spinner"></div>
+        <p class="loading-text">Analyzing image...</p>
       </div>
-      <div v-if="azResult.faces.length > 0">
-        <p><strong>Faces:</strong></p>
-        <ul>
-          <li v-for="(face, index) in azResult.faces" :key="index">Face detected at {{ face.faceRectangle.left }}, {{ face.faceRectangle.top }} (width: {{ face.faceRectangle.width }}, height: {{ face.faceRectangle.height }})</li>
-        </ul>
+      <div v-else-if="azResult" class="analysis-results">
+        <h3>Analysis Results</h3>
+        <p><strong>Description:</strong> {{ azResult.description }}</p>
+        <p><strong>Tags:</strong> {{ azResult.tags.join(', ') }}</p>
+        <div v-if="azResult.objects.length > 0">
+          <p><strong>Objects:</strong></p>
+          <ul>
+            <li v-for="obj in azResult.objects" :key="obj.object">{{ obj.object }} (confidence: {{ obj.confidence }})
+            </li>
+          </ul>
+        </div>
+        <div v-if="azResult.faces.length > 0">
+          <p><strong>Faces:</strong></p>
+          <ul>
+            <li v-for="(face, index) in azResult.faces" :key="index">Face detected at {{ face.faceRectangle.left }}, {{
+              face.faceRectangle.top }} (width: {{ face.faceRectangle.width }}, height: {{ face.faceRectangle.height }})
+            </li>
+          </ul>
+        </div>
       </div>
     </div>
 
@@ -60,7 +71,8 @@ export default {
       showOverlay: false, // Controls the visibility of the overlay
       computerVisionClient: null,
       faceClient: null,
-      azResult: null // Holds the analysis result
+      azResult: null, // Holds the analysis result
+      loading: false  // Controls the loading state
     }
   },
   mounted() {
@@ -115,10 +127,14 @@ export default {
       this.imageUrl = `https://objects.hbvu.su/blotpix/${formattedDate.year}/${formattedDate.month}/${formattedDate.day}.jpeg`;
       this.selectedDate = this.formatDateReadable(randomDate); // Update displayed date
 
-      // Analyze the new image
+      // Reset result and analyze the new image
+      this.azResult = null;
       this.analyzeImage();
     },
     async analyzeImage() {
+      // Set loading state to true before starting analysis
+      this.loading = true;
+
       try {
         // Analyze image features
         const features = ['Description', 'Tags', 'Objects'];
@@ -168,6 +184,9 @@ export default {
         };
       } catch (error) {
         console.error('Error:', error);
+      } finally {
+        // Set loading state to false after analysis completes (whether successful or not)
+        this.loading = false;
       }
     },
   },
@@ -183,6 +202,18 @@ export default {
   /* Limit max width on larger screens */
   margin: auto;
   /* Center the container */
+}
+
+.azure-eye {
+  position: relative;
+  width: 100%;
+  /* Ensure container takes full width */
+  max-width: 500px;
+  /* Limit max width on larger screens */
+  margin: auto;
+  /* Center the container */
+  min-height: 100px; /* Ensure minimum height for the loading indicator */
+  padding: 15px;
 }
 
 .thumbnail {
@@ -253,6 +284,39 @@ export default {
   text-decoration: underline;
 }
 
+/* Loading indicator styles */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 150px;
+}
+
+.loading-spinner {
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border-left-color: #007bff;
+  animation: spin 1s linear infinite;
+  margin-bottom: 15px;
+}
+
+.loading-text {
+  font-size: 16px;
+  color: #666;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
 @media (max-width: 768px) {
   .selected-date {
     font-size: 14px;
@@ -262,6 +326,15 @@ export default {
     width: 30px;
     height: 30px;
     font-size: 16px;
+  }
+
+  .loading-spinner {
+    width: 30px;
+    height: 30px;
+  }
+
+  .loading-text {
+    font-size: 14px;
   }
 }
 </style>

@@ -1,4 +1,3 @@
-
 <template>
   <div>
     <header class="header">
