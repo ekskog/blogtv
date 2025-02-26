@@ -53,6 +53,8 @@
 import { ComputerVisionClient } from '@azure/cognitiveservices-computervision';
 import { FaceClient } from '@azure/cognitiveservices-face';
 import { ApiKeyCredentials } from '@azure/ms-rest-js';
+import EXIF from 'exif-js';
+
 
 // Computer Vision credentials
 const azkey = '8egnbOy4cmBKTtVWFlKFz0Nsj5c4muen0DmiZYA075AV802X7QJUJQQJ99ALACi5YpzXJ3w3AAAFACOG9cDi';
@@ -131,6 +133,8 @@ export default {
       this.azResult = null;
       this.analyzeImage();
     },
+
+    /*
     async analyzeImage() {
       // Set loading state to true before starting analysis
       this.loading = true;
@@ -189,6 +193,45 @@ export default {
         this.loading = false;
       }
     },
+    */
+    async analyzeImage() {
+        // Set loading state to true before starting analysis
+        this.loading = true;
+        console.log('ANALYZING IMAGE from this.imageUrl');
+
+        try {
+          // Create an image element to load the image
+          const img = new Image();
+
+          // Create a promise to handle image loading
+          const imageLoaded = new Promise((resolve, reject) => {
+            img.onload = () => resolve();
+            img.onerror = () => reject(new Error('Failed to load image'));
+          });
+
+          // Set the image source to your URL
+          img.src = this.imageUrl;
+          img.crossOrigin = 'Anonymous'; // This might be needed for CORS issues
+
+          // Wait for the image to load
+          await imageLoaded;
+
+          // Extract EXIF data
+          EXIF.getData(img, () => {
+            const exif = EXIF.getAllTags(img);
+            console.log(exif);
+
+            // Process your EXIF data here
+            this.exifData = exif;
+
+            // Set loading to false when done
+            this.loading = false;
+          });
+        } catch (error) {
+          console.error('Error analyzing image:', error);
+          this.loading = false;
+        }
+    },
   },
 }
 </script>
@@ -212,7 +255,8 @@ export default {
   /* Limit max width on larger screens */
   margin: auto;
   /* Center the container */
-  min-height: 100px; /* Ensure minimum height for the loading indicator */
+  min-height: 100px;
+  /* Ensure minimum height for the loading indicator */
   padding: 15px;
 }
 
@@ -312,6 +356,7 @@ export default {
   0% {
     transform: rotate(0deg);
   }
+
   100% {
     transform: rotate(360deg);
   }
