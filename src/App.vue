@@ -33,8 +33,9 @@ export default {
 }
 
 body {
-    font-family: 'Nunito Sans', sans-serif;
+    font-family: 'Calibri', Arial, sans-serif;
 }
+
 
 .h2 {
   text-transform: capitalize;
