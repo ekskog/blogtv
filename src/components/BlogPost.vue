@@ -235,11 +235,12 @@ export default {
   border: #333 1px solid;
 }
 
+
 .caption {
   margin-top: 5px;
   text-align: center;
   display: block;
-  font-size: 0.2em;
+  font-size: 0.4em;
 }
 
 
@@ -251,6 +252,29 @@ export default {
 }
 
 @media (max-width: 768px) {
+  .post-image {
+    width: 100%;
+    margin-bottom: 0;
+    position: relative;
+    z-index: 1;
+  }
+
+  .figure-wrapper {
+    margin-bottom: 0;
+    padding-bottom: 5px; /* Add padding at the bottom */
+    position: relative;
+    z-index: 1;
+    overflow: visible; /* Ensure content doesn't get cut off */
+  }
+
+  .markdown-container {
+    margin-top: 0;
+    padding-top: 10px; /* Create space between figure and markdown */
+    position: relative;
+    z-index: 1;
+    clear: both; /* Force to new line */
+  }
+
   .post-image {
     width: 100%;
     padding-top: 30px;

@@ -5,7 +5,8 @@
       <img :src="imageUrl" alt="Random Image" class="thumbnail" @click="showOverlay = true" />
 
       <!-- Display the selected date -->
-      <p class="selected-date">This picture was taken on {{ selectedDate }}
+      <p class="selected-date">
+        This picture was taken on {{ selectedDate }}
         <a href="#" class="refresh-link" @click.prevent="generateNewImage">(refresh)</a>
       </p>
     </div>
@@ -23,15 +24,17 @@
         <div v-if="azResult.objects.length > 0">
           <p><strong>Objects:</strong></p>
           <ul>
-            <li v-for="obj in azResult.objects" :key="obj.object">{{ obj.object }} (confidence: {{ obj.confidence }})
+            <li v-for="obj in azResult.objects" :key="obj.object">
+              {{ obj.object }} (confidence: {{ obj.confidence }})
             </li>
           </ul>
         </div>
         <div v-if="azResult.faces.length > 0">
           <p><strong>Faces:</strong></p>
           <ul>
-            <li v-for="(face, index) in azResult.faces" :key="index">Face detected at {{ face.faceRectangle.left }}, {{
-              face.faceRectangle.top }} (width: {{ face.faceRectangle.width }}, height: {{ face.faceRectangle.height }})
+            <li v-for="(face, index) in azResult.faces" :key="index">
+              Face detected at {{ face.faceRectangle.left }}, {{ face.faceRectangle.top }} (width:
+              {{ face.faceRectangle.width }}, height: {{ face.faceRectangle.height }})
             </li>
           </ul>
         </div>
@@ -50,42 +53,42 @@
 </template>
 
 <script>
-import { ComputerVisionClient } from '@azure/cognitiveservices-computervision';
-import { FaceClient } from '@azure/cognitiveservices-face';
-import { ApiKeyCredentials } from '@azure/ms-rest-js';
-import EXIF from 'exif-js';
-
+import { ComputerVisionClient } from '@azure/cognitiveservices-computervision'
+import { FaceClient } from '@azure/cognitiveservices-face'
+import { ApiKeyCredentials } from '@azure/ms-rest-js'
+import EXIF from 'exif-js'
 
 // Computer Vision credentials
-const azkey = '8egnbOy4cmBKTtVWFlKFz0Nsj5c4muen0DmiZYA075AV802X7QJUJQQJ99ALACi5YpzXJ3w3AAAFACOG9cDi';
-const endpoint = 'https://blogt-eye.cognitiveservices.azure.com/';
+const azkey = '8egnbOy4cmBKTtVWFlKFz0Nsj5c4muen0DmiZYA075AV802X7QJUJQQJ99ALACi5YpzXJ3w3AAAFACOG9cDi'
+const endpoint = 'https://blogt-eye.cognitiveservices.azure.com/'
 
 // Face API credentials
-const faceKey = '33PxLl50btDRbU99fdJwBpdNJpVzIMxhd48B9NQRDI9QJObxjWzPJQQJ99ALACi5YpzXJ3w3AAAKACOGvSJF';
-const faceEndpoint = 'https://blogt-faces.cognitiveservices.azure.com/';
+const faceKey =
+  '33PxLl50btDRbU99fdJwBpdNJpVzIMxhd48B9NQRDI9QJObxjWzPJQQJ99ALACi5YpzXJ3w3AAAKACOGvSJF'
+const faceEndpoint = 'https://blogt-faces.cognitiveservices.azure.com/'
 
 export default {
   name: 'BlogRandomImage',
   data() {
     return {
       imageUrl: null,
-      selectedDate: "", // Holds the formatted selected date
+      selectedDate: '', // Holds the formatted selected date
       showOverlay: false, // Controls the visibility of the overlay
       computerVisionClient: null,
       faceClient: null,
       azResult: null, // Holds the analysis result
-      loading: false  // Controls the loading state
+      loading: false, // Controls the loading state
     }
   },
   mounted() {
     this.computerVisionClient = new ComputerVisionClient(
       new ApiKeyCredentials({ inHeader: { 'Ocp-Apim-Subscription-Key': azkey } }),
-      endpoint
-    );
+      endpoint,
+    )
     this.faceClient = new FaceClient(
       new ApiKeyCredentials({ inHeader: { 'Ocp-Apim-Subscription-Key': faceKey } }),
-      faceEndpoint
-    );
+      faceEndpoint,
+    )
 
     const randomDate = this.generateRandomDate(
       new Date(2010, 2, 11), // Start date: March 11, 2010
@@ -93,10 +96,10 @@ export default {
     )
     const formattedDate = this.formatDate(randomDate)
     this.imageUrl = `https://objects.hbvu.su/blotpix/${formattedDate.year}/${formattedDate.month}/${formattedDate.day}.jpeg`
-    this.selectedDate = this.formatDateReadable(randomDate); // Format for display
+    this.selectedDate = this.formatDateReadable(randomDate) // Format for display
 
     // Analyze the image when it's loaded
-    this.analyzeImage();
+    this.analyzeImage()
   },
   methods: {
     generateRandomDate(start, end) {
@@ -109,62 +112,63 @@ export default {
       return { year, month, day }
     },
     formatDateReadable(date) {
-      const day = date.getDate();
-      const month = new Intl.DateTimeFormat('en-US', { month: 'long' }).format(date);
-      const year = date.getFullYear();
-      return `${day}${this.getOrdinalSuffix(day)} of ${month}, ${year}`;
+      const day = date.getDate()
+      const month = new Intl.DateTimeFormat('en-US', { month: 'long' }).format(date)
+      const year = date.getFullYear()
+      return `${day}${this.getOrdinalSuffix(day)} of ${month}, ${year}`
     },
     getOrdinalSuffix(day) {
-      if (day % 10 === 1 && day !== 11) return 'st';
-      if (day % 10 === 2 && day !== 12) return 'nd';
-      if (day % 10 === 3 && day !== 13) return 'rd';
-      return 'th';
+      if (day % 10 === 1 && day !== 11) return 'st'
+      if (day % 10 === 2 && day !== 12) return 'nd'
+      if (day % 10 === 3 && day !== 13) return 'rd'
+      return 'th'
     },
     generateNewImage() {
       const randomDate = this.generateRandomDate(
         new Date(2010, 2, 11), // Start date: March 11, 2010
-        new Date() // End date: Today
-      );
-      const formattedDate = this.formatDate(randomDate);
-      this.imageUrl = `https://objects.hbvu.su/blotpix/${formattedDate.year}/${formattedDate.month}/${formattedDate.day}.jpeg`;
-      this.selectedDate = this.formatDateReadable(randomDate); // Update displayed date
+        new Date(), // End date: Today
+      )
+      const formattedDate = this.formatDate(randomDate)
+      this.imageUrl = `https://objects.hbvu.su/blotpix/${formattedDate.year}/${formattedDate.month}/${formattedDate.day}.jpeg`
+      this.selectedDate = this.formatDateReadable(randomDate) // Update displayed date
 
       // Reset result and analyze the new image
-      this.azResult = null;
-      this.analyzeImage();
+      this.azResult = null
+      this.analyzeImage()
     },
 
-    /*
     async analyzeImage() {
       // Set loading state to true before starting analysis
-      this.loading = true;
+      this.loading = true
 
       try {
         // Analyze image features
-        const features = ['Description', 'Tags', 'Objects'];
-        const azResult = await this.computerVisionClient.analyzeImage(this.imageUrl, { visualFeatures: features });
+        const features = ['Description', 'Tags', 'Objects']
+        const azResult = await this.computerVisionClient.analyzeImage(this.imageUrl, {
+          visualFeatures: features,
+        })
 
         // Use the read API for text extraction
-        const textResult = await this.computerVisionClient.read(this.imageUrl);
-        const operationId = textResult.operationLocation.split('/').pop();
+        const textResult = await this.computerVisionClient.read(this.imageUrl)
+        const operationId = textResult.operationLocation.split('/').pop()
 
-        let readResults;
-        let status;
+        let readResults
+        let status
         // Polling the read result until it's done
         do {
-          readResults = await this.computerVisionClient.getReadResult(operationId);
-          status = readResults.status;
+          readResults = await this.computerVisionClient.getReadResult(operationId)
+          status = readResults.status
           if (status === 'notStarted' || status === 'running') {
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            await new Promise((resolve) => setTimeout(resolve, 1000))
           }
-        } while (status === 'notStarted' || status === 'running');
+        } while (status === 'notStarted' || status === 'running')
 
         // Extract text content
         if (status === 'succeeded') {
           azResult.extractedText = readResults.analyzeResult.readResults
-            .flatMap(page => page.lines)
-            .map(line => line.text)
-            .join(' ');
+            .flatMap((page) => page.lines)
+            .map((line) => line.text)
+            .join(' ')
         }
 
         // Analyze faces using the Face API client
@@ -172,65 +176,62 @@ export default {
           returnFaceId: false,
           returnFaceLandmarks: false,
           recognitionModel: 'recognition_01',
-          detectionModel: 'detection_01'
-        });
+          detectionModel: 'detection_01',
+        })
 
-        azResult.faces = faceResults.map(face => ({
-          faceRectangle: face.faceRectangle
-        }));
+        azResult.faces = faceResults.map((face) => ({
+          faceRectangle: face.faceRectangle,
+        }))
 
         // Save the analysis result to display in the template
         this.azResult = {
-          description: azResult.description.captions.map(caption => caption.text).join(', '),
-          tags: azResult.tags.map(tag => tag.name),
+          description: azResult.description.captions.map((caption) => caption.text).join(', '),
+          tags: azResult.tags.map((tag) => tag.name),
           objects: azResult.objects,
-          faces: azResult.faces
-        };
+          faces: azResult.faces,
+        }
       } catch (error) {
-        console.error('Error:', error);
+        console.error('Error:', error)
       } finally {
         // Set loading state to false after analysis completes (whether successful or not)
-        this.loading = false;
+        this.loading = false
       }
     },
-    */
-    async analyzeImage() {
-        // Set loading state to true before starting analysis
-        this.loading = true;
-        console.log('ANALYZING IMAGE from this.imageUrl');
 
-        try {
-          // Create an image element to load the image
-          const img = new Image();
+    async analyzeImageExif() {
+      // Set loading state to true before starting analysis
+      this.loading = true
 
-          // Create a promise to handle image loading
-          const imageLoaded = new Promise((resolve, reject) => {
-            img.onload = () => resolve();
-            img.onerror = () => reject(new Error('Failed to load image'));
-          });
+      console.log(`ANALYZING IMAGE >>>> ${this.imageUrl}`)
 
-          // Set the image source to your URL
-          img.src = this.imageUrl;
-          img.crossOrigin = 'Anonymous'; // This might be needed for CORS issues
+      try {
+        // Create an image element to load the image
+        const img = new Image()
+        img.crossOrigin = 'Anonymous' // For CORS issues
 
-          // Wait for the image to load
-          await imageLoaded;
+        // Create a promise that wraps both image loading AND EXIF extraction
+        const getExifData = new Promise((resolve, reject) => {
+          img.onload = function () {
+            EXIF.getData(this, function () {
+              const exifData = EXIF.getAllTags(this)
+              resolve(exifData)
+            })
+          }
+          img.onerror = () => reject(new Error('Failed to load image'))
+        })
 
-          // Extract EXIF data
-          EXIF.getData(img, () => {
-            const exif = EXIF.getAllTags(img);
-            console.log(exif);
+        // Set the image source AFTER setting up the handlers
+        img.src = this.imageUrl
 
-            // Process your EXIF data here
-            this.exifData = exif;
-
-            // Set loading to false when done
-            this.loading = false;
-          });
-        } catch (error) {
-          console.error('Error analyzing image:', error);
-          this.loading = false;
-        }
+        // Wait for both image loading and EXIF extraction
+        this.exifData = await getExifData
+        console.log('EXIF data:', this.exifData)
+      } catch (error) {
+        console.error('Error analyzing image:', error)
+        this.exifData = {}
+      } finally {
+        this.loading = false
+      }
     },
   },
 }
