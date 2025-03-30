@@ -1,6 +1,5 @@
 <template>
   <div class="blog-posts">
-    <h6>this is it...</h6>
     <div v-for="(post, index) in posts" :key="index" class="post">
       <div class="padding"></div>
       <!-- Mobile-only title -->
@@ -469,80 +468,85 @@ export default {
 
 @media (max-width: 768px) {
   .post-layout {
-    height: auto;
-    /* Reset height for mobile */
+    display: block; /* Stack elements vertically */
+    width: 100%; /* Full width for mobile */
   }
 
+  /* Title */
   .mobile-title {
-    display: block;
-    margin-bottom: 2px;
-    font-size: 1.4em;
-    text-align: left;
+    display: block; /* Show title on mobile */
+    margin-bottom: 10px; /* Space after title */
+    text-align: left; /* Align content to the left */
   }
 
-  .desktop-title {
-    padding-bottom: 1px;
-    display: none;
-  }
-
-  .desktop-geotag {
-    display: none;
-  }
-
+  /* Geotag */
   .mobile-geotag {
-    display: block;
+    display: block; /* Show geotag on mobile */
+    margin-bottom: 10px; /* Space after geotag */
+    text-align: left; /* Align to the left */
   }
 
+
+  .desktop-title,
+  .desktop-geotag {
+    display: none; /* Hide desktop-specific title and geotag */
+  }
+
+  /* Post Image (Figure) */
   .post-image {
-    width: 100%;
-    padding: 0;
-    text-align: left;
+    display: block;
+    width: 100%; /* Full width */
+    margin-bottom: 10px; /* Space below image */
+    text-align: center; /* Center the image */
   }
 
   .thumbnail {
-    max-width: none;
     width: 100%;
-    height: auto;
-    margin: 0;
+    height: auto; /* Maintain aspect ratio */
   }
 
+  /* Caption */
+  .caption {
+    display: block; /* Ensure caption is on a new line */
+    margin-top: 5px; /* Space above caption */
+    margin-bottom: 10px; /* Space below caption */
+    text-align: center;
+  }
+
+  /* Markdown Container */
   .markdown-container {
-    max-width: 100%;
-    word-wrap: break-word;
-  }
-
-  .post-layout {
     display: block;
-    text-align: left;
+    clear: both; /* Prevent overlap with floating elements */
+    margin-top: 10px; /* Space above the container */
+    margin-bottom: 10px; /* Space below the container */
+    text-align: left; /* Align text content */
   }
 
-  .post-image,
-  .post-content {
+  /* Tags Container */
+  .tags-container {
     display: block;
-    width: 100%;
-    padding-left: 0;
-    text-align: left;
+    margin-top: 10px; /* Space after markdown container */
+    text-align: left; /* Align content to the left */
   }
 
-  .thumbnail {
-    margin-bottom: 20px;
-    margin-top: 20px;
-  }
-
-  .post-content {
-    text-align: left;
-  }
-
+  /* Date */
   .post-date {
-    margin-top: 3px;
-    font-size: 0.5em;
-    margin-bottom: 10px;
+    display: inline-block; /* Align date with tags */
+    margin-right: 10px; /* Space between date and tags */
     text-align: left;
   }
 
-  /* Add padding between image and post title on small screens */
-  .post img {
-    padding-bottom: 1em
+  /* Tags and Separators */
+  .tag {
+    display: inline-block; /* Align tags horizontally */
+    margin-right: 5px; /* Space between tags */
+  }
+
+  .tag-separator {
+    display: inline; /* Keep separators inline */
+    margin-right: 5px; /* Space after separator */
   }
 }
+
+
 </style>
