@@ -27,29 +27,7 @@ jobs:
           echo "${{ secrets.KUBECONFIG_FILE_CONTENT }}" > kubeconfig.yaml
           export KUBECONFIG=$PWD/kubeconfig.yaml
           echo "KUBECONFIG set to $KUBECONFIG"
-          kubectl config view
-
-      - name: Validate Kubeconfig Creation
-        run: |
-          grep -v 'certificate-authority-data' kubeconfig.yaml | \
-          grep -v 'client-certificate-data' | \
-          grep -v 'client-key-data'    
-          
-      - name: Debug Kubectl Config
-        run: |
-          kubectl config view --kubeconfig=$PWD/kubeconfig.yaml
-                  
-      - name: Test Kubernetes API Server
-        run: |
-          curl -k https://k3s-attic.hbvu.su:6443
-
-      - name: Set Context
-        run: |
-          kubectl config use-context default --kubeconfig=$PWD/kubeconfig.yaml
-
-      - name: Test Deployment Access
-        run: |
-          kubectl get deployments --namespace=webapps --kubeconfig=$PWD/kubeconfig.yaml                  
+          kubectl config view                
                     
       - name: Deploy to Kubernetes
         run: |
@@ -57,6 +35,6 @@ jobs:
           TIMESTAMP=$(date +%Y%m%d%H%M%S)
           IMAGE_TAG=$IMAGE_NAME:$TIMESTAMP
           echo "Resolved IMAGE_TAG: $IMAGE_TAG"
-          kubectl set image deployment/blogt-frontend app=$IMAGE_TAG --namespace=webapps
-          kubectl rollout restart deployment/blogt-frontend --namespace=webapps
+          kubectl set image deployment/blogt-frontend app=$IMAGE_TAG --namespace=webapps  --kubeconfig=$PWD/kubeconfig.yaml
+          kubectl rollout restart deployment/blogt-frontend --namespace=webapps --kubeconfig=$PWD/kubeconfig.yaml
     
