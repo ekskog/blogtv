@@ -18,16 +18,17 @@ jobs:
 
       - name: Build and push Docker image
         run: |
-          IMAGE_NAME=ghcr.io/ekskog/blogtv
-          IMAGE_TAG=$IMAGE_NAME:$(date +%Y%m%d%H%M%S)
-          docker buildx build --platform linux/amd64 -t $IMAGE_TAG -t $IMAGE_NAME:latest --push .
-
+          IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/blogtv
+          TIMESTAMP=$(date +%Y%m%d%H%M%S)
+          IMAGE_TAG=$IMAGE_NAME:$TIMESTAMP
+          echo "Resolved IMAGE_TAG: $IMAGE_TAG"
+          docker buildx build --platform linux/amd64 -t $IMAGE_TAG --push .
+      
       - name: Set up KUBECONFIG
         run: |
           echo "${{ secrets.KUBECONFIG_FILE_CONTENT }}" > kubeconfig.yaml
           export KUBECONFIG=$PWD/kubeconfig.yaml
           echo "KUBECONFIG set to $KUBECONFIG"
-          kubectl config view                
                     
       - name: Deploy to Kubernetes
         run: |
