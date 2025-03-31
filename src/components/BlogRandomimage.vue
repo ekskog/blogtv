@@ -41,6 +41,37 @@
       </div>
     </div>
 
+    <div v-if="!loading && exifData">
+      <div v-if="exifData.GPSLatitude && exifData.GPSLongitude" class="geotag-info">
+        <h3>Geotag Information</h3>
+        <p>
+          Latitude:
+          {{
+            exifData.GPSLatitudeRef === 'S'
+              ? -1
+              : 1 *
+                (exifData.GPSLatitude[0] +
+                  exifData.GPSLatitude[1] / 60 +
+                  exifData.GPSLatitude[2] / 3600)
+          }}
+        </p>
+        <p>
+          Longitude:
+          {{
+            exifData.GPSLongitudeRef === 'W'
+              ? -1
+              : 1 *
+                (exifData.GPSLongitude[0] +
+                  exifData.GPSLongitude[1] / 60 +
+                  exifData.GPSLongitude[2] / 3600)
+          }}
+        </p>
+      </div>
+      <div v-else>
+        <p>No geotag information found in the image.</p>
+      </div>
+    </div>
+
     <!-- Full-size overlay -->
     <div v-if="showOverlay" class="overlay">
       <!-- Close button -->
@@ -77,6 +108,7 @@ export default {
       computerVisionClient: null,
       faceClient: null,
       azResult: null, // Holds the analysis result
+      exifData: null,
       loading: false, // Controls the loading state
     }
   },
@@ -99,7 +131,8 @@ export default {
     this.selectedDate = this.formatDateReadable(randomDate) // Format for display
 
     // Analyze the image when it's loaded
-    this.analyzeImage()
+    //this.analyzeImage()
+    this.analyzeImageExif()
   },
   methods: {
     generateRandomDate(start, end) {
@@ -199,38 +232,86 @@ export default {
     },
 
     async analyzeImageExif() {
-      // Set loading state to true before starting analysis
       this.loading = true
+      const imgUrl = 'https://objects.hbvu.su/blotpix/2025/03/30.jpeg'
 
-      console.log(`ANALYZING IMAGE >>>> ${this.imageUrl}`)
+      console.log(`ANALYZING IMAGE >>>> ${imgUrl}`)
 
       try {
-        // Create an image element to load the image
-        const img = new Image()
-        img.crossOrigin = 'Anonymous' // For CORS issues
+        // Fetch image as a Blob (used for working with binary data)
+        const response = await fetch(imgUrl, { mode: 'cors' })
+        if (!response.ok) {
+          console.error(`HTTP error! status: ${response.status}`)
+          throw new Error(`HTTP error! status: ${response.status}`)
+        }
 
-        // Create a promise that wraps both image loading AND EXIF extraction
-        const getExifData = new Promise((resolve, reject) => {
-          img.onload = function () {
-            EXIF.getData(this, function () {
-              const exifData = EXIF.getAllTags(this)
-              resolve(exifData)
-            })
+        const blob = await response.blob()
+        console.log('Image fetch completed:', imgUrl)
+
+        // Ensure it's a JPEG file
+        if (!blob.type.startsWith('image/jpeg')) {
+          console.error('Not a JPEG image, EXIF data extraction only supports JPEG images.')
+          throw new Error('EXIF data extraction only supports JPEG images.')
+        }
+
+        console.log('Blob type is JPEG, continuing with EXIF extraction.')
+
+        // Read the Blob as an ArrayBuffer
+        const reader = new FileReader()
+        reader.onload = (event) => {
+          // Ensure the result is an ArrayBuffer
+          const arrayBuffer = event.target.result
+          if (!(arrayBuffer instanceof ArrayBuffer)) {
+            console.error('Expected ArrayBuffer, got something else.')
+            return
           }
-          img.onerror = () => reject(new Error('Failed to load image'))
-        })
 
-        // Set the image source AFTER setting up the handlers
-        img.src = this.imageUrl
+          console.log('ArrayBuffer loaded, passing to EXIF reader.')
 
-        // Wait for both image loading and EXIF extraction
-        this.exifData = await getExifData
-        console.log('EXIF data:', this.exifData)
+          // Directly pass arrayBuffer to EXIF.js
+          try {
+            const exifData = EXIF.readFromBinaryFile(arrayBuffer)
+
+            if (!exifData || Object.keys(exifData).length === 0) {
+              console.log('No EXIF data found.')
+              return
+            }
+
+            console.log('EXIF Data:', exifData)
+
+            if (exifData.GPSLatitude && exifData.GPSLongitude) {
+              const lat =
+                exifData.GPSLatitude[0] +
+                exifData.GPSLatitude[1] / 60 +
+                exifData.GPSLatitude[2] / 3600
+              const lon =
+                exifData.GPSLongitude[0] +
+                exifData.GPSLongitude[1] / 60 +
+                exifData.GPSLongitude[2] / 3600
+
+              this.exifData = {
+                latitude: exifData.GPSLatitudeRef === 'S' ? -lat : lat,
+                longitude: exifData.GPSLongitudeRef === 'W' ? -lon : lon,
+              }
+
+              console.log(
+                `Geotag - Latitude: ${this.exifData.latitude}, Longitude: ${this.exifData.longitude}`,
+              )
+            } else {
+              console.log('No geotag information found.')
+            }
+          } catch (error) {
+            console.error('Error processing EXIF data:', error)
+          }
+        }
+
+        reader.readAsArrayBuffer(blob)
+        console.log('Reading the image blob as ArrayBuffer...')
       } catch (error) {
         console.error('Error analyzing image:', error)
-        this.exifData = {}
       } finally {
         this.loading = false
+        console.log('Loading finished.')
       }
     },
   },

@@ -2,7 +2,8 @@
   <div class="single-post">
     <div v-if="post">
       <h2 class="post-title">{{ extractTitle(post) }}</h2>
-      <p v-if="extractGeotag(post)" class="geotag">@
+      <p v-if="extractGeotag(post)" class="geotag">
+        @
         <a :href="extractGeotag(post)?.url" target="_blank" rel="noopener noreferrer">
           {{ extractGeotag(post)?.text }}
         </a>
@@ -15,23 +16,42 @@
         </figure>
       </div>
 
-      <div class="markdown-container" v-html="renderMarkdown(removeGeotag(removeMetadata(post)))"></div>
+      <div
+        class="markdown-container"
+        v-html="renderMarkdown(removeGeotag(removeMetadata(post)))"
+      ></div>
 
       <!-- Clickable Tags with separators -->
-      <h6>
-        <p class="post-date">{{ date }}</p>
-        <span v-for="(tag, index) in extractTags(post).split(',')" :key="index">
-          <span class="tag">
-            <router-link :to="{
-              name: 'search',
-              query: { tag: tag.trim() }
-            }">
-              {{ tag.trim() }}
-            </router-link>
+      <div>
+        <h6>
+          <p class="post-date">{{ date }}</p>
+          <span v-for="(tag, index) in extractTags(post).split(',')" :key="index">
+            <span class="tag">
+              <router-link
+                :to="{
+                  name: 'search',
+                  query: { tag: tag.trim() },
+                }"
+              >
+                {{ tag.trim() }}
+              </router-link>
+            </span>
+            <span v-if="index < extractTags(post).split(',').length - 1" class="tag-separator"
+              >|</span
+            >
           </span>
-          <span v-if="index < extractTags(post).split(',').length - 1" class="tag-separator">|</span>
-        </span>
-      </h6>
+        </h6>
+      </div>
+      <!-- EXIF Data Toggle Button -->
+      <div>
+        <button @click="toggleExifData" class="exif-toggle-button">
+          {{ showExifData ? 'Hide EXIF Data' : 'Show EXIF Data' }}
+        </button>
+      </div>
+        <!-- EXIF Viewer -->
+        <div v-if="showExifData" class="exif-container">
+          <ExifViewer  :initialImageUrl="getImageUrl(post)"/>
+      </div>
 
       <!-- Navigation Buttons -->
 
@@ -44,150 +64,157 @@
           {{ 'Next Post' }}
         </button>
       </div>
-
     </div>
     <div v-else>Post not found</div>
   </div>
 </template>
 
 <script>
-import { ref } from 'vue';
-import { postStore } from '@/stores/posts';
-import { marked } from 'marked';
-import CryptoJS from 'crypto-js';
+import { ref } from 'vue'
+import { postStore } from '@/stores/posts'
+import { marked } from 'marked'
+import CryptoJS from 'crypto-js'
+import ExifViewer from './ExifViewer.vue'; // Import ExifViewer component
+
 
 export default {
   name: 'BlogPost',
-
+  components: {
+    ExifViewer // Register the ExifViewer component
+  },
   data() {
     return {
       date: this.$route.params.date,
       post: postStore.currentPost,
-    };
+      showExifData: false,
+    }
   },
   watch: {
     '$route.params.date': {
       immediate: true,
       handler(newDate) {
-        this.date = newDate;
-        this.loadPost(newDate);
+        this.date = newDate
+        this.loadPost(newDate)
       },
     },
   },
   methods: {
+    toggleExifData() {
+      this.showExifData = !this.showExifData;
+    },
     async getPost(date) {
-      const posts = ref([]);
+      const posts = ref([])
       try {
-        const response = await fetch(`https://blogtbe.hbvu.su/posts/${date}`);
+        const response = await fetch(`https://blogtbe.hbvu.su/posts/${date}`)
         if (!response.ok) {
-          console.error(`No post found for ${date}`);
+          console.error(`No post found for ${date}`)
         }
-        const data = await response.json();
-        posts.value = data;
-        const postContent = posts.value[0];
-        postStore.setCurrentPost(postContent);
-        this.$router.push({ name: 'Post', params: { date: date } });
+        const data = await response.json()
+        posts.value = data
+        const postContent = posts.value[0]
+        postStore.setCurrentPost(postContent)
+        this.$router.push({ name: 'Post', params: { date: date } })
       } catch (error) {
-        alert(`${error.message} - No post found for ${date}`);
+        alert(`${error.message} - No post found for ${date}`)
       }
     },
     async loadPost(date) {
       try {
-        const response = await fetch(`https://blogtbe.hbvu.su/posts/${date}`);
+        const response = await fetch(`https://blogtbe.hbvu.su/posts/${date}`)
         if (!response.ok) {
-          throw new Error('loadPOST: Post not found');
+          throw new Error('loadPOST: Post not found')
         }
-        const data = await response.json();
-        const postContent = data[0];
-        postStore.setCurrentPost(postContent);
-        this.post = postContent;
+        const data = await response.json()
+        const postContent = data[0]
+        postStore.setCurrentPost(postContent)
+        this.post = postContent
       } catch (error) {
-        alert(error.message + " >> THERE IS ERROR LOAD POST ERROR");
+        alert(error.message + ' >> THERE IS ERROR LOAD POST ERROR')
       }
     },
     created() {
-      this.loadPost(this.date);
+      this.loadPost(this.date)
     },
     renderMarkdown(markdown) {
-      return marked(markdown);
+      return marked(markdown)
     },
     getImageUrl(post) {
-      const dateMatch = post.match(/Date:\s*(\d{2})(\d{2})(\d{4})/);
+      const dateMatch = post.match(/Date:\s*(\d{2})(\d{2})(\d{4})/)
       if (dateMatch) {
-        const day = dateMatch[1];
-        const month = dateMatch[2];
-        const year = dateMatch[3];
-        let dateUrl = `https://objects.hbvu.su/blotpix/${year}/${month}/${day}.jpeg`;
-        return dateUrl;
+        const day = dateMatch[1]
+        const month = dateMatch[2]
+        const year = dateMatch[3]
+        let dateUrl = `https://objects.hbvu.su/blotpix/${year}/${month}/${day}.jpeg`
+        return dateUrl
       }
-      console.error('Invalid Date format in metadata:', post);
-      return '';
+      console.error('Invalid Date format in metadata:', post)
+      return ''
     },
     calculateCaption(post) {
-      const MD5Caption = CryptoJS.MD5(post).toString();
-      return MD5Caption;
+      const MD5Caption = CryptoJS.MD5(post).toString()
+      return MD5Caption
     },
     extractTags(post) {
-      const tagsMatch = post.match(/^Tags:\s*(.+)$/m);
-      const tags = tagsMatch ? tagsMatch[1].trim() : 'No Tags';
-      return tags;
+      const tagsMatch = post.match(/^Tags:\s*(.+)$/m)
+      const tags = tagsMatch ? tagsMatch[1].trim() : 'No Tags'
+      return tags
     },
     removeGeotag(content) {
       return content
         .replace(/\[.*?\]\(https:\/\/maps\.app\.goo\.gl\/[^\s)]+\)\s*/g, '')
         .replace(/\n{3,}/g, '\n\n')
-        .trim();
+        .trim()
     },
     extractGeotag(post) {
-      const cleanedPost = this.removeMetadata(post);
-      const geotagMatch = cleanedPost.match(/\[(.*?)\]\((https:\/\/maps\.app\.goo\.gl\/[^\s)]+)\)/);
+      const cleanedPost = this.removeMetadata(post)
+      const geotagMatch = cleanedPost.match(/\[(.*?)\]\((https:\/\/maps\.app\.goo\.gl\/[^\s)]+)\)/)
       return geotagMatch
         ? {
-          text: geotagMatch[1],
-          url: geotagMatch[2],
-        }
-        : null;
+            text: geotagMatch[1],
+            url: geotagMatch[2],
+          }
+        : null
     },
     extractTitle(post) {
-      const titleMatch = post.match(/Title:\s*([^\n]+)/);
-      const title = titleMatch ? titleMatch[1].trim() : 'Untitled';
-      return title;
+      const titleMatch = post.match(/Title:\s*([^\n]+)/)
+      const title = titleMatch ? titleMatch[1].trim() : 'Untitled'
+      return title
     },
     removeMetadata(post) {
-      const cleanedPost = post.replace(/^(Date:.*|Tags:.*|Title:.*)$/gm, '').trim();
-      return cleanedPost;
+      const cleanedPost = post.replace(/^(Date:.*|Tags:.*|Title:.*)$/gm, '').trim()
+      return cleanedPost
     },
 
     parseDateString() {
-      const day = parseInt(this.date.slice(0, 2));
-      const month = parseInt(this.date.slice(2, 4)) - 1;
-      const year = parseInt(this.date.slice(4, 8));
-      let parsedDate = new Date(year, month, day);
-      return parsedDate;  // Return Date object
+      const day = parseInt(this.date.slice(0, 2))
+      const month = parseInt(this.date.slice(2, 4)) - 1
+      const year = parseInt(this.date.slice(4, 8))
+      let parsedDate = new Date(year, month, day)
+      return parsedDate // Return Date object
     },
 
     navigateToNextDay() {
-      let inputDate = this.parseDateString();  // Get the Date object from the date string
-      let nextDay = new Date(inputDate);
-      nextDay.setDate(inputDate.getDate() + 1);  // Increment the day by 1
-      let nextDayFormatted = this.formatDateStr(nextDay);  // Format the date to the desired format
-      this.getPost(nextDayFormatted);  // Fetch the post for the next day
+      let inputDate = this.parseDateString() // Get the Date object from the date string
+      let nextDay = new Date(inputDate)
+      nextDay.setDate(inputDate.getDate() + 1) // Increment the day by 1
+      let nextDayFormatted = this.formatDateStr(nextDay) // Format the date to the desired format
+      this.getPost(nextDayFormatted) // Fetch the post for the next day
     },
 
     navigateToPreviousDay() {
-      let inputDate = this.parseDateString();  // Get the Date object from the date string
-      let previousDay = new Date(inputDate);
-      previousDay.setDate(inputDate.getDate() - 1);  // Decrement the day by 1
-      let previousDayFormatted = this.formatDateStr(previousDay);  // Format the date to the desired format
-      this.getPost(previousDayFormatted);  // Fetch the post for the previous day
+      let inputDate = this.parseDateString() // Get the Date object from the date string
+      let previousDay = new Date(inputDate)
+      previousDay.setDate(inputDate.getDate() - 1) // Decrement the day by 1
+      let previousDayFormatted = this.formatDateStr(previousDay) // Format the date to the desired format
+      this.getPost(previousDayFormatted) // Fetch the post for the previous day
     },
 
     formatDateStr(date) {
       // Formats the date as DDMMYYYY
-      return `${("0" + date.getDate()).slice(-2)}${("0" + (date.getMonth() + 1)).slice(-2)}${date.getFullYear()}`;
-    }
+      return `${('0' + date.getDate()).slice(-2)}${('0' + (date.getMonth() + 1)).slice(-2)}${date.getFullYear()}`
+    },
   },
-};
+}
 </script>
 
 <style scoped>
@@ -235,7 +262,6 @@ export default {
   border: #333 1px solid;
 }
 
-
 .caption {
   margin-top: 5px;
   text-align: center;
@@ -243,12 +269,34 @@ export default {
   font-size: 0.4em;
 }
 
-
 .figure-wrapper {
   width: 100%;
   margin-top: 20px;
   vertical-align: top;
   text-align: left;
+}
+
+.exif-toggle-button {
+  display: block;
+  margin: 10px 0;
+  padding: 6px 12px;
+  background-color: #f0f0f0;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 0.8em;
+  cursor: pointer;
+}
+
+.exif-toggle-button:hover {
+  background-color: #e0e0e0;
+}
+
+.exif-container {
+  margin: 10px 0 20px;
+  padding: 15px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: #f9f9f9;
 }
 
 @media (max-width: 768px) {
