@@ -26,11 +26,14 @@ jobs:
         run: |
           echo "${{ secrets.KUBECONFIG_FILE_CONTENT }}" > kubeconfig.yaml
           export KUBECONFIG=$PWD/kubeconfig.yaml
-
+          echo "KUBECONFIG set to $KUBECONFIG"
+          
       - name: Deploy to Kubernetes
         run: |
-          kubectl set image deployment/blogt-frontendapp=$IMAGE_TAG --namespace=webapps
+          IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/blogtv
+          TIMESTAMP=$(date +%Y%m%d%H%M%S)
+          IMAGE_TAG=$IMAGE_NAME:$TIMESTAMP
+          echo "Resolved IMAGE_TAG: $IMAGE_TAG"
+          kubectl set image deployment/blogt-frontend app=$IMAGE_TAG --namespace=webapps
           kubectl rollout restart deployment/blogt-frontend --namespace=webapps
-        env:
-          IMAGE_TAG: ghcr.io/${{ github.repository_owner }}/blogtv:$(date +%Y%m%d%H%M%S)
-        
+    
