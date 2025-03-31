@@ -27,7 +27,9 @@ jobs:
           echo "${{ secrets.KUBECONFIG_FILE_CONTENT }}" > kubeconfig.yaml
           export KUBECONFIG=$PWD/kubeconfig.yaml
           echo "KUBECONFIG set to $KUBECONFIG"
-          
+          kubectl config view
+        
+
       - name: Deploy to Kubernetes
         run: |
           IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/blogtv
