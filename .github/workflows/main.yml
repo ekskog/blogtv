@@ -28,6 +28,13 @@ jobs:
           export KUBECONFIG=$PWD/kubeconfig.yaml
           echo "KUBECONFIG set to $KUBECONFIG"
           kubectl config view
+
+      - name: Debug Kubeconfig
+        run: |
+          grep "server" kubeconfig.yaml || echo "Server field is missing in kubeconfig"
+        env:
+          KUBECONFIG: $PWD/kubeconfig.yaml
+        
         
 
       - name: Deploy to Kubernetes
