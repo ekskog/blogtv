@@ -29,14 +29,28 @@ jobs:
           echo "KUBECONFIG set to $KUBECONFIG"
           kubectl config view
 
-      - name: Debug Kubeconfig
+      - name: Validate Kubeconfig Creation
         run: |
-          grep "server" kubeconfig.yaml || echo "Server field is missing in kubeconfig"
-        env:
-          KUBECONFIG: $PWD/kubeconfig.yaml
-        
-        
+          grep -v 'certificate-authority-data' kubeconfig.yaml | \
+          grep -v 'client-certificate-data' | \
+          grep -v 'client-key-data'    
+          
+      - name: Debug Kubectl Config
+        run: |
+          kubectl config view --kubeconfig=$PWD/kubeconfig.yaml
+                  
+      - name: Test Kubernetes API Server
+        run: |
+          curl -k https://k3s-attic.hbvu.su:6443
 
+      - name: Set Context
+        run: |
+          kubectl config use-context default --kubeconfig=$PWD/kubeconfig.yaml
+
+      - name: Test Deployment Access
+        run: |
+          kubectl get deployments --namespace=webapps --kubeconfig=$PWD/kubeconfig.yaml                  
+                    
       - name: Deploy to Kubernetes
         run: |
           IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/blogtv
