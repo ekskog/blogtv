@@ -8,14 +8,35 @@
           {{ extractGeotag(post)?.text }}
         </a>
       </p>
+
       <!-- Image -->
       <div class="post-image">
         <figure class="figure-wrapper">
           <img :src="getImageUrl(post)" alt="Post Image" class="thumbnail" />
           <span class="caption">{{ calculateCaption(post) }}</span>
+
+          <!-- EXIF and Azure Eye Toggle Buttons Below the Caption -->
+          <div class="toggle-buttons">
+            <button @click="toggleExifData" class="exif-toggle-button">
+              {{ showExifData ? 'Hide EXIF Data' : 'Show EXIF Data' }}
+            </button>
+            <button @click="toggleAzEyeData" class="azeye-toggle-button">
+              {{ showAzEyeData ? 'Hide AzEye Data' : 'Show AzEye Data' }}
+            </button>
+          </div>
         </figure>
       </div>
 
+      <!-- EXIF Viewer -->
+      <div v-if="showExifData" class="exif-container">
+        <ExifViewer :initialImageUrl="getImageUrl(post)" />
+      </div>
+
+      <!-- Azure Eye Viewer -->
+      <div v-if="showAzEyeData" class="azeye-container">
+        <AzureViewer :initialImageUrl="getImageUrl(post)" />
+      </div>
+      <!-- he Blog Post Text Markdown, Rendered -->
       <div
         class="markdown-container"
         v-html="renderMarkdown(removeGeotag(removeMetadata(post)))"
@@ -42,26 +63,14 @@
           </span>
         </h6>
       </div>
-      <!-- EXIF Data Toggle Button -->
-      <div>
-        <button @click="toggleExifData" class="exif-toggle-button">
-          {{ showExifData ? 'Hide EXIF Data' : 'Show EXIF Data' }}
-        </button>
-      </div>
-        <!-- EXIF Viewer -->
-        <div v-if="showExifData" class="exif-container">
-          <ExifViewer  :initialImageUrl="getImageUrl(post)"/>
-      </div>
 
       <!-- Navigation Buttons -->
-
       <div class="pagination-controls">
         <button @click="navigateToPreviousDay" class="pagination-button">
-          {{ 'Previous Post' }}
+          {{ '<' }}
         </button>
-
         <button @click="navigateToNextDay" class="pagination-button">
-          {{ 'Next Post' }}
+          {{ '>' }}
         </button>
       </div>
     </div>
@@ -74,19 +83,22 @@ import { ref } from 'vue'
 import { postStore } from '@/stores/posts'
 import { marked } from 'marked'
 import CryptoJS from 'crypto-js'
-import ExifViewer from './ExifViewer.vue'; // Import ExifViewer component
-
+import ExifViewer from './ExifViewer.vue' // Import ExifViewer component
+import AzureViewer from './AzureViewer.vue' // Import AzureViewer component
 
 export default {
   name: 'BlogPost',
   components: {
-    ExifViewer // Register the ExifViewer component
+    ExifViewer,
+    AzureViewer,
   },
   data() {
     return {
       date: this.$route.params.date,
       post: postStore.currentPost,
       showExifData: false,
+      showAzEyeData: false,
+      loading: false,
     }
   },
   watch: {
@@ -100,7 +112,10 @@ export default {
   },
   methods: {
     toggleExifData() {
-      this.showExifData = !this.showExifData;
+      this.showExifData = !this.showExifData
+    },
+    toggleAzEyeData() {
+      this.showAzEyeData = !this.showAzEyeData
     },
     async getPost(date) {
       const posts = ref([])
@@ -246,7 +261,6 @@ export default {
   color: black;
   margin-top: 1px;
   margin-bottom: 5px;
-  /* Add some margin to separate geotag from other elements */
   text-decoration: none;
 }
 
@@ -276,9 +290,15 @@ export default {
   text-align: left;
 }
 
-.exif-toggle-button {
-  display: block;
-  margin: 10px 0;
+.toggle-buttons {
+  margin-top: 10px;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.exif-toggle-button,
+.azeye-toggle-button {
   padding: 6px 12px;
   background-color: #f0f0f0;
   border: 1px solid #ddd;
@@ -287,14 +307,23 @@ export default {
   cursor: pointer;
 }
 
-.exif-toggle-button:hover {
+.exif-toggle-button:hover,
+.azeye-toggle-button:hover {
   background-color: #e0e0e0;
 }
 
 .exif-container {
   margin: 10px 0 20px;
   padding: 15px;
-  border: 1px solid #ddd;
+  border: 1px solid black;
+  border-radius: 4px;
+  background-color: #f9f9f9;
+}
+
+.azeye-container {
+  margin: 10px 0 20px;
+  padding: 15px;
+  border: 1px solid #000;
   border-radius: 4px;
   background-color: #f9f9f9;
 }
@@ -309,18 +338,18 @@ export default {
 
   .figure-wrapper {
     margin-bottom: 0;
-    padding-bottom: 5px; /* Add padding at the bottom */
+    padding-bottom: 5px;
     position: relative;
     z-index: 1;
-    overflow: visible; /* Ensure content doesn't get cut off */
+    overflow: visible;
   }
 
   .markdown-container {
     margin-top: 0;
-    padding-top: 10px; /* Create space between figure and markdown */
+    padding-top: 10px;
     position: relative;
     z-index: 1;
-    clear: both; /* Force to new line */
+    clear: both;
   }
 
   .post-image {
@@ -360,7 +389,7 @@ export default {
 .pagination-button {
   padding: 8px 16px;
   background-color: #f0f0f0;
-  border: 1px solid #ddd;
+  border: 1px solid black;
   border-radius: 4px;
   cursor: pointer;
 }
