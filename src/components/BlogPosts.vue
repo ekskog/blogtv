@@ -342,6 +342,12 @@ export default {
   /* For Firefox */
 }
 
+.markdown-container sup {
+    font-size: 70%;
+    position: relative;
+    top: -2px; /* Fine-tune this value */
+}
+
 /* For Webkit browsers (Chrome, Safari, Edge) */
 .markdown-container::-webkit-scrollbar {
   width: 8px;

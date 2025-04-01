@@ -352,6 +352,11 @@ export default {
     clear: both;
   }
 
+  .markdown-container sup {
+    font-size: 70%;
+    position: relative;
+    top: -2px; /* Fine-tune this value */
+}
   .post-image {
     width: 100%;
     padding-top: 30px;
