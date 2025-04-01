@@ -335,6 +335,7 @@ export default {
   word-wrap: break-word;
   flex: 1;
   overflow-y: auto;
+  line-height: 3.5; /* Keeps vertical spacing uniform */
   /* Changed from auto to scroll to always show */
   scrollbar-width: thin;
   /* For Firefox */
@@ -521,6 +522,7 @@ export default {
 
   /* Markdown Container */
   .markdown-container {
+    line-height: 3.5; /* Keeps vertical spacing uniform */
     display: block;
     clear: both; /* Prevent overlap with floating elements */
     margin-top: 10px; /* Space above the container */

@@ -265,6 +265,7 @@ export default {
 }
 
 .markdown-container {
+  line-height: 3.5; /* Keeps vertical spacing uniform */
   margin-top: 30px;
   max-width: 100%;
 }
@@ -345,6 +346,7 @@ export default {
   }
 
   .markdown-container {
+    line-height: 1.5; /* Keeps vertical spacing uniform */
     margin-top: 0;
     padding-top: 10px;
     position: relative;
