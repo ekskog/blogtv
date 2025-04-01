@@ -30,13 +30,21 @@
           </table>
         </div>
         <div v-if="azResult.faces.length > 0">
-          <p><strong>Faces:</strong></p>
-          <ul>
-            <li v-for="(face, index) in azResult.faces" :key="index">
-              Face detected at {{ face.faceRectangle.left }}, {{ face.faceRectangle.top }} (width:
-              {{ face.faceRectangle.width }}, height: {{ face.faceRectangle.height }})
-            </li>
-          </ul>
+          <p><strong>Faces detected:</strong></p>
+          <table>
+            <thead>
+              <tr>
+                <th>Position</th>
+                <th>Size</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(face, index) in azResult.faces" :key="index">
+                <td>{{ face.faceRectangle.left }}, {{ face.faceRectangle.top }}</td>
+                <td>(width: {{ face.faceRectangle.width }}, height: {{ face.faceRectangle.height }})</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
