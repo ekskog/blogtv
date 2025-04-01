@@ -9,7 +9,7 @@
         <div class="loading-spinner"></div>
         <p class="loading-text">Analyzing image...</p>
       </div>
-      <div v-else-if="azResult" class="analysis-results">
+      <div v-else-if="azResult" class="azeye-data">
         <h3>Analysis Results</h3>
         <p><strong>Description:</strong> {{ azResult.description }}</p>
         <p><strong>Tags:</strong> {{ azResult.tags.join(', ') }}</p>
@@ -177,10 +177,6 @@ export default {
 </script>
 
 <style scoped>
-.azeye-viewer {
-  font-family: Arial, sans-serif;
-}
-
 .loading,
 .error {
   margin: 10px 0;
@@ -204,12 +200,14 @@ export default {
 
 .azeye-data p {
   margin: 5px 0;
+  font-size: .7em
 }
 
 table {
   width: 100%;
   border-collapse: collapse;
   margin: 20px 0;
+  font-size: .7em
 }
 
 th, td {

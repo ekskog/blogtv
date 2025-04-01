@@ -132,5 +132,6 @@ export default {
 
 .exif-data p {
   margin: 5px 0;
+  font-size: .7em
 }
 </style>
