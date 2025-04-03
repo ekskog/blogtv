@@ -103,13 +103,20 @@ export default {
   },
   watch: {
     '$route.params.date': {
-      immediate: true,
-      handler(newDate) {
-        this.date = newDate
-        this.loadPost(newDate)
-      },
+        immediate: true,
+        handler(newDate) {
+            console.log('Detected route change, new date:', newDate);
+            if (newDate) {
+                this.date = newDate;
+                this.loadPost(newDate); // Fetch the new post
+            } else {
+                console.error('No date provided in route params!');
+                this.post = null; // Clear the post if date is invalid
+            }
+        },
     },
-  },
+},
+
   methods: {
     toggleExifData() {
       this.showExifData = !this.showExifData
@@ -117,6 +124,7 @@ export default {
     toggleAzEyeData() {
       this.showAzEyeData = !this.showAzEyeData
     },
+    /*
     async getPost(date) {
       const posts = ref([])
       try {
@@ -130,9 +138,10 @@ export default {
         postStore.setCurrentPost(postContent)
         this.$router.push({ name: 'Post', params: { date: date } })
       } catch (error) {
-        alert(`${error.message} - No post found for ${date}`)
+        console.log(`${error.message} - No post found for ${date}`)
       }
     },
+    */
     async loadPost(date) {
       try {
         const response = await fetch(`https://blogtbe.hbvu.su/posts/${date}`)
@@ -209,19 +218,20 @@ export default {
     },
 
     navigateToNextDay() {
-      let inputDate = this.parseDateString() // Get the Date object from the date string
-      let nextDay = new Date(inputDate)
-      nextDay.setDate(inputDate.getDate() + 1) // Increment the day by 1
-      let nextDayFormatted = this.formatDateStr(nextDay) // Format the date to the desired format
-      this.getPost(nextDayFormatted) // Fetch the post for the next day
+        const inputDate = this.parseDateString();
+        const nextDay = new Date(inputDate);
+        nextDay.setDate(inputDate.getDate() + 1); // Increment the day by 1
+        const nextDayFormatted = this.formatDateStr(nextDay); // Format the date
+        console.log('Navigating to next day:', nextDayFormatted);
+        this.$router.push({ name: 'post', params: { date: nextDayFormatted } }); // Route to next day
     },
-
     navigateToPreviousDay() {
-      let inputDate = this.parseDateString() // Get the Date object from the date string
-      let previousDay = new Date(inputDate)
-      previousDay.setDate(inputDate.getDate() - 1) // Decrement the day by 1
-      let previousDayFormatted = this.formatDateStr(previousDay) // Format the date to the desired format
-      this.getPost(previousDayFormatted) // Fetch the post for the previous day
+        const inputDate = this.parseDateString();
+        const previousDay = new Date(inputDate);
+        previousDay.setDate(inputDate.getDate() - 1); // Decrement the day by 1
+        const previousDayFormatted = this.formatDateStr(previousDay); // Format the date
+        console.log('Navigating to previous day:', previousDayFormatted);
+        this.$router.push({ name: 'post', params: { date: previousDayFormatted } }); // Route to previous day
     },
 
     formatDateStr(date) {
@@ -265,7 +275,7 @@ export default {
 }
 
 .markdown-container {
-  line-height: 3.5; /* Keeps vertical spacing uniform */
+  line-height: 1.5; /* Keeps vertical spacing uniform */
   margin-top: 30px;
   max-width: 100%;
 }

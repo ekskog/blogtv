@@ -28,7 +28,7 @@
         <tbody>
           <tr v-for="post in paginatedResults" :key="post.date">
             <td>
-              <a @click.prevent="getPost(post.date)" class="link-style">
+              <a @click.prevent="loadPost(post.date)" class="link-style">
                 {{ formatDate(post.date) }}
               </a>
             </td>
@@ -53,7 +53,11 @@
           Previous
         </button>
         <span class="pagination-page-info">Page {{ currentPage }} of {{ totalPages }}</span>
-        <button @click="currentPage++" :disabled="currentPage === totalPages" class="pagination-btn">
+        <button
+          @click="currentPage++"
+          :disabled="currentPage === totalPages"
+          class="pagination-btn"
+        >
           Next
         </button>
       </div>
@@ -72,82 +76,78 @@ export default {
       error: null,
       currentPage: 1,
       resultsPerPage: 10,
-    };
+    }
   },
   computed: {
     totalPages() {
-      return Math.ceil(this.searchResults.length / this.resultsPerPage);
+      return Math.ceil(this.searchResults.length / this.resultsPerPage)
     },
     paginatedResults() {
-      const start = (this.currentPage - 1) * this.resultsPerPage;
-      const end = start + this.resultsPerPage;
-      return this.searchResults.slice(start, end);
+      const start = (this.currentPage - 1) * this.resultsPerPage
+      const end = start + this.resultsPerPage
+      return this.searchResults.slice(start, end)
     },
     startIndex() {
-      return (this.currentPage - 1) * this.resultsPerPage;
+      return (this.currentPage - 1) * this.resultsPerPage
     },
     endIndex() {
-      return Math.min(this.startIndex + this.resultsPerPage, this.searchResults.length);
+      return Math.min(this.startIndex + this.resultsPerPage, this.searchResults.length)
     },
   },
   watch: {
-    '$route.query.tag': function(newTag) {
-      this.searchTag = newTag || '';
+    '$route.query.tag': function (newTag) {
+      this.searchTag = newTag || ''
       if (this.searchTag) {
-        this.performSearch();
+        this.performSearch()
       }
     },
   },
   created() {
     if (this.searchTag) {
-      this.performSearch();
+      this.performSearch()
     }
   },
   methods: {
     async performSearch() {
-      this.loading = true;
-      this.error = null;
+      this.loading = true
+      this.error = null
       try {
-        const response = await fetch(`https://blogtbe.hbvu.su/tags/${encodeURIComponent(this.searchTag)}`);
+        const response = await fetch(
+          `https://blogtbe.hbvu.su/tags/${encodeURIComponent(this.searchTag)}`,
+        )
         if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+          throw new Error(`HTTP error! status: ${response.status}`)
         }
-        this.searchResults = await response.json();
+        this.searchResults = await response.json()
       } catch (err) {
-        this.error = 'Failed to fetch search results. Please try again later.';
-        console.error('Search error:', err);
+        this.error = 'Failed to fetch search results. Please try again later.'
+        console.error('Search error:', err)
       } finally {
-        this.loading = false;
+        this.loading = false
       }
     },
     formatDate(dateStr) {
-      if (!dateStr) return '';
-      const day = dateStr.substring(0, 2);  // DD
-      const month = dateStr.substring(2, 4);  // MM
-      const year = dateStr.substring(4, 8);  // YYYY
-      return `${day}${month}${year}`; // Return in DDMMYYYY format
+      if (!dateStr) return ''
+      const day = dateStr.substring(0, 2) // DD
+      const month = dateStr.substring(2, 4) // MM
+      const year = dateStr.substring(4, 8) // YYYY
+      return `${day}${month}${year}` // Return in DDMMYYYY format
     },
-    async getPost(date) {
-      try {
-        const response = await fetch(`https://blogtbe.hbvu.su/posts/${date}`);
-        if (!response.ok) {
-          throw new Error('Post not found');
-        }
-        const data = await response.json();
-        const postContent = data[0];  // Assuming data is an array
-        // Handle the post (e.g., store it, navigate to post page)
-      } catch (error) {
-        alert(error);
-      }
+    async loadPost(date) {
+      console.log('Loading post for date:', date)
+      this.$router.push({
+        name: 'post', // Route name, case-sensitive
+        params: { date }, // Pass the `date` parameter
+      })
     },
     formatTitle(title) {
       return title
         .split(' ')
         .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-        .join(' ');
+        .join(' ')
     },
   },
-};
+}
 </script>
 
 <style scoped>
@@ -252,7 +252,9 @@ export default {
   color: #333;
   border-radius: 4px;
   cursor: pointer;
-  transition: background-color 0.2s, color 0.2s;
+  transition:
+    background-color 0.2s,
+    color 0.2s;
 }
 
 .pagination-btn:hover {

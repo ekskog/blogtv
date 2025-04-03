@@ -23,7 +23,7 @@ export default {
 
 
 #app {
-  font-family: 'Segoe UI', sans-serif;
+  font-family: 'Calibri', sans-serif;
 }
 
 /* Ensure content starts below navbar */

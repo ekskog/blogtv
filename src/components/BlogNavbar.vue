@@ -75,7 +75,7 @@ export default {
       const formattedDate = `${String(dateObj.getDate()).padStart(2, "0")}${String(dateObj.getMonth() + 1).padStart(2, "0")}${dateObj.getFullYear()}`;
 
       // Redirect to the blog post
-      router.push({ name: "Post", params: { date: formattedDate } });
+      router.push({ name: "post", params: { date: formattedDate } });
 
       // Close menu on mobile
       if (isSmallScreen.value) closeMenu();

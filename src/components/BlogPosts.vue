@@ -29,11 +29,10 @@
           <div class="markdown-container" v-html="renderMarkdown(removeGeotag(removeMetadata(post)))"></div>
         </div>
       </div>
-      <!-- Tags with separators -->
       <div class="tags-container">
         <h6>
           <router-link :to="{
-            name: 'Post',
+            name: 'post',
             params: { date: extractDate(post) },
           }" class="post-date" @click="setPost(post)">
             <span>{{ extractDate(post) }}</span>
@@ -53,7 +52,6 @@
       </div>
     </div>
 
-    <!-- Pagination Controls -->
     <div class="pagination-controls">
       <button @click="fetchPreviousPage" :disabled="isFirstPage || isLoading" class="pagination-button">
         {{ isLoading ? 'Loading...' : 'Previous Posts' }}
@@ -335,7 +333,6 @@ export default {
   word-wrap: break-word;
   flex: 1;
   overflow-y: auto;
-  line-height: 3.5; /* Keeps vertical spacing uniform */
   /* Changed from auto to scroll to always show */
   scrollbar-width: thin;
   /* For Firefox */
