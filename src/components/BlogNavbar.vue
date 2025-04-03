@@ -8,20 +8,34 @@
     <div class="logo">
       <img src="@/assets/logo.png" alt="App Logo" />
     </div>
-    <!-- Full Menu (visible on larger screens) -->
+
+    <!-- Full Menu (Desktop) -->
     <nav class="full-menu" v-if="!isSmallScreen">
       <ul>
         <li><router-link to="/posts">Posts</router-link></li>
-        <li><router-link to="/archive">Archive</router-link></li>
-        <li><router-link to="/search">Search</router-link></li>
+        <li>
+          <input type="date" v-model="selectedDate" @change="goToPost" class="nav-input" />
+        </li>
+        <li class="search-container">
+          <input type="text" v-model="searchTag" placeholder="Search by tag" class="nav-input search-input"
+            @keyup.enter="searchByTag" />
+          <i class="fas fa-search search-icon" @click="searchByTag"></i>
+        </li>
       </ul>
     </nav>
+
     <!-- Mobile Menu -->
     <nav v-if="menuOpen && isSmallScreen" class="mobile-menu">
       <ul>
         <li><router-link to="/posts" @click="closeMenu">Posts</router-link></li>
-        <li><router-link to="/archive" @click="closeMenu">Archive</router-link></li>
-        <li><router-link to="/search" @click="closeMenu">Search</router-link></li>
+        <li>
+          <input type="date" v-model="selectedDate" @change="goToPost" class="nav-input" />
+        </li>
+        <li class="search-container">
+          <input type="text" v-model="searchTag" placeholder="Search by tag" class="nav-input search-input"
+            @keyup.enter="searchByTag" />
+          <i class="fas fa-search search-icon" @click="searchByTag"></i>
+        </li>
       </ul>
     </nav>
   </header>
@@ -29,12 +43,16 @@
 
 <script>
 import { ref, onMounted, onUnmounted } from "vue";
+import { useRouter } from "vue-router";
 
 export default {
   name: "BlogNavbar",
   setup() {
+    const router = useRouter();
     const isSmallScreen = ref(false);
     const menuOpen = ref(false);
+    const selectedDate = ref(null);
+    const searchTag = ref("");
 
     const checkScreenSize = () => {
       isSmallScreen.value = window.innerWidth <= 768;
@@ -49,6 +67,29 @@ export default {
       menuOpen.value = false;
     };
 
+    const goToPost = () => {
+      if (!selectedDate.value) return;
+
+      // Format date as DDMMYYYY
+      const dateObj = new Date(selectedDate.value);
+      const formattedDate = `${String(dateObj.getDate()).padStart(2, "0")}${String(dateObj.getMonth() + 1).padStart(2, "0")}${dateObj.getFullYear()}`;
+
+      // Redirect to the blog post
+      router.push({ name: "Post", params: { date: formattedDate } });
+
+      // Close menu on mobile
+      if (isSmallScreen.value) closeMenu();
+    };
+
+    const searchByTag = () => {
+      if (!searchTag.value.trim()) return;
+
+      // Navigate to the BlogSearch component with the tag parameter
+      router.push({ name: 'search', query: { tag: searchTag.value.trim() } });
+
+      if (isSmallScreen.value) closeMenu();
+    };
+
     onMounted(() => {
       checkScreenSize();
       window.addEventListener("resize", checkScreenSize);
@@ -58,12 +99,13 @@ export default {
       window.removeEventListener("resize", checkScreenSize);
     });
 
-    return { isSmallScreen, menuOpen, toggleMenu, closeMenu };
+    return { isSmallScreen, menuOpen, toggleMenu, closeMenu, selectedDate, searchTag, goToPost, searchByTag };
   },
 };
 </script>
 
 <style scoped>
+/* Navbar Styling */
 header {
   display: flex;
   align-items: center;
@@ -82,8 +124,6 @@ header {
 .logo {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-left: 0; /* Changed from auto to 0 */
 }
 
 .logo img {
@@ -92,46 +132,67 @@ header {
 }
 
 .full-menu {
-  margin-left: auto; /* Added to push menu to the right */
-  margin-right: 20px; /* Added for some spacing from the right edge */
+  margin-left: auto;
+  margin-right: 20px;
 }
 
 .full-menu ul {
-  list-style-type: none;
+  list-style: none;
   display: flex;
-  gap: 30px;
+  gap: 20px;
   margin: 0;
   padding: 0;
 }
 
 .full-menu ul li {
-  white-space: nowrap;
+  display: flex;
+  align-items: center;
 }
 
-.full-menu ul li a {
-  text-decoration: none;
-  color: #333;
-  padding: 5px 10px;
+/* Inputs */
+.nav-input {
+  padding: 8px;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  width: 150px;
 }
 
-.full-menu ul li a:hover {
+/* Search Input */
+.search-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-input {
+  padding-right: 35px;
+}
+
+.search-icon {
+  position: absolute;
+  right: 10px;
+  cursor: pointer;
+  color: #555;
+  transition: color 0.2s;
+}
+
+.search-icon:hover {
   color: #007bff;
 }
 
-/* Hamburger styles */
+/* Mobile Menu */
 .hamburger-wrapper {
   position: absolute;
   left: 20px;
   top: 50%;
   transform: translateY(-50%);
-  z-index: 1001;
 }
 
 .hamburger {
   background: none;
   border: none;
   cursor: pointer;
-  padding: 8px;
   font-size: 24px;
   color: #333;
   transition: color 0.3s ease;
@@ -141,7 +202,6 @@ header {
   color: #007bff;
 }
 
-/* Mobile menu styles */
 .mobile-menu {
   position: fixed;
   top: 60px;
@@ -149,12 +209,10 @@ header {
   width: 100%;
   background-color: white;
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-  z-index: 1000;
 }
 
 .mobile-menu ul {
   list-style-type: none;
-  margin: 0;
   padding: 20px;
 }
 
@@ -169,22 +227,31 @@ header {
 .mobile-menu ul li a {
   text-decoration: none;
   color: #333;
-  font-weight: 500;
   font-size: 1.1rem;
   display: block;
   padding: 8px 0;
 }
 
+/* Mobile adjustments */
 @media (max-width: 768px) {
   .full-menu {
     display: none;
   }
+
   .logo {
     margin-left: auto;
     margin-right: 20px;
   }
-  .hamburger {
-    display: block;
+
+  .mobile-menu ul {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .mobile-menu ul li {
+    display: flex;
+    align-items: center;
   }
 }
 </style>

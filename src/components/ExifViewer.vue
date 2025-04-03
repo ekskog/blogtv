@@ -105,9 +105,6 @@ export default {
 </script>
 
 <style scoped>
-.exif-viewer {
-  font-family: Arial, sans-serif;
-}
 
 .loading,
 .error {

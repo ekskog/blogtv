@@ -35,11 +35,6 @@ export default {
   padding-right: 15px;
 }
 
-body {
-    font-family: 'Calibri', Arial, sans-serif;
-}
-
-
 .h2 {
   text-transform: capitalize;
   font-size: 2.5em;

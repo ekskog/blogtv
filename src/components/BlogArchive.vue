@@ -1,8 +1,6 @@
 <template>
   <div>
-    <header class="header">
-      <h2>The BLOGT Archive</h2>
-    </header>
+      <h3>The BLOGT Archive</h3>
     <div v-if="archive">
       <div class="year-display">
         <h2>{{ currentYear }}</h2>
@@ -126,19 +124,14 @@ export default {
 };
 </script>
 
-<style scoped>
-.header {
-  text-align: center;
-  padding: 20px;
-  background-color: #f8f9fa;
-}
 
+<style scoped>
 .year-navigation {
   display: flex;
   justify-content: space-between;
   margin-bottom: 20px;
 }
-
+/*
 button {
   padding: 10px;
   background-color: #007bff;
@@ -151,6 +144,7 @@ button {
 button:disabled {
   background-color: #ccc;
 }
+  */
 
 .year-display {
   text-align: center;
@@ -210,3 +204,4 @@ button:disabled {
   padding: 20px;
 }
 </style>
+

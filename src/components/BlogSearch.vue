@@ -1,21 +1,11 @@
 <template>
   <div class="blog-search">
-    <!-- Manual Search Input -->
-    <div class="manual-search">
-      <input
-        v-model="manualTag"
-        type="text"
-        placeholder="Enter a tag to search"
-        class="search-input"
-      />
-      <button @click="handleManualSearch" class="search-button">Search</button>
-    </div>
-
     <!-- Title -->
     <h3 v-if="searchTag" class="page-title">Search Results for Tag: {{ searchTag }}</h3>
 
     <!-- Default State -->
     <div v-if="!searchTag && !loading" class="text-center py-4 text-gray-600">
+      Enter a tag to start searching.
     </div>
 
     <!-- Loading State -->
@@ -72,15 +62,11 @@
 </template>
 
 <script>
-import { ref } from 'vue';
-import { postStore } from '@/stores/posts';
-
 export default {
   name: 'BlogSearch',
   data() {
     return {
-      searchTag: '',
-      manualTag: '',
+      searchTag: this.$route.query.tag || '', // Set the initial tag from the route
       searchResults: [],
       loading: false,
       error: null,
@@ -104,8 +90,15 @@ export default {
       return Math.min(this.startIndex + this.resultsPerPage, this.searchResults.length);
     },
   },
+  watch: {
+    '$route.query.tag': function(newTag) {
+      this.searchTag = newTag || '';
+      if (this.searchTag) {
+        this.performSearch();
+      }
+    },
+  },
   created() {
-    this.searchTag = this.$route.query.tag;
     if (this.searchTag) {
       this.performSearch();
     }
@@ -114,13 +107,8 @@ export default {
     async performSearch() {
       this.loading = true;
       this.error = null;
-      this.searchResults = [];
-      this.currentPage = 1;
-
       try {
-        const response = await fetch(
-          `https://blogtbe.hbvu.su/tags/${encodeURIComponent(this.searchTag)}`
-        );
+        const response = await fetch(`https://blogtbe.hbvu.su/tags/${encodeURIComponent(this.searchTag)}`);
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -132,13 +120,6 @@ export default {
         this.loading = false;
       }
     },
-    async handleManualSearch() {
-      if (!this.manualTag.trim()) return;
-      this.searchTag = this.manualTag.trim();
-      this.performSearch();
-    },
-
-    // Adjusted formatDate to handle DDMMYYYY
     formatDate(dateStr) {
       if (!dateStr) return '';
       const day = dateStr.substring(0, 2);  // DD
@@ -146,39 +127,24 @@ export default {
       const year = dateStr.substring(4, 8);  // YYYY
       return `${day}${month}${year}`; // Return in DDMMYYYY format
     },
-
     async getPost(date) {
-      const posts = ref([]);
       try {
         const response = await fetch(`https://blogtbe.hbvu.su/posts/${date}`);
         if (!response.ok) {
           throw new Error('Post not found');
         }
         const data = await response.json();
-        posts.value = data;
-        const postContent = posts.value[0];
-        postStore.setCurrentPost(postContent);
-        const postDate = this.formatDate(date);
-        this.$router.push({ name: 'Post', params: { date: postDate } });
+        const postContent = data[0];  // Assuming data is an array
+        // Handle the post (e.g., store it, navigate to post page)
       } catch (error) {
         alert(error);
       }
     },
-
-    // Title formatting remains the same
     formatTitle(title) {
       return title
         .split(' ')
         .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
         .join(' ');
-    },
-  },
-  watch: {
-    '$route.query.tag'(newTag) {
-      this.searchTag = newTag;
-      if (newTag) {
-        this.performSearch();
-      }
     },
   },
 };
@@ -322,14 +288,11 @@ export default {
   .pagination-info {
     text-align: center;
     width: 100%;
-
-
   }
 
   .pagination-controls {
     width: 100%;
     justify-content: center;
-    /* Centers the controls on mobile */
   }
 }
 </style>

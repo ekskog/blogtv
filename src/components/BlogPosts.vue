@@ -344,7 +344,7 @@ export default {
 }
 
 .markdown-container sup {
-    font-size: 70%;
+    font-size: 50%;
     position: relative;
     top: -2px; /* Fine-tune this value */
 }
