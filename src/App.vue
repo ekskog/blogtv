@@ -94,10 +94,22 @@ export default {
 }
 
 .markdown-container {
-  font-size: 0.7em;
-  line-height: 1.6;
-  /* Left-align the markdown content */
+  line-height: 1.5; /* Maintain consistent vertical spacing */
+  margin-top: 30px;
+  padding-top: 10px;
+  max-width: 100%;
+  position: relative;
+  z-index: 1;
+  clear: both;
+  font-size : 0.8em; /* Adjusted for better readability */
 }
+
+.markdown-container sup {
+  font-size: 40%;
+  vertical-align: text-top; /* Aligns the superscript at the top of the text */
+  line-height: inherit; /* Inherits the line height to prevent disruption */
+}
+
 
 .markdown-container a {
   text-decoration: none !important;

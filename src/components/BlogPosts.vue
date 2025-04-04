@@ -340,12 +340,6 @@ export default {
   /* For Firefox */
 }
 
-.markdown-container sup {
-    font-size: 50%;
-    position: relative;
-    top: -2px; /* Fine-tune this value */
-}
-
 /* For Webkit browsers (Chrome, Safari, Edge) */
 .markdown-container::-webkit-scrollbar {
   width: 8px;
@@ -517,15 +511,6 @@ export default {
     text-align: center;
   }
 
-  /* Markdown Container */
-  .markdown-container {
-    line-height: 3.5; /* Keeps vertical spacing uniform */
-    display: block;
-    clear: both; /* Prevent overlap with floating elements */
-    margin-top: 10px; /* Space above the container */
-    margin-bottom: 10px; /* Space below the container */
-    text-align: left; /* Align text content */
-  }
 
   /* Tags Container */
   .tags-container {

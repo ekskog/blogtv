@@ -144,12 +144,18 @@ export default {
     */
     async loadPost(date) {
       try {
+        const posts = ref([])
+        console.log(posts.value)
+
+        console.log('Loading post for date:', date)
+        this.loading = true
         const response = await fetch(`https://blogtbe.hbvu.su/posts/${date}`)
         if (!response.ok) {
           throw new Error('loadPOST: Post not found')
         }
         const data = await response.json()
         const postContent = data[0]
+        console.log('Post content:', postContent)
         postStore.setCurrentPost(postContent)
         this.post = postContent
       } catch (error) {
@@ -274,12 +280,6 @@ export default {
   text-decoration: none;
 }
 
-.markdown-container {
-  line-height: 1.5; /* Keeps vertical spacing uniform */
-  margin-top: 30px;
-  max-width: 100%;
-}
-
 .thumbnail {
   width: 100%;
   height: auto;
@@ -355,20 +355,6 @@ export default {
     overflow: visible;
   }
 
-  .markdown-container {
-    line-height: 1.5; /* Keeps vertical spacing uniform */
-    margin-top: 0;
-    padding-top: 10px;
-    position: relative;
-    z-index: 1;
-    clear: both;
-  }
-
-  .markdown-container sup {
-    font-size: 50%;
-    position: relative;
-    top: -2px; /* Fine-tune this value */
-}
   .post-image {
     width: 100%;
     padding-top: 30px;
