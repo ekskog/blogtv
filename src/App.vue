@@ -22,10 +22,6 @@ export default {
 @import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;700&display=swap');
 
 
-#app {
-  font-family: 'Calibri', sans-serif;
-}
-
 /* Ensure content starts below navbar */
 #app {
   padding-top: 60px; /* Adjust based on your navbar height */
@@ -52,13 +48,13 @@ export default {
 }
 
 .tag a {
-  text-decoration: none;
+  text-decoration: none !important;
   color: #333;
 }
 
 .tag a:hover {
   color: #007bff;
-  text-decoration: underline;
+  text-decoration: none !important;
 }
 
 .figure-wrapper {
@@ -93,32 +89,7 @@ export default {
   text-decoration: underline;
 }
 
-.markdown-container {
-  line-height: 1.5; /* Maintain consistent vertical spacing */
-  margin-top: 30px;
-  padding-top: 10px;
-  max-width: 100%;
-  position: relative;
-  z-index: 1;
-  clear: both;
-  font-size : 0.8em; /* Adjusted for better readability */
-}
-
-.markdown-container sup {
-  font-size: 40%;
-  vertical-align: text-top; /* Aligns the superscript at the top of the text */
-  line-height: inherit; /* Inherits the line height to prevent disruption */
-}
 
 
-.markdown-container a {
-  text-decoration: none !important;
-}
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  #app {
-    padding-top: 50px; /* Slightly less padding on small screens */
-  }
-}
 </style>
 

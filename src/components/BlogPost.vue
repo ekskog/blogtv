@@ -2,45 +2,46 @@
   <div class="single-post">
     <div v-if="post">
       <h2 class="post-title">{{ extractTitle(post) }}</h2>
-      <p v-if="extractGeotag(post)" class="geotag">
-        @
-        <a :href="extractGeotag(post)?.url" target="_blank" rel="noopener noreferrer">
+      <div v-if="extractGeotag(post)">
+        <a :href="extractGeotag(post)?.url" target="_blank" rel="noopener noreferrer"  class="geotag">
           {{ extractGeotag(post)?.text }}
         </a>
-      </p>
+      </div>
 
       <!-- Image -->
       <div class="post-image">
         <figure class="figure-wrapper">
           <img :src="getImageUrl(post)" alt="Post Image" class="thumbnail" />
           <span class="caption">{{ calculateCaption(post) }}</span>
-
-          <!-- EXIF and Azure Eye Toggle Buttons Below the Caption -->
-          <div class="toggle-buttons">
-            <button @click="toggleExifData" class="exif-toggle-button">
-              {{ showExifData ? 'Hide EXIF Data' : 'Show EXIF Data' }}
-            </button>
-            <button @click="toggleAzEyeData" class="azeye-toggle-button">
-              {{ showAzEyeData ? 'Hide AzEye Data' : 'Show AzEye Data' }}
-            </button>
-          </div>
         </figure>
       </div>
 
-      <!-- EXIF Viewer -->
-      <div v-if="showExifData" class="exif-container">
-        <ExifViewer :initialImageUrl="getImageUrl(post)" />
+          <!-- EXIF and Azure Eye Toggle Buttons Below the Caption -->
+      <div class="toggle-buttons">
+        <button @click="toggleExifData" class="exif-toggle-button">
+          {{ showExifData ? 'Hide EXIF Data' : 'Show EXIF Data' }}
+        </button>
+        <button @click="toggleAzEyeData" class="azeye-toggle-button">
+          {{ showAzEyeData ? 'Hide AzEye Data' : 'Show AzEye Data' }}
+        </button>
       </div>
 
+      <!-- EXIF Viewer -->
+        <div v-if="showExifData" class="exif-container">
+        <ExifViewer :initialImageUrl="getImageUrl(post)" />
+        </div>
+
       <!-- Azure Eye Viewer -->
-      <div v-if="showAzEyeData" class="azeye-container">
+        <div v-if="showAzEyeData" class="azeye-container">
         <AzureViewer :initialImageUrl="getImageUrl(post)" />
-      </div>
-      <!-- he Blog Post Text Markdown, Rendered -->
+        </div>
+
+      <!-- The Blog Post Text Markdown, Rendered -->
       <div
         class="markdown-container"
         v-html="renderMarkdown(removeGeotag(removeMetadata(post)))"
-      ></div>
+      >
+    </div>
 
       <!-- Clickable Tags with separators -->
       <div>
@@ -255,17 +256,9 @@ export default {
   padding: 20px;
 }
 
-.post-date {
-  font-size: 0.5em;
-  color: #666;
-  font-style: bold;
-  padding-right: 20px;
-  display: inline;
-}
 
 .post-title {
-  font-size: 1.2em;
-  color: purple;
+  font-size: 2em;
   margin: 0;
   padding: 0px 0;
   text-align: left;
@@ -273,18 +266,38 @@ export default {
 }
 
 .geotag {
-  font-size: 0.6em;
+  font-size: 0.8em;
   color: black;
-  margin-top: 1px;
   margin-bottom: 5px;
-  text-decoration: none;
+  text-decoration: none !important;
 }
-
+.geotag a:hover {
+  color: #007bff;
+  text-decoration: none !important;
+}
 .thumbnail {
   width: 100%;
   height: auto;
   max-width: 2800px;
   border: #333 1px solid;
+}
+
+.markdown-container {
+  padding-top: 10px;
+  max-width: 100%;
+  font-size: 1em; /* Adjusted for better readability */
+  line-height: 1.6; /* Add an explicit line height if not already set */
+}
+
+.markdown-container sup {
+  font-size: 60%; /* Or any other percentage that suits you */
+  line-height: 1; /* Normalize line height */
+  position: relative;
+  vertical-align: top; /* Adjust alignment */
+}
+
+.markdown-container a {
+  text-decoration: none !important;
 }
 
 .caption {
@@ -302,7 +315,7 @@ export default {
 }
 
 .toggle-buttons {
-  margin-top: 10px;
+  margin-top: 20px;
   display: flex;
   gap: 10px;
   justify-content: center;
@@ -324,60 +337,30 @@ export default {
 }
 
 .exif-container {
-  margin: 10px 0 20px;
+  margin-top: 20px;
+  margin-bottom: 20px;;
   padding: 15px;
   border: 1px solid black;
   border-radius: 4px;
-  background-color: #f9f9f9;
+  background-color: #ba9595;
 }
 
 .azeye-container {
-  margin: 10px 0 20px;
+  margin-top: 20px;
+  margin-bottom: 20px;;
   padding: 15px;
-  border: 1px solid #000;
+  border: 1px solid black;
   border-radius: 4px;
-  background-color: #f9f9f9;
+  background-color: #ba9595;
 }
 
-@media (max-width: 768px) {
-  .post-image {
-    width: 100%;
-    margin-bottom: 0;
-    position: relative;
-    z-index: 1;
-  }
-
-  .figure-wrapper {
-    margin-bottom: 0;
-    padding-bottom: 5px;
-    position: relative;
-    z-index: 1;
-    overflow: visible;
-  }
-
-  .post-image {
-    width: 100%;
-    padding-top: 30px;
-    text-align: left;
-  }
-
-  .thumbnail {
-    max-width: 100%;
-    height: auto;
-    margin: 0;
-  }
-
-  .navigation-buttons {
-    display: flex;
-    flex-direction: column;
-  }
+.post-date {
+  font-size: 0.5em;
+  color: #666;
+  font-style: bold;
+  padding-right: 20px;
+  display: inline;
 }
-
-.post-title {
-  font-size: 2em;
-  margin-bottom: 0;
-}
-
 .tag-separator {
   margin: 0 5px;
 }

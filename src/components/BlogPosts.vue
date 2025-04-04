@@ -4,7 +4,7 @@
       <div class="padding"></div>
       <!-- Mobile-only title -->
       <h2 class="post-title mobile-title">{{ extractTitle(post) }}</h2>
-      <p v-if="extractGeotag(post)" class="geotag mobile-geotag">@
+      <p v-if="extractGeotag(post)" class="geotag mobile-geotag">
         <a :href="extractGeotag(post)?.url" target="_blank" rel="noopener noreferrer">
           {{ extractGeotag(post)?.text }}
         </a>
@@ -320,34 +320,35 @@ export default {
 }
 
 .geotag {
-  font-size: 0.6em;
+  font-size: 0.8em;
   color: black;
-  margin-top: 1px;
   margin-bottom: 5px;
-  /* Add some margin to separate geotag from other elements */
-  text-decoration: none;
+  text-decoration: none !important;
+}
+.geotag a:hover {
+  color: #007bff;
+  text-decoration: none !important;
 }
 
 .markdown-container {
-  max-width: 400px;
+  max-width: 600px;
   word-wrap: break-word;
   flex: 1;
   overflow-y: auto;
-  /* Changed from auto to scroll to always show */
-  scrollbar-width: thin;
-  /* For Firefox */
-  scrollbar-color: #888 #f1f1f1;
-  /* For Firefox */
+  scrollbar-width: thin; /* For Firefox */
+  scrollbar-color: #888 #f1f1f1; /* For Firefox */
+  padding-right: 10px; /* Adds padding to content, creating space from scrollbar */
 }
 
 /* For Webkit browsers (Chrome, Safari, Edge) */
 .markdown-container::-webkit-scrollbar {
-  width: 8px;
+  width: 10px; /* Increase width for padding illusion */
 }
 
 .markdown-container::-webkit-scrollbar-track {
   background: #f1f1f1;
   border-radius: 4px;
+  margin-left: 2px; /* Creates the padding illusion */
 }
 
 .markdown-container::-webkit-scrollbar-thumb {
@@ -358,6 +359,7 @@ export default {
 .markdown-container::-webkit-scrollbar-thumb:hover {
   background: #555;
 }
+
 
 .mobile-title,
 .mobile-geotag {
@@ -462,6 +464,20 @@ export default {
 
 .pagination-button:not(:disabled):hover {
   background-color: #e0e0e0;
+}
+
+@media (min-width: 600px) and (max-width: 1024px) {
+  .post-layout {
+    flex-direction: column; /* Stack elements vertically */
+    align-items: flex-start; /* Align them to the left */
+    gap: 20px; /* Add spacing between stacked elements */
+  }
+
+  .post-image,
+  .post-content {
+    width: 100%; /* Allow them to resize naturally */
+  }
+
 }
 
 @media (max-width: 768px) {

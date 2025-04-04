@@ -6,19 +6,25 @@
       </button>
     </div>
     <div class="logo">
-      <img src="@/assets/logo.png" alt="App Logo" />
+      <router-link to="/Posts">
+        <img src="@/assets/logo.png" alt="App Logo" />
+      </router-link>
     </div>
 
     <!-- Full Menu (Desktop) -->
     <nav class="full-menu" v-if="!isSmallScreen">
       <ul>
-        <li><router-link to="/posts">Posts</router-link></li>
         <li>
           <input type="date" v-model="selectedDate" @change="goToPost" class="nav-input" />
         </li>
         <li class="search-container">
-          <input type="text" v-model="searchTag" placeholder="Search by tag" class="nav-input search-input"
-            @keyup.enter="searchByTag" />
+          <input
+            type="text"
+            v-model="searchTag"
+            placeholder="Search by tag"
+            class="nav-input search-input"
+            @keyup.enter="searchByTag"
+          />
           <i class="fas fa-search search-icon" @click="searchByTag"></i>
         </li>
       </ul>
@@ -27,13 +33,17 @@
     <!-- Mobile Menu -->
     <nav v-if="menuOpen && isSmallScreen" class="mobile-menu">
       <ul>
-        <li><router-link to="/posts" @click="closeMenu">Posts</router-link></li>
         <li>
           <input type="date" v-model="selectedDate" @change="goToPost" class="nav-input" />
         </li>
         <li class="search-container">
-          <input type="text" v-model="searchTag" placeholder="Search by tag" class="nav-input search-input"
-            @keyup.enter="searchByTag" />
+          <input
+            type="text"
+            v-model="searchTag"
+            placeholder="Search by tag"
+            class="nav-input search-input"
+            @keyup.enter="searchByTag"
+          />
           <i class="fas fa-search search-icon" @click="searchByTag"></i>
         </li>
       </ul>
@@ -42,75 +52,83 @@
 </template>
 
 <script>
-import { ref, onMounted, onUnmounted } from "vue";
-import { useRouter } from "vue-router";
+import { ref, onMounted, onUnmounted } from 'vue'
+import { useRouter } from 'vue-router'
 
 export default {
-  name: "BlogNavbar",
+  name: 'BlogNavbar',
   setup() {
-    const router = useRouter();
-    const isSmallScreen = ref(false);
-    const menuOpen = ref(false);
-    const selectedDate = ref(null);
-    const searchTag = ref("");
+    const router = useRouter()
+    const isSmallScreen = ref(false)
+    const menuOpen = ref(false)
+    const selectedDate = ref(null)
+    const searchTag = ref('')
 
     const checkScreenSize = () => {
-      isSmallScreen.value = window.innerWidth <= 768;
-      if (!isSmallScreen.value) menuOpen.value = false;
-    };
+      isSmallScreen.value = window.innerWidth <= 768
+      if (!isSmallScreen.value) menuOpen.value = false
+    }
 
     const toggleMenu = () => {
-      menuOpen.value = !menuOpen.value;
-    };
+      menuOpen.value = !menuOpen.value
+    }
 
     const closeMenu = () => {
-      menuOpen.value = false;
-    };
+      menuOpen.value = false
+    }
 
     const goToPost = () => {
-      if (!selectedDate.value) return;
+      if (!selectedDate.value) return
 
       // Format date as DDMMYYYY
-      const dateObj = new Date(selectedDate.value);
-      const formattedDate = `${String(dateObj.getDate()).padStart(2, "0")}${String(dateObj.getMonth() + 1).padStart(2, "0")}${dateObj.getFullYear()}`;
+      const dateObj = new Date(selectedDate.value)
+      const formattedDate = `${String(dateObj.getDate()).padStart(2, '0')}${String(dateObj.getMonth() + 1).padStart(2, '0')}${dateObj.getFullYear()}`
 
       // Redirect to the blog post
-      router.push({ name: "post", params: { date: formattedDate } });
+      router.push({ name: 'post', params: { date: formattedDate } })
 
       // Close menu on mobile
-      if (isSmallScreen.value) closeMenu();
-    };
+      if (isSmallScreen.value) closeMenu()
+    }
 
     const searchByTag = () => {
-      if (!searchTag.value.trim()) return;
+      if (!searchTag.value.trim()) return
 
       // Navigate to the BlogSearch component with the tag parameter
-      router.push({ name: 'search', query: { tag: searchTag.value.trim() } });
+      router.push({ name: 'search', query: { tag: searchTag.value.trim() } })
 
-      if (isSmallScreen.value) closeMenu();
-    };
+      if (isSmallScreen.value) closeMenu()
+    }
 
     onMounted(() => {
-      checkScreenSize();
-      window.addEventListener("resize", checkScreenSize);
-    });
+      checkScreenSize()
+      window.addEventListener('resize', checkScreenSize)
+    })
 
     onUnmounted(() => {
-      window.removeEventListener("resize", checkScreenSize);
-    });
+      window.removeEventListener('resize', checkScreenSize)
+    })
 
-    return { isSmallScreen, menuOpen, toggleMenu, closeMenu, selectedDate, searchTag, goToPost, searchByTag };
+    return {
+      isSmallScreen,
+      menuOpen,
+      toggleMenu,
+      closeMenu,
+      selectedDate,
+      searchTag,
+      goToPost,
+      searchByTag,
+    }
   },
-};
+}
 </script>
 
 <style scoped>
-/* Navbar Styling */
 header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 20px;
+  padding: 10px 20px; /* This sets padding for both the logo and the menu */
   position: fixed;
   top: 0;
   left: 0;
@@ -133,7 +151,8 @@ header {
 
 .full-menu {
   margin-left: auto;
-  margin-right: 20px;
+  margin-right: 20px; /* Ensure this margin matches the padding defined above */
+  padding-right: 20px; /* Add padding to push the menu items away from the right edge */
 }
 
 .full-menu ul {
@@ -152,7 +171,7 @@ header {
 /* Inputs */
 .nav-input {
   padding: 8px;
-  font-size: 1rem;
+  font-size: 0.8rem;
   border: 1px solid #ccc;
   border-radius: 5px;
   width: 150px;
