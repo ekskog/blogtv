@@ -1,14 +1,14 @@
 <template>
   <div class="blog-posts">
     <div v-for="(post, index) in posts" :key="index" class="post">
-      <div class="padding"></div>
-      <!-- Mobile-only title -->
-      <h2 class="post-title mobile-title">{{ extractTitle(post) }}</h2>
-      <p v-if="extractGeotag(post)" class="geotag mobile-geotag">
-        <a :href="extractGeotag(post)?.url" target="_blank" rel="noopener noreferrer">
-          {{ extractGeotag(post)?.text }}
-        </a>
-      </p>
+      <div>
+        <h2 class="post-title mobile-title">{{ extractTitle(post) }}</h2>
+        <p v-if="extractGeotag(post)" class="geotag mobile-geotag">
+          <a :href="extractGeotag(post)?.url" target="_blank" rel="noopener noreferrer">
+            {{ extractGeotag(post)?.text }}
+          </a>
+        </p>
+      </div>
       <div class="post-layout">
         <!-- Left panel - Image -->
         <div class="post-image">
@@ -20,46 +20,69 @@
         <div class="post-content">
           <!-- Desktop-only title -->
           <h2 class="post-title desktop-title">{{ extractTitle(post) }}</h2>
-          <p v-if="extractGeotag(post)" class="geotag desktop-geotag">@
+          <p v-if="extractGeotag(post)" class="geotag desktop-geotag">
             <a :href="extractGeotag(post)?.url" target="_blank" rel="noopener noreferrer">
               {{ extractGeotag(post)?.text }}
             </a>
           </p>
           <!-- Markdown content -->
-          <div class="markdown-container" v-html="renderMarkdown(removeGeotag(removeMetadata(post)))"></div>
+          <div
+            class="markdown-container"
+            v-html="renderMarkdown(removeGeotag(removeMetadata(post)))"
+          ></div>
         </div>
       </div>
       <div class="tags-container">
         <h6>
-          <router-link :to="{
-            name: 'post',
-            params: { date: extractDate(post) },
-          }" class="post-date" @click="setPost(post)">
+          <router-link
+            :to="{
+              name: 'post',
+              params: { date: extractDate(post) },
+            }"
+            class="post-date"
+            @click="setPost(post)"
+          >
             <span>{{ extractDate(post) }}</span>
           </router-link>
           <span v-for="(tag, index) in extractTags(post).split(',')" :key="index">
             <span class="tag">
-              <router-link :to="{
-                name: 'search',
-                query: { tag: tag.trim() }
-              }">
+              <router-link
+                :to="{
+                  name: 'search',
+                  query: { tag: tag.trim() },
+                }"
+              >
                 {{ tag.trim() }}
               </router-link>
             </span>
-            <span v-if="index < extractTags(post).split(',').length - 1" class="tag-separator">|</span>
+            <span v-if="index < extractTags(post).split(',').length - 1" class="tag-separator"
+              >|</span
+            >
           </span>
         </h6>
       </div>
     </div>
 
     <div class="pagination-controls">
-      <button @click="fetchPreviousPage" :disabled="isFirstPage || isLoading" class="pagination-button">
+      <button
+        @click="fetchPreviousPage"
+        :disabled="isFirstPage || isLoading"
+        class="pagination-button"
+      >
         {{ isLoading ? 'Loading...' : 'Previous Posts' }}
       </button>
-      <button @click="fetchFirstPage" :disabled="isFirstPage || isLoading" class="pagination-button">
+      <button
+        @click="fetchFirstPage"
+        :disabled="isFirstPage || isLoading"
+        class="pagination-button"
+      >
         {{ isLoading ? 'Loading...' : 'Latest Posts' }}
       </button>
-      <button @click="fetchNextPage" :disabled="posts.length < 5 || isLoading" class="pagination-button">
+      <button
+        @click="fetchNextPage"
+        :disabled="posts.length < 5 || isLoading"
+        class="pagination-button"
+      >
         {{ isLoading ? 'Loading...' : 'Next Posts' }}
       </button>
     </div>
@@ -70,8 +93,7 @@
 import { ref, onMounted } from 'vue'
 import { marked } from 'marked'
 import { postStore } from '@/stores/posts'
-import CryptoJS from 'crypto-js';
-
+import CryptoJS from 'crypto-js'
 
 export default {
   name: 'BlogPosts',
@@ -84,7 +106,7 @@ export default {
 
     const fetchPosts = async () => {
       try {
-        fetchFirstPage();
+        fetchFirstPage()
       } catch (error) {
         console.error('Error fetching posts:', error)
       } finally {
@@ -99,8 +121,8 @@ export default {
     }
 
     const calculateCaption = (post) => {
-      const MD5Caption = CryptoJS.MD5(post).toString();
-      return MD5Caption;
+      const MD5Caption = CryptoJS.MD5(post).toString()
+      return MD5Caption
     }
     const removeMetadata = (post) => {
       const cleanedPost = post.replace(/^(Date:.*|Tags:.*|Title:.*)$/gm, '').trim()
@@ -118,9 +140,9 @@ export default {
       const geotagMatch = cleanedPost.match(/\[(.*?)\]\((https:\/\/maps\.app\.goo\.gl\/[^\s)]+)\)/)
       return geotagMatch
         ? {
-          text: geotagMatch[1],
-          url: geotagMatch[2],
-        }
+            text: geotagMatch[1],
+            url: geotagMatch[2],
+          }
         : null
     }
 
@@ -165,10 +187,10 @@ export default {
         posts.value = data
         isFirstPage.value = true
         if (data.length > 0) {
-          currentFirstPostDate.value = extractDate(data[0]);
-          currentLastPostDate.value = extractDate(data[data.length - 1]);
-          console.log('first page > Current First Post Date:', currentFirstPostDate.value);
-          console.log('first page > Current Last Post Date:', currentLastPostDate.value);
+          currentFirstPostDate.value = extractDate(data[0])
+          currentLastPostDate.value = extractDate(data[data.length - 1])
+          console.log('first page > Current First Post Date:', currentFirstPostDate.value)
+          console.log('first page > Current Last Post Date:', currentLastPostDate.value)
         }
       } catch (error) {
         console.error('Error fetching first page posts:', error)
@@ -184,20 +206,20 @@ export default {
       try {
         isLoading.value = true
 
-        console.log('fetchNextPage > Current First Post Date:', currentFirstPostDate.value);
-        console.log('fetchNextPage > Current Last Post Date:', currentLastPostDate.value);
+        console.log('fetchNextPage > Current First Post Date:', currentFirstPostDate.value)
+        console.log('fetchNextPage > Current Last Post Date:', currentLastPostDate.value)
 
-        const day = parseInt(currentLastPostDate.value.slice(0, 2), 10) - 1;
-        const month = parseInt(currentLastPostDate.value.slice(2, 4), 10) - 1; // JS months are 0-indexed
-        const year = parseInt(currentLastPostDate.value.slice(4), 10);
-        const prevDate = new Date(year, month, day);
+        const day = parseInt(currentLastPostDate.value.slice(0, 2), 10) - 1
+        const month = parseInt(currentLastPostDate.value.slice(2, 4), 10) - 1 // JS months are 0-indexed
+        const year = parseInt(currentLastPostDate.value.slice(4), 10)
+        const prevDate = new Date(year, month, day)
 
         const prevDay = String(prevDate.getDate()).padStart(2, '0')
         const prevMonth = String(prevDate.getMonth() + 1).padStart(2, '0')
         const prevYear = prevDate.getFullYear()
         const dateToFetch = `${prevDay}${prevMonth}${prevYear}`
 
-        console.log('fetchNextPage > Will Fetch:', dateToFetch);
+        console.log('fetchNextPage > Will Fetch:', dateToFetch)
 
         const response = await fetch(`https://blogtbe.hbvu.su/posts/from/${dateToFetch}`)
         if (!response.ok) {
@@ -207,8 +229,8 @@ export default {
         if (data.length > 0) {
           posts.value = data
           isFirstPage.value = false
-          currentFirstPostDate.value = extractDate(data[0]);
-          currentLastPostDate.value = extractDate(data[data.length - 1]);
+          currentFirstPostDate.value = extractDate(data[0])
+          currentLastPostDate.value = extractDate(data[data.length - 1])
         }
       } catch (error) {
         console.error('Error fetching next posts:', error)
@@ -219,30 +241,30 @@ export default {
 
     const fetchPreviousPage = async () => {
       console.log('fetch previous page...')
-      if (!currentFirstPostDate.value) return;
-      console.log('cfd: ', currentFirstPostDate);
+      if (!currentFirstPostDate.value) return
+      console.log('cfd: ', currentFirstPostDate)
 
       try {
-        isLoading.value = true;
+        isLoading.value = true
 
-        console.log('fetchPreviousPage > Current First Post Date:', currentFirstPostDate.value);
-        console.log('fetchPreviousPage > Current Last Post Date:', currentLastPostDate.value);
+        console.log('fetchPreviousPage > Current First Post Date:', currentFirstPostDate.value)
+        console.log('fetchPreviousPage > Current Last Post Date:', currentLastPostDate.value)
 
-        const day = parseInt(currentFirstPostDate.value.slice(0, 2), 10);
-        const month = parseInt(currentLastPostDate.value.slice(2, 4), 10) - 1; // JS months are 0-indexed
-        const year = parseInt(currentLastPostDate.value.slice(4), 10);
-        const date = new Date(year, month, day);
+        const day = parseInt(currentFirstPostDate.value.slice(0, 2), 10)
+        const month = parseInt(currentLastPostDate.value.slice(2, 4), 10) - 1 // JS months are 0-indexed
+        const year = parseInt(currentLastPostDate.value.slice(4), 10)
+        const date = new Date(year, month, day)
 
-        const nextDate = new Date(date);
-        nextDate.setDate(nextDate.getDate() + 10);
-        console.log('This is the date 10 days after Date:', nextDate);
+        const nextDate = new Date(date)
+        nextDate.setDate(nextDate.getDate() + 10)
+        console.log('This is the date 10 days after Date:', nextDate)
 
-        const nextDay = String(nextDate.getDate()).padStart(2, '0');
-        const nextMonth = String(nextDate.getMonth() + 1).padStart(2, '0'); // JS months are 0-indexed
-        const nextYear = nextDate.getFullYear();
+        const nextDay = String(nextDate.getDate()).padStart(2, '0')
+        const nextMonth = String(nextDate.getMonth() + 1).padStart(2, '0') // JS months are 0-indexed
+        const nextYear = nextDate.getFullYear()
 
-        const dateToFetch = `${nextDay}${nextMonth}${nextYear}`;
-        console.log(`Date to fetch from: ${nextDay} - ${nextMonth} - ${nextYear}`);
+        const dateToFetch = `${nextDay}${nextMonth}${nextYear}`
+        console.log(`Date to fetch from: ${nextDay} - ${nextMonth} - ${nextYear}`)
 
         const response = await fetch(`https://blogtbe.hbvu.su/posts/from/${dateToFetch}`)
 
@@ -253,8 +275,8 @@ export default {
         if (data.length > 0) {
           posts.value = data
           isFirstPage.value = false
-          currentFirstPostDate.value = extractDate(data[0]);
-          currentLastPostDate.value = extractDate(data[data.length - 1]);
+          currentFirstPostDate.value = extractDate(data[0])
+          currentLastPostDate.value = extractDate(data[data.length - 1])
         }
       } catch (error) {
         console.error('Error fetching next posts:', error)
@@ -280,7 +302,7 @@ export default {
       isFirstPage,
       extractDate,
       isLoading,
-      calculateCaption
+      calculateCaption,
     }
   },
   methods: {
@@ -326,11 +348,15 @@ export default {
   text-decoration: none !important;
 }
 .geotag a:hover {
-  color: #007bff;
+  color: pink;
   text-decoration: none !important;
 }
 
 .markdown-container {
+  padding-top: 10px;
+  max-width: 100%;
+  font-size: 1em; /* Adjusted for better readability */
+  line-height: 1.6; /* Add an explicit line height if not already set */
   max-width: 600px;
   word-wrap: break-word;
   flex: 1;
@@ -359,7 +385,6 @@ export default {
 .markdown-container::-webkit-scrollbar-thumb:hover {
   background: #555;
 }
-
 
 .mobile-title,
 .mobile-geotag {
@@ -477,7 +502,6 @@ export default {
   .post-content {
     width: 100%; /* Allow them to resize naturally */
   }
-
 }
 
 @media (max-width: 768px) {
@@ -499,7 +523,6 @@ export default {
     margin-bottom: 10px; /* Space after geotag */
     text-align: left; /* Align to the left */
   }
-
 
   .desktop-title,
   .desktop-geotag {
@@ -527,7 +550,6 @@ export default {
     text-align: center;
   }
 
-
   /* Tags Container */
   .tags-container {
     display: block;
@@ -553,6 +575,4 @@ export default {
     margin-right: 5px; /* Space after separator */
   }
 }
-
-
 </style>

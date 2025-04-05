@@ -272,7 +272,8 @@ export default {
   text-decoration: none !important;
 }
 .geotag a:hover {
-  color: #007bff;
+  color: blue;
+  font-size: 120%;
   text-decoration: none !important;
 }
 .thumbnail {
@@ -289,16 +290,6 @@ export default {
   line-height: 1.6; /* Add an explicit line height if not already set */
 }
 
-.markdown-container sup {
-  font-size: 60%; /* Or any other percentage that suits you */
-  line-height: 1; /* Normalize line height */
-  position: relative;
-  vertical-align: top; /* Adjust alignment */
-}
-
-.markdown-container a {
-  text-decoration: none !important;
-}
 
 .caption {
   margin-top: 5px;
