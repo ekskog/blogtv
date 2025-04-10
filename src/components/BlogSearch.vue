@@ -112,9 +112,11 @@ export default {
       this.loading = true
       this.error = null
       try {
+      console.log('Performing search for tag:', this.searchTag)
         const response = await fetch(
           `https://blogtbe.hbvu.su/tags/${encodeURIComponent(this.searchTag)}`,
         )
+        console.log('Response:', response)
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`)
         }

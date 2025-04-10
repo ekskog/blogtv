@@ -1,30 +1,35 @@
 <template>
   <div class="posts-container">
     <div v-for="(post, index) in posts" :key="index" class="blogpost">
+      <div>
+        <h2 class="post-title mobile-title">{{ extractTitle(post) }}</h2>
+        <p v-if="extractGeotag(post)" class="geotag mobile-geotag">
+          <a :href="extractGeotag(post)?.url" target="_blank" rel="noopener noreferrer">
+            {{ extractGeotag(post)?.text }}
+          </a>
+        </p>
+      </div>
       <div class="post-layout">
         <!-- Left panel - Image -->
-        <div class="photo-container">
+        <div class="post-image">
           <img :src="getImageUrl(post)" alt="Post Image" class="thumbnail" />
           <span class="caption">{{ calculateCaption(post) }}</span>
         </div>
 
         <!-- Right panel - Content -->
         <div class="post-content">
-          <div class="post-header">
-            <h2 class="post-title">{{ extractTitle(post) }}</h2>
-              <p v-if="extractGeotag(post)" class="geotag">
-                <a :href="extractGeotag(post)?.url" target="_blank" rel="noopener noreferrer">
-                  {{ extractGeotag(post)?.text }}
-                </a>
-              </p>
-          </div>
-
+          <!-- Desktop-only title -->
+          <h2 class="post-title desktop-title">{{ extractTitle(post) }}</h2>
+          <p v-if="extractGeotag(post)" class="geotag desktop-geotag">
+            <a :href="extractGeotag(post)?.url" target="_blank" rel="noopener noreferrer">
+              {{ extractGeotag(post)?.text }}
+            </a>
+          </p>
           <!-- Markdown content -->
           <div
             class="markdown-container"
             v-html="renderMarkdown(removeGeotag(removeMetadata(post)))"
-          >
-        </div>
+          ></div>
         </div>
       </div>
       <div class="tags-container">
@@ -309,361 +314,268 @@ export default {
 </script>
 
 <style scoped>
-/* Base styles */
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-  line-height: 1.6;
-  color: #333;
-  background-color: #f9f9f9;
-}
-
 .posts-container {
-  max-width: 1200px;
-  margin: 0 auto;
   padding: 20px;
+  text-align: left;
+  border: magenta 1px solid;
 }
 
-/* Individual blog post styling */
 .blogpost {
-  margin-bottom: 40px;
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-  border: 1px solid #000; /* Added black border around each post */
+  margin-bottom: 60px;
+  border: black 1px solid;
 }
 
-/* Two-column layout for desktop */
-.post-layout {
-  display: flex;
-  flex-direction: row;
-  border-bottom: 1px solid #eee;
-}
-
-/* Left panel - Image and caption */
-.photo-container {
-  flex: 0 0 320px; /* Updated fixed width of 320px */
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 20px;
-}
-
-.thumbnail {
+.post:not(:last-child)::after {
+  content: '';
+  display: block;
   width: 100%;
-  max-width: 320px; /* Updated max width to 320px */
-  max-height: 320px; /* Updated max height to 320px */
-  object-fit: contain;
-  border: 1px solid #000;
-}
-
-.caption {
-  margin-top: 10px;
-  font-size: 0.4em;
-  text-align: center;
-  color: #666;
-  max-width: 320px; /* Updated to match image width */
-}
-
-/* Right panel - Content */
-.post-content {
-  flex: 1;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  height: 320px; /* Updated to match the height of the image container */
-  overflow: hidden;
-}
-
-.post-header {
-  margin-bottom: 15px;
+  border-top: 2px solid #e0e0e0;
+  margin-top: 40px;
+  margin-bottom: 40px;
 }
 
 .post-title {
-  font-size: 1.2rem;
-  margin-bottom: 8px;
-  color: #222;
+  font-size: 1.2em;
+  color: purple;
+  margin: 0;
+  padding: 0px 0;
+  text-align: left;
   text-transform: uppercase;
 }
 
 .geotag {
-  font-size: 0.7rem;
+  font-size: 0.8em;
   color: black;
-  margin-bottom: 15px;
+  margin-bottom: 5px;
+  text-decoration: none !important;
 }
-
-.geotag a {
-  color: black;
-  text-decoration: none;
+.geotag p {
+  margin: 0;
+  padding: 0;
 }
 
 .geotag a:hover {
-  color: blueviolet;
+  color: pink;
+  text-decoration: none !important;
 }
 
-/* Markdown content */
 .markdown-container {
+  max-width: 100%;
+  font-size: 1em; /* Adjusted for better readability */
+  line-height: 1.6; /* Add an explicit line height if not already set */
+  word-wrap: break-word;
   flex: 1;
-  overflow-y: auto; /* Add scrollbar if content overflows */
-  padding-right: 10px; /* Space for scrollbar */
-  font-size: 0.8rem;
+  overflow-y: auto;
+  scrollbar-width: thin; /* For Firefox */
+  scrollbar-color: #888 #f1f1f1; /* For Firefox */
+  padding-right: 10px; /* Adds padding to content, creating space from scrollbar */
+  border: green 1px solid;
 }
 
-/* Scrollbar styling */
+/* For Webkit browsers (Chrome, Safari, Edge) */
 .markdown-container::-webkit-scrollbar {
-  width: 8px;
+  width: 10px; /* Increase width for padding illusion */
 }
 
 .markdown-container::-webkit-scrollbar-track {
   background: #f1f1f1;
   border-radius: 4px;
+  margin-left: 2px; /* Creates the padding illusion */
 }
 
 .markdown-container::-webkit-scrollbar-thumb {
-  background: #ccc;
+  background: #888;
   border-radius: 4px;
 }
 
 .markdown-container::-webkit-scrollbar-thumb:hover {
-  background: #aaa;
+  background: #555;
 }
 
-/* Markdown content styling */
-.markdown-container h1,
-.markdown-container h2,
-.markdown-container h3 {
-  margin-top: 1.5em;
-  margin-bottom: 0.5em;
+.mobile-title,
+.mobile-geotag {
+  display: none;
 }
 
-.markdown-container p {
-  margin-bottom: 1em;
-  font-size: 0.1em;
+.desktop-title,
+.desktop-geotag {
+  display: block;
 }
 
-.markdown-container ul,
-.markdown-container ol {
-  margin-left: 1.5em;
-  margin-bottom: 1em;
+.padding {
+  height: 20px;
 }
 
-.markdown-container a {
-  color: #0066cc;
-  text-decoration: none;
-}
-
-.markdown-container a:hover {
-  text-decoration: underline;
-}
-
-.markdown-container code {
-  background-color: #f6f6f6;
-  padding: 2px 4px;
-  border-radius: 3px;
-  font-family: monospace;
-}
-
-.markdown-container pre {
-  background-color: #f6f6f6;
-  padding: 15px;
-  border-radius: 5px;
-  overflow-x: auto;
-  margin-bottom: 1em;
-}
-
-.markdown-container blockquote {
-  border-left: 4px solid #ddd;
-  padding-left: 15px;
-  color: #666;
-  font-style: italic;
-  margin: 1em 0;
-}
-
-/* Tags and date row */
-.tags-container {
-  padding: 15px 20px;
-  background-color: #fcfcfc;
-  border-top: 1px solid #eee;
-}
-
-.tags-container h6 {
-  font-size: 0.8rem;
-  font-weight: bold;
-  color: #666;
+.post-layout {
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
+  gap: 30px;
+  width: 100%;
+  align-items: flex-start;
+  /* Align items to the top */
+}
+
+.post-image {
+  flex: 0 0 300px;
+  /* Fixed width, won't grow or shrink */
+  max-height: 300px;
+  /* Set explicit max height */
+}
+
+.thumbnail {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  /* Maintain aspect ratio */
+  max-width: 500px;
+  border: #333 1px solid;
+}
+
+.caption {
+  margin-top: 5px;
+  text-align: center;
+  display: block;
+  font-size: 0.2em;
+}
+
+.post-content {
+  flex: 1;
+  min-width: 0;
+  height: 300px;
+  /* Match image height */
+  display: flex;
+  flex-direction: column;
+}
+
+.post-content td {
+  padding-top: 0;
+}
+
+.post-tags {
+  font-size: 0.9em;
+  margin-top: 10px;
+  margin-bottom: 5px;
+  text-align: left;
+}
+
+.tags-container {
+  margin-top: 55px;
 }
 
 .post-date {
-  margin-right: 15px;
-  color: #0066cc;
-  text-decoration: none;
+  font-size: 0.5em;
+  font-style: bold;
+  padding-right: 20px;
+  text-decoration: none !important;
+  color: black;
 }
 
 .post-date:hover {
-  text-decoration: underline;
+  color: purple;
 }
 
-.tag {
-  margin: 0 5px;
-}
-
-.tag a {
-  color: #0066cc;
-  text-decoration: none;
-}
-
-.tag a:hover {
-  text-decoration: underline;
-}
-
-.tag-separator {
-  color: #ccc;
-  margin: 0 2px;
-}
-
-/* Pagination controls */
 .pagination-controls {
   display: flex;
-  justify-content: center;
-  gap: 10px;
-  margin-top: 30px;
-  margin-bottom: 50px;
+  justify-content: space-between;
+  margin-top: 40px;
+  padding: 0 20px;
 }
 
 .pagination-button {
-  background-color: #0066cc;
-  color: white;
-  border: none;
-  border-radius: 4px;
   padding: 8px 16px;
+  background-color: #f0f0f0;
+  border: 1px solid #ddd;
+  border-radius: 4px;
   cursor: pointer;
-  font-size: 0.9rem;
-  transition: background-color 0.2s;
-}
-
-.pagination-button:hover {
-  background-color: #0055aa;
 }
 
 .pagination-button:disabled {
-  background-color: #ccc;
+  opacity: 0.5;
   cursor: not-allowed;
 }
 
-/* Mobile layout (screens smaller than 789px) */
-@media (max-width: 788px) {
-  .posts-container {
-    padding: 15px;
-  }
+.pagination-button:not(:disabled):hover {
+  background-color: #e0e0e0;
+}
 
-  .blogpost {
-    margin-bottom: 30px;
-  }
-
-  /* Switch to vertical stacking */
+@media (max-width: 768px) {
   .post-layout {
-    flex-direction: column;
-    border-bottom: none;
+    display: block; /* Stack elements vertically */
+    width: 100%; /* Full width for mobile */
   }
 
-  /* Adjust image container for mobile */
-  .photo-container {
-    flex: none;
-    width: 100%;
-    padding: 15px;
-  }
-
-  .thumbnail {
-    width: 100%;
-    max-width: 100%;
-    height: auto;
-    aspect-ratio: 1/1; /* Maintain 1:1 aspect ratio */
-    object-fit: contain;
-  }
-
-  .caption {
-    max-width: 100%;
-    padding: 0 15px;
-    margin-bottom: 15px;
-  }
-
-  /* Adjust content area for mobile */
   .post-content {
-    height: auto;
-    padding: 0 15px 15px;
-  }
-
-  .post-header {
-    margin-bottom: 15px;
-  }
-
-  .post-title {
-    font-size: 1.2rem;
-  }
-
-  /* Make markdown container non-scrollable on mobile */
-  .markdown-container {
-    max-height: none;
-    overflow-y: visible;
-    padding-right: 0;
-    width: 100%;
-  }
-
-  /* Tags container adjustments for mobile */
-  .tags-container {
-    padding: 15px;
-  }
-
-  .tags-container h6 {
+    height: auto; /* Allow content to expand naturally */
+    display: flex;
     flex-direction: column;
-    align-items: flex-start;
+  }
+  /* Title */
+  .mobile-title {
+    display: block; /* Show title on mobile */
+    margin-bottom: 10px; /* Space after title */
+    text-align: left; /* Align content to the left */
   }
 
-  .post-date {
-    margin-right: 0;
-    margin-bottom: 10px;
+  /* Geotag */
+  .mobile-geotag {
+    display: block; /* Show geotag on mobile */
+    margin-bottom: 10px; /* Space after geotag */
+    text-align: left; /* Align to the left */
   }
 
-  /* Pagination controls for mobile */
-  .pagination-controls {
-    flex-direction: column;
-    gap: 8px;
-    align-items: center;
+  .desktop-title,
+  .desktop-geotag {
+    display: none; /* Hide desktop-specific title and geotag */
   }
 
-  .pagination-button {
-    width: 80%;
-    padding: 10px;
+  /* Post Image (Figure) */
+  .post-image {
+    display: block;
+    width: 100%; /* Full width */
+    margin-bottom: 10px; /* Space below image */
+    text-align: center; /* Center the image */
   }
-}
 
-/* For larger mobile screens (480px-788px) - better layout */
-@media (min-width: 480px) and (max-width: 788px) {
   .thumbnail {
-    max-width: 80%;
+    width: 100%;
+    height: auto; /* Maintain aspect ratio */
   }
 
-  .pagination-controls {
-    flex-direction: row;
+  /* Caption */
+  .caption {
+    display: block; /* Ensure caption is on a new line */
+    margin-top: 5px; /* Space above caption */
+    margin-bottom: 10px; /* Space below caption */
+    text-align: center;
   }
 
-  .pagination-button {
-    width: auto;
+  .markdown-container {
+    height: auto; /* Allow content to expand naturally on mobile */
+    overflow: visible; /* Prevent scrolling */
   }
-}
 
-/* For extremely large screens, limit the maximum width */
-@media (min-width: 1400px) {
-  .posts-container {
-    max-width: 1400px;
+  /* Tags Container */
+  .tags-container {
+    display: block;
+    margin-top: 10px; /* Space after markdown container */
+    text-align: left; /* Align content to the left */
+  }
+
+  /* Date */
+  .post-date {
+    display: inline-block; /* Align date with tags */
+    margin-right: 10px; /* Space between date and tags */
+    text-align: left;
+  }
+
+  /* Tags and Separators */
+  .tag {
+    display: inline-block; /* Align tags horizontally */
+    margin-right: 5px; /* Space between tags */
+  }
+
+  .tag-separator {
+    display: inline; /* Keep separators inline */
+    margin-right: 5px; /* Space after separator */
   }
 }
 </style>
