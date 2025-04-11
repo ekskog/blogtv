@@ -3,8 +3,13 @@
     <div v-if="post">
       <h2 class="post-title">{{ extractTitle(post) }}</h2>
       <div v-if="extractGeotag(post)">
-        <a :href="extractGeotag(post)?.url" target="_blank" rel="noopener noreferrer"  class="geotag">
-          {{ extractGeotag(post)?.text }}
+        <a
+          :href="extractGeotag(post)?.url"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="geotag"
+        >
+          @ {{ extractGeotag(post)?.text }}
         </a>
       </div>
 
@@ -16,7 +21,7 @@
         </figure>
       </div>
 
-          <!-- EXIF and Azure Eye Toggle Buttons Below the Caption -->
+      <!-- EXIF and Azure Eye Toggle Buttons Below the Caption -->
       <div class="toggle-buttons">
         <button @click="toggleExifData" class="exif-toggle-button">
           {{ showExifData ? 'Hide EXIF Data' : 'Show EXIF Data' }}
@@ -27,42 +32,39 @@
       </div>
 
       <!-- EXIF Viewer -->
-        <div v-if="showExifData" class="exif-container">
+      <div v-if="showExifData" class="exif-container">
         <ExifViewer :initialImageUrl="getImageUrl(post)" />
-        </div>
+      </div>
 
       <!-- Azure Eye Viewer -->
-        <div v-if="showAzEyeData" class="azeye-container">
+      <div v-if="showAzEyeData" class="azeye-container">
         <AzureViewer :initialImageUrl="getImageUrl(post)" />
-        </div>
+      </div>
 
       <!-- The Blog Post Text Markdown, Rendered -->
       <div
         class="markdown-container"
         v-html="renderMarkdown(removeGeotag(removeMetadata(post)))"
-      >
-    </div>
+      ></div>
 
       <!-- Clickable Tags with separators -->
-      <div>
-        <h6>
-          <p class="post-date">{{ date }}</p>
-          <span v-for="(tag, index) in extractTags(post).split(',')" :key="index">
-            <span class="tag">
-              <router-link
-                :to="{
-                  name: 'search',
-                  query: { tag: tag.trim() },
-                }"
-              >
-                {{ tag.trim() }}
-              </router-link>
-            </span>
-            <span v-if="index < extractTags(post).split(',').length - 1" class="tag-separator"
-              >|</span
+      <div class="tags-container">
+        <span class="post-date">{{ date }}</span> <!-- Changed from <p> to <span> -->
+        <span v-for="(tag, index) in extractTags(post).split(',')" :key="index">
+          <span class="tag">
+            <router-link
+              :to="{
+                name: 'search',
+                query: { tag: tag.trim() },
+              }"
             >
+              {{ tag.trim() }}
+            </router-link>
           </span>
-        </h6>
+          <span v-if="index < extractTags(post).split(',').length - 1" class="tag-separator"
+            >|</span
+          >
+        </span>
       </div>
 
       <!-- Navigation Buttons -->
@@ -104,19 +106,19 @@ export default {
   },
   watch: {
     '$route.params.date': {
-        immediate: true,
-        handler(newDate) {
-            console.log('Detected route change, new date:', newDate);
-            if (newDate) {
-                this.date = newDate;
-                this.loadPost(newDate); // Fetch the new post
-            } else {
-                console.error('No date provided in route params!');
-                this.post = null; // Clear the post if date is invalid
-            }
-        },
+      immediate: true,
+      handler(newDate) {
+        console.log('Detected route change, new date:', newDate)
+        if (newDate) {
+          this.date = newDate
+          this.loadPost(newDate) // Fetch the new post
+        } else {
+          console.error('No date provided in route params!')
+          this.post = null // Clear the post if date is invalid
+        }
+      },
     },
-},
+  },
 
   methods: {
     toggleExifData() {
@@ -225,20 +227,20 @@ export default {
     },
 
     navigateToNextDay() {
-        const inputDate = this.parseDateString();
-        const nextDay = new Date(inputDate);
-        nextDay.setDate(inputDate.getDate() + 1); // Increment the day by 1
-        const nextDayFormatted = this.formatDateStr(nextDay); // Format the date
-        console.log('Navigating to next day:', nextDayFormatted);
-        this.$router.push({ name: 'post', params: { date: nextDayFormatted } }); // Route to next day
+      const inputDate = this.parseDateString()
+      const nextDay = new Date(inputDate)
+      nextDay.setDate(inputDate.getDate() + 1) // Increment the day by 1
+      const nextDayFormatted = this.formatDateStr(nextDay) // Format the date
+      console.log('Navigating to next day:', nextDayFormatted)
+      this.$router.push({ name: 'post', params: { date: nextDayFormatted } }) // Route to next day
     },
     navigateToPreviousDay() {
-        const inputDate = this.parseDateString();
-        const previousDay = new Date(inputDate);
-        previousDay.setDate(inputDate.getDate() - 1); // Decrement the day by 1
-        const previousDayFormatted = this.formatDateStr(previousDay); // Format the date
-        console.log('Navigating to previous day:', previousDayFormatted);
-        this.$router.push({ name: 'post', params: { date: previousDayFormatted } }); // Route to previous day
+      const inputDate = this.parseDateString()
+      const previousDay = new Date(inputDate)
+      previousDay.setDate(inputDate.getDate() - 1) // Decrement the day by 1
+      const previousDayFormatted = this.formatDateStr(previousDay) // Format the date
+      console.log('Navigating to previous day:', previousDayFormatted)
+      this.$router.push({ name: 'post', params: { date: previousDayFormatted } }) // Route to previous day
     },
 
     formatDateStr(date) {
@@ -251,11 +253,12 @@ export default {
 
 <style scoped>
 .single-post {
-  max-width: 600px;
+  max-width: 800px;
   margin: 0 auto;
-  padding: 20px;
+  padding: 50px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
 }
-
 
 .post-title {
   font-size: 2em;
@@ -276,10 +279,11 @@ export default {
   font-size: 120%;
   text-decoration: none !important;
 }
+
 .thumbnail {
   width: 100%;
   height: auto;
-  max-width: 2800px;
+  max-width: 800px;
   border: #333 1px solid;
 }
 
@@ -290,7 +294,6 @@ export default {
   line-height: 1.6; /* Add an explicit line height if not already set */
 }
 
-
 .caption {
   margin-top: 5px;
   text-align: center;
@@ -299,10 +302,13 @@ export default {
 }
 
 .figure-wrapper {
-  width: 100%;
-  margin-top: 20px;
-  vertical-align: top;
+  padding-top: 50px;
+  margin: 0;
+  position: relative;
+  display: inline-block;
+  max-width: 800px;
   text-align: left;
+  /* Left-align the figure */
 }
 
 .toggle-buttons {
@@ -329,31 +335,60 @@ export default {
 
 .exif-container {
   margin-top: 20px;
-  margin-bottom: 20px;;
+  margin-bottom: 20px;
   padding: 15px;
-  border: 1px solid black;
+  border: 1px solid #ccc;
   border-radius: 4px;
-  background-color: #ba9595;
+  background-color: #e0e0e0;
 }
 
 .azeye-container {
   margin-top: 20px;
-  margin-bottom: 20px;;
+  margin-bottom: 20px;
   padding: 15px;
-  border: 1px solid black;
+  border: 1px solid #ccc;
   border-radius: 4px;
-  background-color: #ba9595;
+  background-color: #e0e0e0;
+}
+
+/* Tags and date row */
+.tags-container {
+  margin-top: 20px;
+  padding: 20px 0px;
+  border-top: 1px solid #eee;
+}
+
+.post-date,
+.tag {
+  font-size: 0.8rem; /* Explicitly enforce font size */
+  font-weight: bold; /* Ensure bold font for both */
+  text-decoration: none; /* Ensure consistent link styling */
 }
 
 .post-date {
-  font-size: 0.5em;
-  color: #666;
-  font-style: bold;
-  padding-right: 20px;
-  display: inline;
+  padding-right: 25px;
 }
-.tag-separator {
+.post-date:hover {
+  color: lightblue;
+}
+
+.tag {
+  text-transform: uppercase;
   margin: 0 5px;
+}
+
+.tag a {
+  color: black;
+  text-decoration: none;
+}
+
+.tag a:hover {
+  color: lightblue;
+}
+
+.tag-separator {
+  color: #ccc;
+  margin: 0 2px;
 }
 
 .pagination-controls {
@@ -378,5 +413,16 @@ export default {
 
 .pagination-button:not(:disabled):hover {
   background-color: #e0e0e0;
+}
+
+@media (max-width: 768px) {
+  @media (max-width: 768px) {
+    .single-post {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 10px;
+      box-shadow: none; /* Remove box shadow for mobile screens */
+    }
+  }
 }
 </style>

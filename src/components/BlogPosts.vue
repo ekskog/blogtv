@@ -12,23 +12,22 @@
         <div class="post-content">
           <div class="post-header">
             <h2 class="post-title">{{ extractTitle(post) }}</h2>
-              <p v-if="extractGeotag(post)" class="geotag">
-                <a :href="extractGeotag(post)?.url" target="_blank" rel="noopener noreferrer">
-                  {{ extractGeotag(post)?.text }}
-                </a>
-              </p>
+            <p v-if="extractGeotag(post)" class="geotag">
+              <a :href="extractGeotag(post)?.url" target="_blank" rel="noopener noreferrer">
+                @ {{ extractGeotag(post)?.text }}
+              </a>
+            </p>
           </div>
 
           <!-- Markdown content -->
           <div
             class="markdown-container"
             v-html="renderMarkdown(removeGeotag(removeMetadata(post)))"
-          >
-        </div>
+          ></div>
         </div>
       </div>
+      
       <div class="tags-container">
-        <h6>
           <router-link
             :to="{
               name: 'post',
@@ -54,32 +53,37 @@
               >|</span
             >
           </span>
-        </h6>
       </div>
     </div>
 
     <div class="pagination-controls">
-      <button
-        @click="fetchPreviousPage"
-        :disabled="isFirstPage || isLoading"
-        class="pagination-button"
-      >
-        {{ isLoading ? 'Loading...' : 'Previous Posts' }}
-      </button>
-      <button
-        @click="fetchFirstPage"
-        :disabled="isFirstPage || isLoading"
-        class="pagination-button"
-      >
-        {{ isLoading ? 'Loading...' : 'Latest Posts' }}
-      </button>
-      <button
-        @click="fetchNextPage"
-        :disabled="posts.length < 5 || isLoading"
-        class="pagination-button"
-      >
-        {{ isLoading ? 'Loading...' : 'Next Posts' }}
-      </button>
+      <div class="left-button">
+        <button
+          @click="fetchPreviousPage"
+          :disabled="isFirstPage || isLoading"
+          class="pagination-button"
+        >
+          {{ isLoading ? 'Loading...' : '<' }}
+        </button>
+      </div>
+      <div class="middle-button">
+        <button
+          @click="fetchFirstPage"
+          :disabled="isFirstPage || isLoading"
+          class="pagination-button"
+        >
+          {{ isLoading ? 'Loading...' : 'Page 1' }}
+        </button>
+      </div>
+      <div class="right-button">
+        <button
+          @click="fetchNextPage"
+          :disabled="posts.length < 5 || isLoading"
+          class="pagination-button"
+        >
+          {{ isLoading ? 'Loading...' : '>' }}
+        </button>
+      </div>
     </div>
   </div>
 </template>
@@ -317,14 +321,14 @@ export default {
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell,
+    'Open Sans', 'Helvetica Neue', sans-serif;
   line-height: 1.6;
   color: #333;
   background-color: #f9f9f9;
 }
 
 .posts-container {
-  max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
 }
@@ -334,21 +338,19 @@ body {
   margin-bottom: 40px;
   background-color: #fff;
   border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
   overflow: hidden;
-  border: 1px solid #000; /* Added black border around each post */
 }
 
 /* Two-column layout for desktop */
 .post-layout {
   display: flex;
   flex-direction: row;
-  border-bottom: 1px solid #eee;
 }
 
 /* Left panel - Image and caption */
 .photo-container {
-  flex: 0 0 320px; /* Updated fixed width of 320px */
+  flex: 0 0 500px; /* Updated fixed width of 500px */
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -357,8 +359,8 @@ body {
 
 .thumbnail {
   width: 100%;
-  max-width: 320px; /* Updated max width to 320px */
-  max-height: 320px; /* Updated max height to 320px */
+  max-width: 500px; /* Updated max width to 500px */
+  max-height: 500px; /* Updated max height to 500px */
   object-fit: contain;
   border: 1px solid #000;
 }
@@ -368,7 +370,7 @@ body {
   font-size: 0.4em;
   text-align: center;
   color: #666;
-  max-width: 320px; /* Updated to match image width */
+  max-width: 500px; /* Updated to match image width */
 }
 
 /* Right panel - Content */
@@ -377,7 +379,7 @@ body {
   padding: 20px;
   display: flex;
   flex-direction: column;
-  height: 320px; /* Updated to match the height of the image container */
+  height: 500px; /* Updated to match the height of the image container */
   overflow: hidden;
 }
 
@@ -386,7 +388,7 @@ body {
 }
 
 .post-title {
-  font-size: 1.2rem;
+  font-size: 2.2rem;
   margin-bottom: 8px;
   color: #222;
   text-transform: uppercase;
@@ -412,7 +414,8 @@ body {
   flex: 1;
   overflow-y: auto; /* Add scrollbar if content overflows */
   padding-right: 10px; /* Space for scrollbar */
-  font-size: 0.8rem;
+  font-size: 1.2rem;
+  line-height: 1.4;
 }
 
 /* Scrollbar styling */
@@ -488,40 +491,35 @@ body {
 /* Tags and date row */
 .tags-container {
   padding: 15px 20px;
-  background-color: #fcfcfc;
   border-top: 1px solid #eee;
 }
 
-.tags-container h6 {
-  font-size: 0.8rem;
-  font-weight: bold;
-  color: #666;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
+.post-date,
+.tag {
+  font-size: 0.8rem; /* Explicitly enforce font size */
+  font-weight: bold; /* Ensure bold font for both */
+  text-decoration: none; /* Ensure consistent link styling */
 }
 
 .post-date {
-  margin-right: 15px;
-  color: #0066cc;
-  text-decoration: none;
+  padding-right: 25px;
 }
-
 .post-date:hover {
-  text-decoration: underline;
+  color: lightblue;
 }
 
 .tag {
+  text-transform: uppercase;
   margin: 0 5px;
 }
 
 .tag a {
-  color: #0066cc;
+  color: black;
   text-decoration: none;
 }
 
 .tag a:hover {
-  text-decoration: underline;
+  color: lightblue;
 }
 
 .tag-separator {
@@ -532,10 +530,27 @@ body {
 /* Pagination controls */
 .pagination-controls {
   display: flex;
-  justify-content: center;
-  gap: 10px;
+  justify-content: space-between;
   margin-top: 30px;
   margin-bottom: 50px;
+}
+
+.left-button {
+  flex: 1;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.middle-button {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.right-button {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
 }
 
 .pagination-button {
@@ -660,10 +675,4 @@ body {
   }
 }
 
-/* For extremely large screens, limit the maximum width */
-@media (min-width: 1400px) {
-  .posts-container {
-    max-width: 1400px;
-  }
-}
 </style>
