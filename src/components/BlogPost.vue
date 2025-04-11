@@ -290,7 +290,7 @@ export default {
 .markdown-container {
   padding-top: 10px;
   max-width: 100%;
-  font-size: 1em; /* Adjusted for better readability */
+  font-size: 1.4em; /* Adjusted for better readability */
   line-height: 1.6; /* Add an explicit line height if not already set */
 }
 
@@ -298,7 +298,7 @@ export default {
   margin-top: 5px;
   text-align: center;
   display: block;
-  font-size: 0.4em;
+  font-size: 0.8em;
 }
 
 .figure-wrapper {

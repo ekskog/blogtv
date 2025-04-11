@@ -14,6 +14,7 @@
     <!-- Full Menu (Desktop) -->
     <nav class="full-menu" v-if="!isSmallScreen">
       <ul>
+        <span @click="goToRandomPost">Random Post</span>
         <li>
           <input type="date" v-model="selectedDate" @change="goToPost" class="nav-input" />
         </li>
@@ -33,6 +34,9 @@
     <!-- Mobile Menu -->
     <nav v-if="menuOpen && isSmallScreen" class="mobile-menu">
       <ul>
+        <li>
+        <span @click="goToRandomPost">Random Post</span>
+      </li>
         <li>
           <input type="date" v-model="selectedDate" @change="goToPost" class="nav-input" />
         </li>
@@ -58,6 +62,7 @@ import { useRouter } from 'vue-router'
 export default {
   name: 'BlogNavbar',
   setup() {
+    console.log('BlogNavbar mounted')
     const router = useRouter()
     const isSmallScreen = ref(false)
     const menuOpen = ref(false)
@@ -76,6 +81,28 @@ export default {
     const closeMenu = () => {
       menuOpen.value = false
     }
+
+    const goToRandomPost = () => {
+  const startDate = new Date(2010, 2, 10); // 10th March 2010
+  const endDate = new Date(); // Current date
+  const randomTimestamp =
+    startDate.getTime() +
+    Math.random() * (endDate.getTime() - startDate.getTime());
+  const randomDate = new Date(randomTimestamp);
+
+  // Format the date as DDMMYYYY
+  const day = String(randomDate.getDate()).padStart(2, '0');
+  const month = String(randomDate.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+  const year = randomDate.getFullYear();
+  const formattedDate = `${day}${month}${year}`;
+
+  // Navigate to the correct route
+  router.push({
+    name: 'post', // Route name
+    params: { date: formattedDate },
+  });
+};
+
 
     const goToPost = () => {
       if (!selectedDate.value) return
@@ -118,8 +145,12 @@ export default {
       searchTag,
       goToPost,
       searchByTag,
+      goToRandomPost
     }
   },
+  methods: {
+
+  }
 }
 </script>
 
@@ -158,6 +189,7 @@ header {
 .full-menu ul {
   list-style: none;
   display: flex;
+  align-items: center;
   gap: 20px;
   margin: 0;
   padding: 0;
@@ -166,6 +198,12 @@ header {
 .full-menu ul li {
   display: flex;
   align-items: center;
+}
+
+.full-menu ul li span {
+  display: inline-block;
+  line-height: normal; /* Ensure text doesn't stretch unnecessarily */
+  vertical-align: middle; /* Align text within its line */
 }
 
 /* Inputs */
