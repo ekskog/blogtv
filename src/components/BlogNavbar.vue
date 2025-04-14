@@ -14,7 +14,7 @@
     <!-- Full Menu (Desktop) -->
     <nav class="full-menu" v-if="!isSmallScreen">
       <ul>
-        <span @click="goToRandomPost">Random Post</span>
+        <span @click="goToRandomPost" class="clickable">Random Post</span>
         <li>
           <input type="date" v-model="selectedDate" @change="goToPost" class="nav-input" />
         </li>
@@ -35,8 +35,8 @@
     <nav v-if="menuOpen && isSmallScreen" class="mobile-menu">
       <ul>
         <li>
-        <span @click="goToRandomPost">Random Post</span>
-      </li>
+          <span @click="goToRandomPost" class="clickable">Random Post</span>
+        </li>
         <li>
           <input type="date" v-model="selectedDate" @change="goToPost" class="nav-input" />
         </li>
@@ -83,26 +83,24 @@ export default {
     }
 
     const goToRandomPost = () => {
-  const startDate = new Date(2010, 2, 10); // 10th March 2010
-  const endDate = new Date(); // Current date
-  const randomTimestamp =
-    startDate.getTime() +
-    Math.random() * (endDate.getTime() - startDate.getTime());
-  const randomDate = new Date(randomTimestamp);
+      const startDate = new Date(2010, 2, 10) // 10th March 2010
+      const endDate = new Date() // Current date
+      const randomTimestamp =
+        startDate.getTime() + Math.random() * (endDate.getTime() - startDate.getTime())
+      const randomDate = new Date(randomTimestamp)
 
-  // Format the date as DDMMYYYY
-  const day = String(randomDate.getDate()).padStart(2, '0');
-  const month = String(randomDate.getMonth() + 1).padStart(2, '0'); // Months are zero-based
-  const year = randomDate.getFullYear();
-  const formattedDate = `${day}${month}${year}`;
+      // Format the date as DDMMYYYY
+      const day = String(randomDate.getDate()).padStart(2, '0')
+      const month = String(randomDate.getMonth() + 1).padStart(2, '0') // Months are zero-based
+      const year = randomDate.getFullYear()
+      const formattedDate = `${day}${month}${year}`
 
-  // Navigate to the correct route
-  router.push({
-    name: 'post', // Route name
-    params: { date: formattedDate },
-  });
-};
-
+      // Navigate to the correct route
+      router.push({
+        name: 'post', // Route name
+        params: { date: formattedDate },
+      })
+    }
 
     const goToPost = () => {
       if (!selectedDate.value) return
@@ -145,12 +143,10 @@ export default {
       searchTag,
       goToPost,
       searchByTag,
-      goToRandomPost
+      goToRandomPost,
     }
   },
-  methods: {
-
-  }
+  methods: {},
 }
 </script>
 
@@ -207,6 +203,11 @@ header {
 }
 
 /* Inputs */
+
+.clickable {
+  cursor: pointer;
+}
+
 .nav-input {
   padding: 8px;
   font-size: 0.8rem;
