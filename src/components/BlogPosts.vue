@@ -26,33 +26,33 @@
           ></div>
         </div>
       </div>
-      
+
       <div class="tags-container">
-          <router-link
-            :to="{
-              name: 'post',
-              params: { date: extractDate(post) },
-            }"
-            class="post-date"
-            @click="setPost(post)"
-          >
-            <span>{{ extractDate(post) }}</span>
-          </router-link>
-          <span v-for="(tag, index) in extractTags(post).split(',')" :key="index">
-            <span class="tag">
-              <router-link
-                :to="{
-                  name: 'search',
-                  query: { tag: tag.trim() },
-                }"
-              >
-                {{ tag.trim() }}
-              </router-link>
-            </span>
-            <span v-if="index < extractTags(post).split(',').length - 1" class="tag-separator"
-              >|</span
+        <router-link
+          :to="{
+            name: 'post',
+            params: { date: extractDate(post) },
+          }"
+          class="post-date"
+          @click="setPost(post)"
+        >
+          <span>{{ extractDate(post) }}</span>
+        </router-link>
+        <span v-for="(tag, index) in extractTags(post).split(',')" :key="index">
+          <span class="tag">
+            <router-link
+              :to="{
+                name: 'search',
+                query: { tag: tag.trim() },
+              }"
             >
+              {{ tag.trim() }}
+            </router-link>
           </span>
+          <span v-if="index < extractTags(post).split(',').length - 1" class="tag-separator"
+            >|</span
+          >
+        </span>
       </div>
     </div>
 
@@ -630,6 +630,7 @@ body {
     overflow-y: visible;
     padding-right: 0;
     width: 100%;
+    font-size: 0.8rem; /* Adjusted for better readability */
   }
 
   /* Tags container adjustments for mobile */
@@ -666,6 +667,10 @@ body {
     max-width: 80%;
   }
 
+  .markdown-container {
+    font-size: 0.8rem; /* Adjusted for better readability */
+  }
+
   .pagination-controls {
     flex-direction: row;
   }
@@ -674,5 +679,4 @@ body {
     width: auto;
   }
 }
-
 </style>

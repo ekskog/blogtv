@@ -49,7 +49,8 @@
 
       <!-- Clickable Tags with separators -->
       <div class="tags-container">
-        <span class="post-date">{{ date }}</span> <!-- Changed from <p> to <span> -->
+        <span class="post-date">{{ date }}</span>
+        <!-- Changed from <p> to <span> -->
         <span v-for="(tag, index) in extractTags(post).split(',')" :key="index">
           <span class="tag">
             <router-link
@@ -422,6 +423,9 @@ export default {
       margin: 0 auto;
       padding: 10px;
       box-shadow: none; /* Remove box shadow for mobile screens */
+    }
+    .markdown-container {
+      font-size: 0.8rem; /* Adjusted for better readability */
     }
   }
 }
