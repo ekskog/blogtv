@@ -72,12 +72,11 @@
                 </button>
       </div>
     </div>
-    <div v-else>Post not found</div>
   </div>
 </template>
 
 <script>
-import { ref } from 'vue'
+//import { ref } from 'vue'
 import { postStore } from '@/stores/posts'
 import { marked } from 'marked'
 import CryptoJS from 'crypto-js'
@@ -100,21 +99,40 @@ export default {
       imageLoading: true, // Added for image loading state
     }
   },
+
+  mounted() {
+    if (!this.post) {
+      console.warn('Post is not yet set, skipping image fetch.');
+      return;
+    }
+
+    const img = new Image();
+    img.onload = () => {
+      this.imageLoading = false;
+    };
+    img.src = this.getImageUrl(this.post);
+  },
+
   watch: {
     '$route.params.date': {
       immediate: true,
-      handler(newDate) {
+      async handler(newDate) {
         console.log('Detected route change, new date:', newDate)
         if (newDate) {
           this.date = newDate
           this.imageLoading = true // Reset image loading state when route changes
           this.loadPost(newDate) // Fetch the new post
+          if (this.post) {
+            console.log('Post fetched, now updating image...');
+            this.imageLoading = false;
+          }
         } else {
           console.error('No date provided in route params!')
           this.post = null // Clear the post if date is invalid
         }
       },
     },
+
     'post': {
       handler() {
         // Reset image loading state when post data changes
@@ -147,44 +165,40 @@ export default {
 
     async loadPost(date) {
       try {
-        const posts = ref([])
-        console.log(posts.value)
-
-        console.log('Loading post for date:', date)
         this.loading = true
         this.imageLoading = true // Reset image loading state
         const response = await fetch(`https://blogtbe.hbvu.su/posts/${date}`)
         if (!response.ok) {
-          throw new Error('loadPOST: Post not found')
+          throw new Error ('error fetching post')
+        } else {
+          const data = await response.json()
+          console.log(`DEBUG >> ${data}`)
+          const postContent = data[0]
+          postStore.setCurrentPost(postContent)
+          this.post = postContent
+          this.loading = false
         }
-        const data = await response.json()
-        const postContent = data[0]
-        postStore.setCurrentPost(postContent)
-        this.post = postContent
-        this.loading = false
       } catch (error) {
         alert(error.message + ` >> no post for ${date}`)
         this.loading = false
       }
     },
-    created() {
-      this.loadPost(this.date)
-    },
-    renderMarkdown(markdown) {
-      return marked(markdown)
-    },
+
     getImageUrl(post) {
+      if (!post) {
+        console.error('getImageUrl called with null post!');
+        return '';
+      }
+
       const dateMatch = post.match(/Date:\s*(\d{2})(\d{2})(\d{4})/)
       if (dateMatch) {
-        const day = dateMatch[1]
-        const month = dateMatch[2]
-        const year = dateMatch[3]
-        let dateUrl = `https://objects.hbvu.su/blotpix/${year}/${month}/${day}.jpeg`
-        return dateUrl
+        const [_, day, month, year] = dateMatch;
+        return `https://objects.hbvu.su/blotpix/${year}/${month}/${day}.jpeg`;
       }
       console.error('Invalid Date format in metadata:', post)
       return ''
     },
+
     calculateCaption(post) {
       const MD5Caption = CryptoJS.MD5(post).toString()
       return MD5Caption
@@ -219,7 +233,9 @@ export default {
       const cleanedPost = post.replace(/^(Date:.*|Tags:.*|Title:.*)$/gm, '').trim()
       return cleanedPost
     },
-
+    renderMarkdown(markdown) {
+      return marked(markdown)
+    },
     parseDateString() {
       const day = parseInt(this.date.slice(0, 2))
       const month = parseInt(this.date.slice(2, 4)) - 1
@@ -266,22 +282,12 @@ export default {
       console.log('Navigating to same day, previous year:', previousYearFormatted)
       this.$router.push({ name: 'post', params: { date: previousYearFormatted } }) // Route to next day
     },
-
-
-
     formatDateStr(date) {
       // Formats the date as DDMMYYYY
       return `${('0' + date.getDate()).slice(-2)}${('0' + (date.getMonth() + 1)).slice(-2)}${date.getFullYear()}`
     },
   },
-  mounted() {
-    // Check if an image is already cached
-    const img = new Image();
-    img.onload = () => {
-      this.imageLoading = false;
-    };
-    img.src = this.getImageUrl(this.post);
-  }
+
 }
 </script>
 
@@ -356,7 +362,7 @@ export default {
   font-size: 1.2em;
   color: #333;
   padding: 0;
-  margin: 0; 
+  margin: 0;
 }
 
 .image-loading::after {

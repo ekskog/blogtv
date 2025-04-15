@@ -384,7 +384,7 @@ body {
 }
 
 .post-header {
-  margin-bottom: 15px;
+  margin-bottom: 5px;
 }
 
 .post-title {
@@ -397,7 +397,7 @@ body {
 .geotag {
   font-size: 0.7rem;
   color: black;
-  margin-bottom: 15px;
+  margin-bottom: 0;
 }
 
 .geotag a {
@@ -617,7 +617,7 @@ body {
   }
 
   .post-header {
-    margin-bottom: 15px;
+    margin-bottom: 5px;
   }
 
   .post-title {
