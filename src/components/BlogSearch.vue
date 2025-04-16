@@ -32,7 +32,11 @@
                 {{ formatDate(post.date) }}
               </a>
             </td>
-            <td>{{ formatTitle(post.title) }}</td>
+            <td>
+              <a @click.prevent="loadPost(post.date)" class="link-style">
+                {{ formatTitle(post.title) }}
+              </a>
+            </td>
           </tr>
         </tbody>
       </table>
@@ -53,11 +57,7 @@
           Previous
         </button>
         <span class="pagination-page-info">Page {{ currentPage }} of {{ totalPages }}</span>
-        <button
-          @click="currentPage++"
-          :disabled="currentPage === totalPages"
-          class="pagination-btn"
-        >
+        <button @click="currentPage++" :disabled="currentPage === totalPages" class="pagination-btn">
           Next
         </button>
       </div>
@@ -66,6 +66,8 @@
 </template>
 
 <script>
+import moment from 'moment'; // You might need to install this: npm install moment
+
 export default {
   name: 'BlogSearch',
   data() {
@@ -109,32 +111,50 @@ export default {
   },
   methods: {
     async performSearch() {
-      this.loading = true
-      this.error = null
+      this.loading = true;
+      this.error = null;
       try {
-      console.log('Performing search for tag:', this.searchTag)
+        console.log('Performing search for tag:', this.searchTag);
         const response = await fetch(
           `https://blogtbe.hbvu.su/tags/${encodeURIComponent(this.searchTag)}`,
-        )
-        console.log('Response:', response)
+        );
+        console.log('Response:', response);
         if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`)
+          throw new Error(`HTTP error! status: ${response.status}`);
         }
-        this.searchResults = await response.json()
+        this.searchResults = await response.json();
+
+        // Sort the search results by date in ascending order
+        this.searchResults.sort((a, b) => {
+          // Use moment.js for reliable date parsing and comparison
+          const dateA = moment(a.date, 'DDMMYYYY');
+          const dateB = moment(b.date, 'DDMMYYYY');
+          return dateA.valueOf() - dateB.valueOf(); // Sort in ascending order
+        });
+
       } catch (err) {
-        this.error = 'Failed to fetch search results. Please try again later.'
-        console.error('Search error:', err)
+        this.error = 'Failed to fetch search results. Please try again later.';
+        console.error('Search error:', err);
       } finally {
-        this.loading = false
+        this.loading = false;
       }
     },
+
     formatDate(dateStr) {
-      if (!dateStr) return ''
+      if (!dateStr) return '';
+      const momentDate = moment(dateStr, 'DDMMYYYY');
+      const dayWithSuffix = momentDate.format('Do'); // 'Do' gives the day with ordinal suffix
+      const month = momentDate.format('MMMM');
+      const year = momentDate.format('YYYY');
+      console.log(`DATE FORMATED AS: ${dayWithSuffix} of ${month}, ${year}`)
+      return `${dayWithSuffix} of ${month}, ${year}`;/*
       const day = dateStr.substring(0, 2) // DD
       const month = dateStr.substring(2, 4) // MM
       const year = dateStr.substring(4, 8) // YYYY
       return `${day}${month}${year}` // Return in DDMMYYYY format
+      */
     },
+
     async loadPost(date) {
       console.log('Loading post for date:', date)
       this.$router.push({
@@ -275,12 +295,15 @@ export default {
 }
 
 .link-style {
-  color: #007bff;
+  color: black;
   text-decoration: none;
 }
 
 .link-style:hover {
   text-decoration: underline;
+  cursor: pointer;
+  /* Add this line */
+
 }
 
 @media screen and (max-width: 768px) {
