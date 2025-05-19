@@ -13,13 +13,13 @@
         <button class="explore-button" @click="fetchImages">Explore</button>
       </div>
     </div>
-    
+
     <div class="loading" v-if="loading">Loading images...</div>
-    
+
     <div v-if="!loading && images.length === 0 && hasSearched" class="no-images">
       <p>No images found for this date.</p>
     </div>
-    
+
     <div class="images-grid" v-if="images.length > 0">
       <div class="image-card" v-for="(image, index) in images" :key="index" @click="openImage(image)">
         <div class="image-container">
@@ -28,7 +28,7 @@
         <div class="image-year">{{ image.year }}</div>
       </div>
     </div>
-    
+
     <!-- Image Modal -->
     <div v-if="showImageModal" class="image-modal" @click="closeImageModal">
       <div class="modal-content" @click.stop>
@@ -54,7 +54,7 @@ export default {
       selectedDay: new Date().getDate(),
       selectedMonth: new Date().getMonth() + 1,
       months: [
-        'January', 'February', 'March', 'April', 'May', 'June', 
+        'January', 'February', 'March', 'April', 'May', 'June',
         'July', 'August', 'September', 'October', 'November', 'December'
       ],
       images: [],
@@ -69,7 +69,7 @@ export default {
     const today = new Date();
     this.selectedDay = today.getDate();
     this.selectedMonth = today.getMonth() + 1;
-    
+
     // If day and month are provided in the URL query parameters, use them
     if (this.$route.query.day && this.$route.query.month) {
       this.selectedDay = parseInt(this.$route.query.day);
@@ -97,17 +97,33 @@ export default {
           query: { day: this.selectedDay, month: this.selectedMonth }
         });
         
-        // Collect all years' image info
-        const imagePromises = [];
+        // Process years one by one and display images as they load
+        const allYears = [];
         for (let year = startYear; year <= currentYear; year++) {
-          imagePromises.push(this.checkImageExists(day, month, year));
+          allYears.push(year);
         }
         
-        // Wait for all checks to complete
-        const results = await Promise.all(imagePromises);
+        // Show a "still loading" indicator if at least one image was found
+        let foundAtLeastOne = false;
         
-        // Filter out null results (images that don't exist)
-        this.images = results.filter(result => result !== null);
+        // Process all years concurrently, but add to display as they complete
+        const checkPromises = allYears.map(async (year) => {
+          try {
+            const result = await this.checkImageExists(day, month, year);
+            if (result) {
+              // Add the image to the display as soon as it's found
+              this.images.push(result);
+              // Sort images by year (newest first) whenever a new one is added
+              this.images.sort((a, b) => b.year - a.year);
+              foundAtLeastOne = true;
+            }
+          } catch (error) {
+            console.error(`Error checking year ${year}:`, error);
+          }
+        });
+        
+        // Still wait for all checks to complete to remove the loader
+        await Promise.all(checkPromises);
       } catch (error) {
         console.error('Error fetching images:', error);
       } finally {
@@ -141,18 +157,18 @@ export default {
         return null;
       }
     },
-    
+
     openImage(image) {
       this.selectedImage = image;
       this.showImageModal = true;
       document.body.classList.add('modal-open');
     },
-    
+
     closeImageModal() {
       this.showImageModal = false;
       document.body.classList.remove('modal-open');
     },
-    
+
     formatDateForRoute(image) {
       return `${image.day}${image.month}${image.year}`;
     }
@@ -339,59 +355,59 @@ body.modal-open {
     flex-direction: column;
     align-items: center;
   }
-  
+
   .images-grid {
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
     gap: 10px;
   }
-  
+
   .explore-day {
     margin-top: 70px;
     padding: 15px;
   }
-  
+
   h1 {
     font-size: 1.5rem;
     margin-bottom: 20px;
   }
-  
+
   .date-picker {
     flex-direction: column;
     align-items: center;
     gap: 8px;
   }
-  
+
   .day-picker, .month-picker {
     width: 100%;
     max-width: 200px;
     font-size: 14px;
   }
-  
+
   .explore-button {
     width: 100%;
     max-width: 200px;
     margin-top: 5px;
   }
-  
+
   .images-grid {
     grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
     gap: 10px;
   }
-  
+
   .image-card {
     border-radius: 6px;
   }
-  
+
   .image-year {
     padding: 5px 0;
     font-size: 0.9rem;
   }
-  
+
   .close-modal-button {
     font-size: 14px;
     padding: 6px 12px;
   }
-  
+
   .image-date {
     font-size: 14px;
     padding: 6px 12px;
