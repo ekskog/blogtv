@@ -13,9 +13,19 @@
         <figure class="figure-wrapper">
           <div v-if="imageLoading" class="image-loading">Fetching Image...</div>
           <img :src="getImageUrl(post)" alt="Post Image" class="thumbnail" @load="onImageLoaded" @error="onImageError"
-            v-show="!imageLoading" />
+            v-show="!imageLoading" @click="openImageModal" />
           <span class="caption" v-show="!imageLoading">{{ calculateCaption(post) }}</span>
         </figure>
+      </div>
+
+      <!-- Image Modal -->
+      <div v-if="showImageModal" class="image-modal" @click="closeImageModal">
+        <div class="modal-content" @click.stop>
+          <div class="close-button-container">
+            <button class="close-modal-button" @click="closeImageModal">Close</button>
+          </div>
+          <img :src="getImageUrl(post)" alt="Full Resolution Image" class="full-resolution-image" />
+        </div>
       </div>
 
       <!-- EXIF and Azure Eye Toggle Buttons Below the Caption -->
@@ -95,8 +105,9 @@ export default {
       post: postStore.currentPost,
       showExifData: false,
       showAzEyeData: false,
+      showImageModal: false, // New data property for image modal
       loading: false,
-      imageLoading: true, // Added for image loading state
+      imageLoading: true, // Added for image loading state,
     }
   },
 
@@ -144,6 +155,19 @@ export default {
   },
 
   methods: {
+    // Image modal methods
+    openImageModal() {
+      this.showImageModal = true;
+      // Add a class to body to prevent scrolling when modal is open
+      document.body.classList.add('modal-open');
+    },
+
+    closeImageModal() {
+      this.showImageModal = false;
+      // Remove the class from body when modal is closed
+      document.body.classList.remove('modal-open');
+    },
+
     toggleExifData() {
       this.showExifData = !this.showExifData
     },
@@ -326,6 +350,13 @@ export default {
   height: auto;
   max-width: 800px;
   border: #333 1px solid;
+  cursor: pointer; /* Add pointer cursor to indicate clickable image */
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.thumbnail:hover {
+  transform: scale(1.02);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
 }
 
 .markdown-container {
@@ -492,20 +523,77 @@ export default {
   background-color: #e0e0e0;
 }
 
-@media (max-width: 768px) {
-  @media (max-width: 768px) {
-    .single-post {
-      max-width: 600px;
-      margin: 0 auto;
-      padding: 10px;
-      box-shadow: none;
-      /* Remove box shadow for mobile screens */
-    }
+/* Image Modal Styles */
+.image-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
 
-    .markdown-container {
-      font-size: 0.8rem;
-      /* Adjusted for better readability */
-    }
+.modal-content {
+  position: relative;
+  max-width: 95%;
+  max-height: 95%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.full-resolution-image {
+  max-width: 100%;
+  max-height: calc(100vh - 100px);
+  object-fit: contain;
+}
+
+.close-button-container {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 10px;
+}
+
+.close-modal-button {
+  background-color: white;
+  color: black;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 1rem;
+}
+
+.close-modal-button:hover {
+  background-color: #f0f0f0;
+}
+
+body.modal-open {
+  overflow: hidden;
+}
+
+@media (max-width: 768px) {
+  .single-post {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 10px;
+    box-shadow: none;
+    /* Remove box shadow for mobile screens */
+  }
+
+  .markdown-container {
+    font-size: 0.8rem;
+    /* Adjusted for better readability */
+  }
+
+  .full-resolution-image {
+    max-height: calc(100vh - 80px);
   }
 }
 </style>
