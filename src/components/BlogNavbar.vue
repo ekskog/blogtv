@@ -15,6 +15,7 @@
     <nav class="full-menu" v-if="!isSmallScreen">
       <ul>
         <span @click="goToRandomPost" class="clickable">Random Post</span>
+        <span @click="goToExploreDay" class="clickable">Explore Day</span>
         <li>
           <input type="date" v-model="selectedDate" @change="goToPost" class="nav-input" />
         </li>
@@ -36,6 +37,9 @@
       <ul>
         <li>
           <span @click="goToRandomPost" class="clickable">Random Post</span>
+        </li>
+        <li>
+          <span @click="goToExploreDay" class="clickable">Explore Day</span>
         </li>
         <li>
           <input type="date" v-model="selectedDate" @change="goToPost" class="nav-input" />
@@ -125,6 +129,13 @@ export default {
       if (isSmallScreen.value) closeMenu()
     }
 
+    const goToExploreDay = () => {
+      router.push({ name: 'explore-day' })
+      
+      // Close menu on mobile
+      if (isSmallScreen.value) closeMenu()
+    }
+
     onMounted(() => {
       checkScreenSize()
       window.addEventListener('resize', checkScreenSize)
@@ -144,6 +155,7 @@ export default {
       goToPost,
       searchByTag,
       goToRandomPost,
+      goToExploreDay,
     }
   },
   methods: {},

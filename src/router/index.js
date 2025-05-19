@@ -4,6 +4,7 @@ import Home from '@/components/BlogHome.vue'
 import Posts from '@/components/BlogPosts.vue'
 import Post from '@/components/BlogPost.vue'
 import Search from '@/components/BlogSearch.vue'
+import ExploreDay from '@/components/BlogExploreDay.vue'
 
 const routes = [
   { path: '/', component: Home },
@@ -19,6 +20,11 @@ const routes = [
     name: 'search',
     component: Search,
     props: (route) => ({ tag: route.query.tag }), // Pass the 'tag' query to the Search component as a prop
+  },
+  {
+    path: '/explore-day',
+    name: 'explore-day',
+    component: ExploreDay,
   },
 ]
 
