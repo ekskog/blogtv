@@ -2,7 +2,7 @@
   <div>
     <div class="image-container">
       <!-- Resized image -->
-      <img :src="imageUrl" alt="Random Image" class="thumbnail" @click="showOverlay = true" />
+      <img :src="imageUrl" alt="Random Post Image" class="thumbnail" @click="showOverlay = true" />
 
       <!-- Display the selected date -->
       <p class="selected-date">
@@ -99,7 +99,7 @@ const faceKey =
 const faceEndpoint = 'https://blogt-faces.cognitiveservices.azure.com/'
 
 export default {
-  name: 'BlogRandomImage',
+  name: 'BlogRandomPost',
   data() {
     return {
       imageUrl: null,

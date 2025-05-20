@@ -131,7 +131,7 @@ export default {
 
     const goToExploreDay = () => {
       router.push({ name: 'explore-day' })
-      
+
       // Close menu on mobile
       if (isSmallScreen.value) closeMenu()
     }

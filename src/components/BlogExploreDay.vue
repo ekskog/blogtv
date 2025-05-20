@@ -29,6 +29,17 @@
       </div>
     </div>
 
+    <!-- Pagination Controls -->
+    <div class="pagination-controls" v-if="hasSearched">
+      <button @click="goToPreviousDay" class="pagination-button">
+        &lt; Previous Day
+      </button>
+      <span class="current-date">{{ formattedCurrentDate }}</span>
+      <button @click="goToNextDay" class="pagination-button">
+        Next Day &gt;
+      </button>
+    </div>
+
     <!-- Image Modal -->
     <div v-if="showImageModal" class="image-modal" @click="closeImageModal">
       <div class="modal-content" @click.stop>
@@ -82,30 +93,30 @@ export default {
       this.loading = true;
       this.hasSearched = true;
       this.images = [];
-      
+
       try {
         // Calculate the range of years to check
         const currentYear = new Date().getFullYear();
         const startYear = 2010; // Assuming blog starts from 2010
-        
+
         // Format day and month as two digits
         const day = this.selectedDay.toString().padStart(2, '0');
         const month = this.selectedMonth.toString().padStart(2, '0');
-        
+
         // Update the URL query parameters for sharing
         this.$router.push({
           query: { day: this.selectedDay, month: this.selectedMonth }
         });
-        
+
         // Process years one by one and display images as they load
         const allYears = [];
         for (let year = startYear; year <= currentYear; year++) {
           allYears.push(year);
         }
-        
+
         // Show a "still loading" indicator if at least one image was found
         let foundAtLeastOne = false;
-        
+
         // Process all years concurrently, but add to display as they complete
         const checkPromises = allYears.map(async (year) => {
           try {
@@ -121,7 +132,7 @@ export default {
             console.error(`Error checking year ${year}:`, error);
           }
         });
-        
+
         // Still wait for all checks to complete to remove the loader
         await Promise.all(checkPromises);
       } catch (error) {
@@ -130,10 +141,10 @@ export default {
         this.loading = false;
       }
     },
-    
+
     async checkImageExists(day, month, year) {
       const imageUrl = `https://objects.hbvu.su/blotpix/${year}/${month}/${day}.jpeg`;
-      
+
       try {
         // Create a new Image object to check if the image exists
         const img = new Image();
@@ -141,9 +152,9 @@ export default {
           img.onload = () => resolve(true);
           img.onerror = () => reject(false);
         });
-        
+
         img.src = imageUrl;
-        
+
         // If the image loads successfully, return the image info
         await imageLoadPromise;
         return {
@@ -171,6 +182,37 @@ export default {
 
     formatDateForRoute(image) {
       return `${image.day}${image.month}${image.year}`;
+    },
+
+    goToPreviousDay() {
+      // Create a date object from the current selection
+      // Note: Month in JavaScript Date is 0-indexed, so we subtract 1
+      const currentDate = new Date(new Date().getFullYear(), this.selectedMonth - 1, this.selectedDay);
+      // Subtract one day
+      currentDate.setDate(currentDate.getDate() - 1);
+      // Update the selected values
+      this.selectedDay = currentDate.getDate();
+      this.selectedMonth = currentDate.getMonth() + 1; // Convert back to 1-indexed month
+      this.fetchImages();
+    },
+
+    goToNextDay() {
+      // Create a date object from the current selection
+      // Note: Month in JavaScript Date is 0-indexed, so we subtract 1
+      const currentDate = new Date(new Date().getFullYear(), this.selectedMonth - 1, this.selectedDay);
+      // Add one day
+      currentDate.setDate(currentDate.getDate() + 1);
+      // Update the selected values
+      this.selectedDay = currentDate.getDate();
+      this.selectedMonth = currentDate.getMonth() + 1; // Convert back to 1-indexed month
+      this.fetchImages();
+    }
+  },
+  computed: {
+    formattedCurrentDate() {
+      const day = this.selectedDay.toString().padStart(2, '0');
+      const month = this.selectedMonth.toString().padStart(2, '0');
+      return `${day}/${month}`;
     }
   }
 }
@@ -275,6 +317,34 @@ h1 {
   font-weight: bold;
   font-size: 1rem;
   background-color: #f5f5f5;
+}
+
+/* Pagination Controls */
+.pagination-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.pagination-button {
+  padding: 8px 16px;
+  background-color: #333;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  margin: 0 10px;
+}
+
+.pagination-button:hover {
+  background-color: #555;
+}
+
+.current-date {
+  font-size: 18px;
+  font-weight: bold;
 }
 
 /* Image Modal Styles */
