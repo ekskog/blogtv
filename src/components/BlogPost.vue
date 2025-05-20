@@ -70,16 +70,20 @@
 
       <!-- Navigation Buttons -->
       <div class="pagination-controls">
-        <button @click="navigateToPreviousDay" class="pagination-button">
-          {{ '< 1' }} </button>
-            <button @click="navigateToPreviousYear" class="pagination-button">
-              {{ '< 365' }} </button>
-                <button @click="navigateToNextYear" class="pagination-button">
-                  {{ '> 365' }}
-                </button>
-                <button @click="navigateToNextDay" class="pagination-button">
-                  {{ '> 1' }}
-                </button>
+        <button @click="navigateToPreviousDay" class="pagination-button" :disabled="navigationLoading">
+          <span v-if="navigationLoading && previousLoading">Searching...</span>
+          <span v-else>{{ '< 1' }}</span>
+        </button>
+        <button @click="navigateToPreviousYear" class="pagination-button" :disabled="navigationLoading">
+          {{ '< 365' }}
+        </button>
+        <button @click="navigateToNextYear" class="pagination-button" :disabled="navigationLoading">
+          {{ '> 365' }}
+        </button>
+        <button @click="navigateToNextDay" class="pagination-button" :disabled="navigationLoading">
+          <span v-if="navigationLoading && nextLoading">Searching...</span>
+          <span v-else>{{ '> 1' }}</span>
+        </button>
       </div>
     </div>
   </div>
@@ -107,7 +111,10 @@ export default {
       showAzEyeData: false,
       showImageModal: false, // New data property for image modal
       loading: false,
-      imageLoading: true, // Added for image loading state,
+      imageLoading: true, // Added for image loading state
+      navigationLoading: false, // General navigation loading state
+      nextLoading: false, // Specific to next button
+      previousLoading: false, // Specific to previous button
     }
   },
 
@@ -268,21 +275,46 @@ export default {
       return parsedDate // Return Date object
     },
 
-    navigateToNextDay() {
+    async navigateToNextDay() {
       const inputDate = this.parseDateString()
-      const nextDay = new Date(inputDate)
-      nextDay.setDate(inputDate.getDate() + 1) // Increment the day by 1
-      const nextDayFormatted = this.formatDateStr(nextDay) // Format the date
-      console.log('Navigating to next day:', nextDayFormatted)
-      this.$router.push({ name: 'post', params: { date: nextDayFormatted } }) // Route to next day
+
+      // Show loading indicator in UI
+      this.navigationLoading = true
+      this.nextLoading = true
+
+      // Find the next available post
+      const nextPostDate = await this.findNextAvailablePost(inputDate)
+
+      if (nextPostDate) {
+        console.log('Found next available post for date:', nextPostDate)
+        this.$router.push({ name: 'post', params: { date: nextPostDate } })
+      } else {
+        console.log('No next post found')
+        alert('No more posts found in the next 60 days')
+        this.navigationLoading = false
+        this.nextLoading = false
+      }
     },
-    navigateToPreviousDay() {
+
+    async navigateToPreviousDay() {
       const inputDate = this.parseDateString()
-      const previousDay = new Date(inputDate)
-      previousDay.setDate(inputDate.getDate() - 1) // Decrement the day by 1
-      const previousDayFormatted = this.formatDateStr(previousDay) // Format the date
-      console.log('Navigating to previous day:', previousDayFormatted)
-      this.$router.push({ name: 'post', params: { date: previousDayFormatted } }) // Route to previous day
+
+      // Show loading indicator in UI
+      this.navigationLoading = true
+      this.previousLoading = true
+
+      // Find the previous available post
+      const previousPostDate = await this.findPreviousAvailablePost(inputDate)
+
+      if (previousPostDate) {
+        console.log('Found previous available post for date:', previousPostDate)
+        this.$router.push({ name: 'post', params: { date: previousPostDate } })
+      } else {
+        console.log('No previous post found')
+        alert('No more posts found in the previous 60 days')
+        this.navigationLoading = false
+        this.previousLoading = false
+      }
     },
 
     navigateToNextYear() {
@@ -309,6 +341,88 @@ export default {
     formatDateStr(date) {
       // Formats the date as DDMMYYYY
       return `${('0' + date.getDate()).slice(-2)}${('0' + (date.getMonth() + 1)).slice(-2)}${date.getFullYear()}`
+    },
+
+    async checkPostExists(date) {
+      try {
+        const response = await fetch(`https://blogtbe.hbvu.su/posts/${date}`)
+        return response.ok
+      } catch (error) {
+        console.error(`Error checking if post exists for ${date}:`, error)
+        return false
+      }
+    },
+
+    async findNextAvailablePost(startDate) {
+      this.navigationLoading = true
+
+      let currentDate = new Date(startDate)
+      let attempts = 0
+      const maxAttempts = 60 // Maximum days to search ahead
+
+      while (attempts < maxAttempts) {
+        // Move to next day
+        currentDate.setDate(currentDate.getDate() + 1)
+
+        // Don't go beyond today's date
+        if (currentDate > new Date()) {
+          console.log('Reached current date, stopping search')
+          this.navigationLoading = false
+          return null
+        }
+
+        const formattedDate = this.formatDateStr(currentDate)
+        console.log(`Checking if post exists for ${formattedDate}...`)
+
+        const exists = await this.checkPostExists(formattedDate)
+
+        if (exists) {
+          this.navigationLoading = false
+          return formattedDate
+        }
+
+        attempts++
+      }
+
+      console.log(`No posts found after checking ${maxAttempts} days`)
+      this.navigationLoading = false
+      return null
+    },
+
+    async findPreviousAvailablePost(startDate) {
+      this.navigationLoading = true
+
+      let currentDate = new Date(startDate)
+      let attempts = 0
+      const maxAttempts = 60 // Maximum days to search back
+
+      while (attempts < maxAttempts) {
+        // Move to previous day
+        currentDate.setDate(currentDate.getDate() - 1)
+
+        // Don't go before the blog's start date
+        if (currentDate < new Date(2010, 0, 1)) { // Assuming blog starts from Jan 1, 2010
+          console.log('Reached blog start date, stopping search')
+          this.navigationLoading = false
+          return null
+        }
+
+        const formattedDate = this.formatDateStr(currentDate)
+        console.log(`Checking if post exists for ${formattedDate}...`)
+
+        const exists = await this.checkPostExists(formattedDate)
+
+        if (exists) {
+          this.navigationLoading = false
+          return formattedDate
+        }
+
+        attempts++
+      }
+
+      console.log(`No posts found after checking ${maxAttempts} days`)
+      this.navigationLoading = false
+      return null
     },
   },
 
@@ -512,6 +626,8 @@ export default {
   border: 1px solid black;
   border-radius: 4px;
   cursor: pointer;
+  min-width: 80px; /* Ensure consistent width when showing "Searching..." */
+  transition: background-color 0.2s;
 }
 
 .pagination-button:disabled {
