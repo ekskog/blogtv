@@ -173,15 +173,17 @@ export default {
 </script>
 
 <style scoped>
+/* Page header styling */
 .page-title {
   width: 80%;
   margin: 0 auto 40px;
-  font-size: 20px;
+  font-size: 1.25rem; /* Changed from 20px to 1.25rem */
   font-weight: bold;
   text-align: center;
   color: #333;
 }
 
+/* Search input controls */
 .manual-search {
   display: flex;
   justify-content: center;
@@ -210,12 +212,13 @@ export default {
   background-color: #0056b3;
 }
 
+/* Results table styling */
 .custom-table {
   width: 80%;
   margin: 0 auto;
   border-collapse: collapse;
   table-layout: fixed;
-  font-size: 12px;
+  font-size: 0.75rem; /* Changed from 12px to 0.75rem */
 }
 
 .custom-table th,
@@ -246,18 +249,19 @@ export default {
   background-color: #ffffff;
 }
 
+/* Pagination controls */
 .pagination {
   width: 80%;
   margin: 20px auto 0;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 10px;
+  font-size: 0.625rem; /* Changed from 10px to 0.625rem */
   color: #333;
 }
 
 .pagination-info {
-  font-size: 14px;
+  font-size: 0.875rem; /* Changed from 14px to 0.875rem */
   color: #555;
 }
 
@@ -294,18 +298,18 @@ export default {
   color: #444;
 }
 
+/* Link styling */
 .link-style {
   color: black;
   text-decoration: none;
+  cursor: pointer; /* Moved up from hover state */
 }
 
 .link-style:hover {
   text-decoration: underline;
-  cursor: pointer;
-  /* Add this line */
-
 }
 
+/* Responsive layout adjustments */
 @media screen and (max-width: 768px) {
   .pagination {
     flex-direction: column;

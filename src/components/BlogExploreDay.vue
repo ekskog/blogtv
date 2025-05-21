@@ -32,11 +32,11 @@
     <!-- Pagination Controls -->
     <div class="pagination-controls" v-if="hasSearched">
       <button @click="goToPreviousDay" class="pagination-button">
-        &lt; Previous Day
+        &lt; 1
       </button>
       <span class="current-date">{{ formattedCurrentDate }}</span>
       <button @click="goToNextDay" class="pagination-button">
-        Next Day &gt;
+        1 &gt;
       </button>
     </div>
 
@@ -114,9 +114,6 @@ export default {
           allYears.push(year);
         }
 
-        // Show a "still loading" indicator if at least one image was found
-        let foundAtLeastOne = false;
-
         // Process all years concurrently, but add to display as they complete
         const checkPromises = allYears.map(async (year) => {
           try {
@@ -126,7 +123,6 @@ export default {
               this.images.push(result);
               // Sort images by year (newest first) whenever a new one is added
               this.images.sort((a, b) => b.year - a.year);
-              foundAtLeastOne = true;
             }
           } catch (error) {
             console.error(`Error checking year ${year}:`, error);
@@ -210,9 +206,20 @@ export default {
   },
   computed: {
     formattedCurrentDate() {
-      const day = this.selectedDay.toString().padStart(2, '0');
-      const month = this.selectedMonth.toString().padStart(2, '0');
-      return `${day}/${month}`;
+      const day = this.selectedDay;
+      const monthName = this.months[this.selectedMonth - 1];
+      
+      // Add ordinal suffix to day
+      let suffix = 'th';
+      if (day % 10 === 1 && day !== 11) {
+        suffix = 'st';
+      } else if (day % 10 === 2 && day !== 12) {
+        suffix = 'nd';
+      } else if (day % 10 === 3 && day !== 13) {
+        suffix = 'rd';
+      }
+      
+      return `${day}${suffix} of ${monthName}`;
     }
   }
 }
@@ -292,6 +299,7 @@ h1 {
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   display: flex;
   flex-direction: column;
+  border: 1px solid black;
 }
 
 .image-card:hover {
@@ -303,6 +311,7 @@ h1 {
   width: 100%;
   aspect-ratio: 1/1;
   overflow: hidden;
+  box-sizing: border-box;
 }
 
 .grid-image {
@@ -322,24 +331,29 @@ h1 {
 /* Pagination Controls */
 .pagination-controls {
   display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-top: 20px;
+  justify-content: space-between;
+  margin-top: 40px;
+  padding: 0 20px;
 }
 
 .pagination-button {
   padding: 8px 16px;
-  background-color: #333;
-  color: white;
-  border: none;
+  background-color: #f0f0f0;
+  border: 1px solid black;
   border-radius: 4px;
   cursor: pointer;
-  font-size: 16px;
-  margin: 0 10px;
+  min-width: 80px;
+  font-size: 1rem;
+  transition: background-color 0.2s;
 }
 
 .pagination-button:hover {
-  background-color: #555;
+  background-color: #e0e0e0;
+}
+
+.pagination-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .current-date {

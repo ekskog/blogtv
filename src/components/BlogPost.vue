@@ -430,6 +430,7 @@ export default {
 </script>
 
 <style scoped>
+/* Base layout */
 .single-post {
   max-width: 800px;
   margin: 0 auto;
@@ -438,57 +439,31 @@ export default {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
 }
 
+/* Typography */
 .post-title {
   font-size: 2em;
   margin: 0;
-  padding: 0px 0;
+  padding: 0;
   text-align: left;
   text-transform: uppercase;
-}
-
-.geotag {
-  font-size: 0.8em;
-  color: black;
-  margin-bottom: 5px;
-  text-decoration: none !important;
-}
-
-.geotag a:hover {
-  color: blue;
-  font-size: 120%;
-  text-decoration: none !important;
-}
-
-.thumbnail {
-  width: 100%;
-  height: auto;
-  max-width: 800px;
-  border: #333 1px solid;
-  cursor: pointer; /* Add pointer cursor to indicate clickable image */
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.thumbnail:hover {
-  transform: scale(1.02);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
 }
 
 .markdown-container {
   padding-top: 10px;
   max-width: 100%;
   font-size: 1.4em;
-  /* Adjusted for better readability */
   line-height: 1.6;
-  /* Add an explicit line height if not already set */
 }
 
-.caption {
-  margin-top: 5px;
-  text-align: center;
-  display: block;
+/* Location tag */
+.geotag {
   font-size: 0.8em;
+  color: black;
+  margin-bottom: 5px;
+  text-decoration: none;
 }
 
+/* Images and figure styling */
 .figure-wrapper {
   padding-top: 50px;
   margin: 0;
@@ -497,6 +472,27 @@ export default {
   max-width: 800px;
   aspect-ratio: 1/1;
   text-align: center;
+}
+
+.thumbnail {
+  width: 100%;
+  height: auto;
+  max-width: 800px;
+  border: 1px solid #333;
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.thumbnail:hover {
+  transform: scale(1.02);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.caption {
+  margin-top: 5px;
+  text-align: center;
+  display: block;
+  font-size: 0.8em;
 }
 
 .image-loading {
@@ -510,25 +506,13 @@ export default {
   margin: 0;
 }
 
-.image-loading::after {
-  /* Optional: add a subtle animation */
-  animation: pulse 1.5s infinite ease-in-out;
-}
-
 @keyframes pulse {
-  0% {
-    opacity: 0.6;
-  }
-
-  50% {
-    opacity: 1;
-  }
-
-  100% {
-    opacity: 0.6;
-  }
+  0% { opacity: 0.6; }
+  50% { opacity: 1; }
+  100% { opacity: 0.6; }
 }
 
+/* Button styles */
 .toggle-buttons {
   margin-top: 20px;
   display: flex;
@@ -536,30 +520,52 @@ export default {
   justify-content: center;
 }
 
+/* Common button styles */
+.exif-toggle-button,
+.azeye-toggle-button,
+.pagination-button,
+.close-modal-button {
+  padding: 8px 16px;
+  background-color: #f0f0f0;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
 .exif-toggle-button,
 .azeye-toggle-button {
   padding: 6px 12px;
-  background-color: #f0f0f0;
   border: 1px solid #ddd;
-  border-radius: 4px;
   font-size: 0.8em;
-  cursor: pointer;
 }
 
 .exif-toggle-button:hover,
-.azeye-toggle-button:hover {
+.azeye-toggle-button:hover,
+.pagination-button:not(:disabled):hover,
+.close-modal-button:hover {
   background-color: #e0e0e0;
 }
 
-.exif-container {
-  margin-top: 20px;
-  margin-bottom: 20px;
-  padding: 15px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  background-color: #e0e0e0;
+.pagination-button {
+  border: 1px solid black;
+  min-width: 80px;
 }
 
+.pagination-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.close-modal-button {
+  border: none;
+  font-weight: bold;
+  font-size: 1rem;
+  color: black;
+  background-color: white;
+}
+
+/* Container styles */
+.exif-container,
 .azeye-container {
   margin-top: 20px;
   margin-bottom: 20px;
@@ -569,21 +575,18 @@ export default {
   background-color: #e0e0e0;
 }
 
-/* Tags and date row */
+/* Tags and metadata */
 .tags-container {
   margin-top: 20px;
-  padding: 20px 0px;
+  padding: 20px 0;
   border-top: 1px solid #eee;
 }
 
 .post-date,
 .tag {
   font-size: 0.8rem;
-  /* Explicitly enforce font size */
   font-weight: bold;
-  /* Ensure bold font for both */
   text-decoration: none;
-  /* Ensure consistent link styling */
 }
 
 .post-date {
@@ -613,6 +616,7 @@ export default {
   margin: 0 2px;
 }
 
+/* Pagination */
 .pagination-controls {
   display: flex;
   justify-content: space-between;
@@ -620,26 +624,7 @@ export default {
   padding: 0 20px;
 }
 
-.pagination-button {
-  padding: 8px 16px;
-  background-color: #f0f0f0;
-  border: 1px solid black;
-  border-radius: 4px;
-  cursor: pointer;
-  min-width: 80px; /* Ensure consistent width when showing "Searching..." */
-  transition: background-color 0.2s;
-}
-
-.pagination-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.pagination-button:not(:disabled):hover {
-  background-color: #e0e0e0;
-}
-
-/* Image Modal Styles */
+/* Image Modal */
 .image-modal {
   position: fixed;
   top: 0;
@@ -675,37 +660,21 @@ export default {
   margin-bottom: 10px;
 }
 
-.close-modal-button {
-  background-color: white;
-  color: black;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-weight: bold;
-  font-size: 1rem;
-}
-
-.close-modal-button:hover {
-  background-color: #f0f0f0;
-}
-
 body.modal-open {
   overflow: hidden;
 }
 
+/* Responsive design */
 @media (max-width: 768px) {
   .single-post {
     max-width: 600px;
     margin: 0 auto;
     padding: 10px;
     box-shadow: none;
-    /* Remove box shadow for mobile screens */
   }
 
   .markdown-container {
     font-size: 0.8rem;
-    /* Adjusted for better readability */
   }
 
   .full-resolution-image {

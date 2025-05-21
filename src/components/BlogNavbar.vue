@@ -6,7 +6,7 @@
       </button>
     </div>
     <div class="logo">
-      <router-link to="/Posts">
+      <router-link to="/posts">
         <img src="@/assets/logo.png" alt="App Logo" />
       </router-link>
     </div>
@@ -163,11 +163,12 @@ export default {
 </script>
 
 <style scoped>
+/* Header layout */
 header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 20px; /* This sets padding for both the logo and the menu */
+  padding: 10px 20px;
   position: fixed;
   top: 0;
   left: 0;
@@ -175,9 +176,10 @@ header {
   height: 60px;
   background-color: white;
   z-index: 1000;
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
+/* Logo styling */
 .logo {
   display: flex;
   align-items: center;
@@ -188,10 +190,16 @@ header {
   height: 40px;
 }
 
+/* Common styles */
+.clickable {
+  cursor: pointer;
+}
+
+/* Desktop menu */
 .full-menu {
   margin-left: auto;
-  margin-right: 20px; /* Ensure this margin matches the padding defined above */
-  padding-right: 20px; /* Add padding to push the menu items away from the right edge */
+  margin-right: 20px;
+  padding-right: 20px;
 }
 
 .full-menu ul {
@@ -208,18 +216,7 @@ header {
   align-items: center;
 }
 
-.full-menu ul li span {
-  display: inline-block;
-  line-height: normal; /* Ensure text doesn't stretch unnecessarily */
-  vertical-align: middle; /* Align text within its line */
-}
-
-/* Inputs */
-
-.clickable {
-  cursor: pointer;
-}
-
+/* Form inputs */
 .nav-input {
   padding: 8px;
   font-size: 0.8rem;
@@ -228,7 +225,7 @@ header {
   width: 150px;
 }
 
-/* Search Input */
+/* Search styling */
 .search-container {
   position: relative;
   display: flex;
@@ -251,7 +248,7 @@ header {
   color: #007bff;
 }
 
-/* Mobile Menu */
+/* Mobile menu toggle */
 .hamburger-wrapper {
   position: absolute;
   left: 20px;
@@ -272,17 +269,18 @@ header {
   color: #007bff;
 }
 
+/* Mobile menu panel */
 .mobile-menu {
   position: fixed;
   top: 60px;
   left: 0;
   width: 100%;
   background-color: white;
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .mobile-menu ul {
-  list-style-type: none;
+  list-style: none;
   padding: 20px;
 }
 
@@ -302,7 +300,7 @@ header {
   padding: 8px 0;
 }
 
-/* Mobile adjustments */
+/* Responsive adjustments */
 @media (max-width: 768px) {
   .full-menu {
     display: none;

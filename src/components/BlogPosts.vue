@@ -313,27 +313,13 @@ export default {
 </script>
 
 <style scoped>
-/* Base styles */
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell,
-    'Open Sans', 'Helvetica Neue', sans-serif;
-  line-height: 1.6;
-  color: #333;
-  background-color: #f9f9f9;
-}
-
+/* Container layout */
 .posts-container {
   margin: 0 auto;
   padding: 20px;
 }
 
-/* Individual blog post styling */
+/* Blog post card */
 .blogpost {
   margin-bottom: 40px;
   background-color: #fff;
@@ -350,7 +336,7 @@ body {
 
 /* Left panel - Image and caption */
 .photo-container {
-  flex: 0 0 500px; /* Updated fixed width of 500px */
+  flex: 0 0 500px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -359,18 +345,18 @@ body {
 
 .thumbnail {
   width: 100%;
-  max-width: 500px; /* Updated max width to 500px */
-  max-height: 500px; /* Updated max height to 500px */
+  max-width: 500px;
+  max-height: 500px;
   object-fit: contain;
   border: 1px solid #000;
 }
 
 .caption {
   margin-top: 10px;
-  font-size: 0.4em;
+  font-size: 0.8rem;
   text-align: center;
   color: #666;
-  max-width: 500px; /* Updated to match image width */
+  max-width: 500px;
 }
 
 /* Right panel - Content */
@@ -379,7 +365,7 @@ body {
   padding: 20px;
   display: flex;
   flex-direction: column;
-  height: 500px; /* Updated to match the height of the image container */
+  height: 500px;
   overflow: hidden;
 }
 
@@ -412,8 +398,8 @@ body {
 /* Markdown content */
 .markdown-container {
   flex: 1;
-  overflow-y: auto; /* Add scrollbar if content overflows */
-  padding-right: 10px; /* Space for scrollbar */
+  overflow-y: auto;
+  padding-right: 10px;
   font-size: 1.2rem;
   line-height: 1.4;
 }
@@ -437,7 +423,7 @@ body {
   background: #aaa;
 }
 
-/* Markdown content styling */
+/* Markdown content elements */
 .markdown-container h1,
 .markdown-container h2,
 .markdown-container h3 {
@@ -447,7 +433,7 @@ body {
 
 .markdown-container p {
   margin-bottom: 1em;
-  font-size: 0.1em;
+  font-size: 1rem; /* Fixed from 0.1em which was likely too small */
 }
 
 .markdown-container ul,
@@ -488,7 +474,7 @@ body {
   margin: 1em 0;
 }
 
-/* Tags and date row */
+/* Tags and metadata */
 .tags-container {
   padding: 15px 20px;
   border-top: 1px solid #eee;
@@ -496,14 +482,15 @@ body {
 
 .post-date,
 .tag {
-  font-size: 0.8rem; /* Explicitly enforce font size */
-  font-weight: bold; /* Ensure bold font for both */
-  text-decoration: none; /* Ensure consistent link styling */
+  font-size: 0.8rem;
+  font-weight: bold;
+  text-decoration: none;
 }
 
 .post-date {
   padding-right: 25px;
 }
+
 .post-date:hover {
   color: lightblue;
 }
@@ -535,21 +522,22 @@ body {
   margin-bottom: 50px;
 }
 
-.left-button {
+.left-button,
+.middle-button,
+.right-button {
   flex: 1;
   display: flex;
+}
+
+.left-button {
   justify-content: flex-start;
 }
 
 .middle-button {
-  flex: 1;
-  display: flex;
   justify-content: center;
 }
 
 .right-button {
-  flex: 1;
-  display: flex;
   justify-content: flex-end;
 }
 
@@ -600,7 +588,7 @@ body {
     width: 100%;
     max-width: 100%;
     height: auto;
-    aspect-ratio: 1/1; /* Maintain 1:1 aspect ratio */
+    aspect-ratio: 1/1;
     object-fit: contain;
   }
 
@@ -616,10 +604,6 @@ body {
     padding: 0 15px 15px;
   }
 
-  .post-header {
-    margin-bottom: 5px;
-  }
-
   .post-title {
     font-size: 1.2rem;
   }
@@ -630,7 +614,7 @@ body {
     overflow-y: visible;
     padding-right: 0;
     width: 100%;
-    font-size: 0.8rem; /* Adjusted for better readability */
+    font-size: 0.8rem;
   }
 
   /* Tags container adjustments for mobile */
@@ -661,14 +645,10 @@ body {
   }
 }
 
-/* For larger mobile screens (480px-788px) - better layout */
+/* For larger mobile screens (480px-788px) */
 @media (min-width: 480px) and (max-width: 788px) {
   .thumbnail {
     max-width: 80%;
-  }
-
-  .markdown-container {
-    font-size: 0.8rem; /* Adjusted for better readability */
   }
 
   .pagination-controls {
