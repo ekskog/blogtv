@@ -208,7 +208,7 @@ export default {
     formattedCurrentDate() {
       const day = this.selectedDay;
       const monthName = this.months[this.selectedMonth - 1];
-      
+
       // Add ordinal suffix to day
       let suffix = 'th';
       if (day % 10 === 1 && day !== 11) {
@@ -218,7 +218,7 @@ export default {
       } else if (day % 10 === 3 && day !== 13) {
         suffix = 'rd';
       }
-      
+
       return `${day}${suffix} of ${monthName}`;
     }
   }
