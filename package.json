@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "tailwind:build": "tailwindcss -i ./src/assets/input.css -o ./src/assets/output.css --watch",
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
@@ -15,6 +16,7 @@
     "@azure/cognitiveservices-face": "^5.0.0",
     "@azure/ms-rest-js": "^2.7.0",
     "@fortawesome/fontawesome-free": "^6.7.2",
+    "@tailwindcss/typography": "^0.5.16",
     "crypto": "^1.0.1",
     "crypto-js": "^4.2.0",
     "exif-js": "^2.3.0",
@@ -29,10 +31,13 @@
     "@eslint/js": "^9.14.0",
     "@vitejs/plugin-vue": "^5.2.1",
     "@vue/eslint-config-prettier": "^10.1.0",
+    "autoprefixer": "^10.4.21",
     "eslint": "^9.14.0",
     "eslint-plugin-vue": "^9.30.0",
+    "postcss": "^8.5.6",
     "prettier": "^3.3.3",
     "purify-css": "^1.2.5",
+    "tailwindcss": "^3.4.17",
     "vite": "^6.0.5",
     "vite-plugin-vue-devtools": "^7.6.8"
   }

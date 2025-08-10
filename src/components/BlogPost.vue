@@ -1,86 +1,142 @@
 <template>
-  <div class="single-post">
+  <div class="max-w-[800px] mx-auto px-4 sm:px-6 md:px-[50px] py-6 sm:py-8 md:py-[50px] rounded-lg shadow-[0_2px_8px_rgba(0,0,0,0.4)] text-gray-800">
     <div v-if="post">
-      <h2 class="post-title">{{ extractTitle(post) }}</h2>
-      <div v-if="extractGeotag(post)">
-        <a :href="extractGeotag(post)?.url" target="_blank" rel="noopener noreferrer" class="geotag">
+      <!-- Title -->
+      <h2 class="text-xl sm:text-2xl uppercase font-bold mb-4 text-left">
+        {{ extractTitle(post) }}
+      </h2>
+
+      <!-- Geotag -->
+      <div v-if="extractGeotag(post)" class="mb-2">
+        <a
+          :href="extractGeotag(post)?.url"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="text-xs text-black no-underline hover:underline"
+        >
           @ {{ extractGeotag(post)?.text }}
         </a>
       </div>
 
-      <!-- Image with Loading State -->
-      <div class="post-image">
-        <figure class="figure-wrapper">
-          <div v-if="imageLoading" class="image-loading">Fetching Image...</div>
-          <img :src="getImageUrl(post)" alt="Post Image" class="thumbnail" @load="onImageLoaded" @error="onImageError"
-            v-show="!imageLoading" @click="openImageModal" />
-          <span class="caption" v-show="!imageLoading">{{ calculateCaption(post) }}</span>
+      <!-- Image -->
+      <div class="pt-6 sm:pt-8 md:pt-[50px]">
+        <figure class="aspect-square text-center">
+          <div v-if="imageLoading" class="flex items-center justify-center text-sm sm:text-base text-gray-700">
+            Fetching Image...
+          </div>
+          <img
+            :src="getImageUrl(post)"
+            alt="Post Image"
+            class="w-full h-auto max-w-full sm:max-w-[800px] border border-gray-800 cursor-pointer transition-transform duration-300 ease-in-out hover:scale-[1.02] hover:shadow-[0_5px_15px_rgba(0,0,0,0.3)]"
+            @load="onImageLoaded"
+            @error="onImageError"
+            v-show="!imageLoading"
+            @click="openImageModal"
+          />
+          <figcaption v-show="!imageLoading" class="mt-1 text-xs text-center">
+            {{ calculateCaption(post) }}
+          </figcaption>
         </figure>
       </div>
 
       <!-- Image Modal -->
-      <div v-if="showImageModal" class="image-modal" @click="closeImageModal">
-        <div class="modal-content" @click.stop>
-          <div class="close-button-container">
-            <button class="close-modal-button" @click="closeImageModal">Close</button>
+      <div
+        v-if="showImageModal"
+        class="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50"
+        @click="closeImageModal"
+      >
+        <div class="relative max-w-[95%] max-h-[95%] flex flex-col items-center">
+          <div class="w-full flex justify-end mb-2">
+            <button
+              class="px-3 py-1 sm:px-4 sm:py-2 bg-white text-black font-bold text-sm sm:text-base rounded hover:bg-gray-100"
+              @click="closeImageModal"
+            >
+              Close
+            </button>
           </div>
-          <img :src="getImageUrl(post)" alt="Full Resolution Image" class="full-resolution-image" />
+          <img
+            :src="getImageUrl(post)"
+            alt="Full Resolution Image"
+            class="max-w-full max-h-[calc(100vh-100px)] object-contain"
+          />
         </div>
       </div>
 
-      <!-- EXIF and Azure Eye Toggle Buttons Below the Caption -->
-      <div class="toggle-buttons">
-        <button @click="toggleExifData" class="exif-toggle-button">
+      <!-- Toggle Buttons -->
+      <div class="mt-5 flex flex-wrap gap-2 justify-center">
+        <button
+          @click="toggleExifData"
+          class="px-2 py-1 sm:px-3 sm:py-2 text-xs border border-gray-300 bg-gray-100 rounded hover:bg-gray-200"
+        >
           {{ showExifData ? 'Hide EXIF Data' : 'Show EXIF Data' }}
         </button>
-        <button @click="toggleAzEyeData" class="azeye-toggle-button">
+        <button
+          @click="toggleAzEyeData"
+          class="px-2 py-1 sm:px-3 sm:py-2 text-xs border border-gray-300 bg-gray-100 rounded hover:bg-gray-200"
+        >
           {{ showAzEyeData ? 'Hide AzEye Data' : 'Show AzEye Data' }}
         </button>
       </div>
 
       <!-- EXIF Viewer -->
-      <div v-if="showExifData" class="exif-container">
+      <div v-if="showExifData" class="mt-5 mb-5 p-4 border border-gray-300 rounded bg-gray-200">
         <ExifViewer :initialImageUrl="getImageUrl(post)" />
       </div>
 
       <!-- Azure Eye Viewer -->
-      <div v-if="showAzEyeData" class="azeye-container">
+      <div v-if="showAzEyeData" class="mt-5 mb-5 p-4 border border-gray-300 rounded bg-gray-200">
         <AzureViewer :initialImageUrl="getImageUrl(post)" />
       </div>
 
-      <!-- The Blog Post Text Markdown, Rendered -->
-      <div class="markdown-container" v-html="renderMarkdown(removeGeotag(removeMetadata(post)))"></div>
+      <!-- Markdown Content -->
+      <div class="pt-2 text-base sm:text-[1.2em] md:text-[1.4em] leading-relaxed">
+        <div v-html="renderMarkdown(removeGeotag(removeMetadata(post)))"></div>
+      </div>
 
-      <!-- Clickable Tags with separators -->
-      <div class="tags-container">
-        <span class="post-date">{{ date }}</span>
-        <!-- Changed from <p> to <span> -->
-        <span v-for="(tag, index) in extractTags(post).split(',')" :key="index">
-          <span class="tag">
-            <router-link :to="{
-              name: 'search',
-              query: { tag: tag.trim() },
-            }">
+      <!-- Tags -->
+      <div class="mt-5 pt-5 border-t border-gray-200 text-xs flex flex-wrap items-center gap-2">
+        <span class="font-bold pr-6 hover:text-blue-300">
+          {{ date }}
+        </span>
+        <template v-for="(tag, index) in extractTags(post).split(',')" :key="index">
+          <span class="font-bold uppercase mx-1">
+            <router-link class="text-black hover:text-blue-300" :to="{ name: 'search', query: { tag: tag.trim() } }">
               {{ tag.trim() }}
             </router-link>
           </span>
-          <span v-if="index < extractTags(post).split(',').length - 1" class="tag-separator">|</span>
-        </span>
+          <span v-if="index < extractTags(post).split(',').length - 1" class="text-gray-400 mx-1">|</span>
+        </template>
       </div>
 
-      <!-- Navigation Buttons -->
-      <div class="pagination-controls">
-        <button @click="navigateToPreviousDay" class="pagination-button" :disabled="navigationLoading">
+      <!-- Pagination Controls -->
+      <div class="flex flex-wrap justify-between mt-10 gap-2 px-2 sm:px-5">
+        <button
+          @click="navigateToPreviousDay"
+          class="px-3 py-1 sm:px-4 sm:py-2 min-w-[80px] border border-black bg-gray-100 rounded hover:bg-gray-200 text-xs sm:text-sm"
+          :disabled="navigationLoading"
+        >
           <span v-if="navigationLoading && previousLoading">Searching...</span>
           <span v-else>{{ '< 1' }}</span>
         </button>
-        <button @click="navigateToPreviousYear" class="pagination-button" :disabled="navigationLoading">
+        <button
+          @click="navigateToPreviousYear"
+          class="px-3 py-1 sm:px-4 sm:py-2 min-w-[80px] border border-black bg-gray-100 rounded hover:bg-gray-200 text-xs sm:text-sm"
+          :disabled="navigationLoading"
+        >
           {{ '< 365' }}
         </button>
-        <button @click="navigateToNextYear" class="pagination-button" :disabled="navigationLoading">
+        <button
+          @click="navigateToNextYear"
+          class="px-3 py-1 sm:px-4 sm:py-2 min-w-[80px] border border-black bg-gray-100 rounded hover:bg-gray-200 text-xs sm:text-sm"
+          :disabled="navigationLoading"
+        >
           {{ '> 365' }}
         </button>
-        <button @click="navigateToNextDay" class="pagination-button" :disabled="navigationLoading">
+        <button
+          @click="navigateToNextDay"
+          class="px-3 py-1 sm:px-4 sm:py-2 min-w-[80px] border border-black bg-gray-100 rounded hover:bg-gray-200 text-xs sm:text-sm"
+          :disabled="navigationLoading"
+        >
           <span v-if="navigationLoading && nextLoading">Searching...</span>
           <span v-else>{{ '> 1' }}</span>
         </button>
@@ -120,15 +176,15 @@ export default {
 
   mounted() {
     if (!this.post) {
-      console.warn('Post is not yet set, skipping image fetch.');
-      return;
+      console.warn('Post is not yet set, skipping image fetch.')
+      return
     }
 
-    const img = new Image();
+    const img = new Image()
     img.onload = () => {
-      this.imageLoading = false;
-    };
-    img.src = this.getImageUrl(this.post);
+      this.imageLoading = false
+    }
+    img.src = this.getImageUrl(this.post)
   },
 
   watch: {
@@ -141,8 +197,8 @@ export default {
           this.imageLoading = true // Reset image loading state when route changes
           this.loadPost(newDate) // Fetch the new post
           if (this.post) {
-            console.log('Post fetched, now updating image...');
-            this.imageLoading = false;
+            console.log('Post fetched, now updating image...')
+            this.imageLoading = false
           }
         } else {
           console.error('No date provided in route params!')
@@ -151,28 +207,28 @@ export default {
       },
     },
 
-    'post': {
+    post: {
       handler() {
         // Reset image loading state when post data changes
         if (this.post) {
           this.imageLoading = true
         }
       },
-    }
+    },
   },
 
   methods: {
     // Image modal methods
     openImageModal() {
-      this.showImageModal = true;
+      this.showImageModal = true
       // Add a class to body to prevent scrolling when modal is open
-      document.body.classList.add('modal-open');
+      document.body.classList.add('modal-open')
     },
 
     closeImageModal() {
-      this.showImageModal = false;
+      this.showImageModal = false
       // Remove the class from body when modal is closed
-      document.body.classList.remove('modal-open');
+      document.body.classList.remove('modal-open')
     },
 
     toggleExifData() {
@@ -200,7 +256,7 @@ export default {
         this.imageLoading = true // Reset image loading state
         const response = await fetch(`https://blogtbe.hbvu.su/posts/${date}`)
         if (!response.ok) {
-          throw new Error ('error fetching post')
+          throw new Error('error fetching post')
         } else {
           const data = await response.json()
           console.log(`DEBUG >> ${data}`)
@@ -217,14 +273,14 @@ export default {
 
     getImageUrl(post) {
       if (!post) {
-        console.error('getImageUrl called with null post!');
-        return '';
+        console.error('getImageUrl called with null post!')
+        return ''
       }
 
       const dateMatch = post.match(/Date:\s*(\d{2})(\d{2})(\d{4})/)
       if (dateMatch) {
-        const [_, day, month, year] = dateMatch;
-        return `https://objects.hbvu.su/blotpix/${year}/${month}/${day}.jpeg`;
+        const [_, day, month, year] = dateMatch
+        return `https://objects.hbvu.su/blotpix/${year}/${month}/${day}.jpeg`
       }
       console.error('Invalid Date format in metadata:', post)
       return ''
@@ -250,9 +306,9 @@ export default {
       const geotagMatch = cleanedPost.match(/\[(.*?)\]\((https:\/\/maps\.app\.goo\.gl\/[^\s)]+)\)/)
       return geotagMatch
         ? {
-          text: geotagMatch[1],
-          url: geotagMatch[2],
-        }
+            text: geotagMatch[1],
+            url: geotagMatch[2],
+          }
         : null
     },
     extractTitle(post) {
@@ -321,8 +377,8 @@ export default {
       console.log('NAVIGATE TO NEXT YEAR')
       const inputDate = this.parseDateString()
       // Calculate the date for the next year
-      const nextYear = new Date(inputDate);
-      nextYear.setFullYear(inputDate.getFullYear() + 1);
+      const nextYear = new Date(inputDate)
+      nextYear.setFullYear(inputDate.getFullYear() + 1)
       const nextYearFormatted = this.formatDateStr(nextYear) // Format the date
       console.log('Navigating to same day, next year:', nextYearFormatted)
       this.$router.push({ name: 'post', params: { date: nextYearFormatted } }) // Route to next day
@@ -332,8 +388,8 @@ export default {
       console.log('NAVIGATE TO PREVIOUS YEAR')
       const inputDate = this.parseDateString()
       // Calculate the date for the previous year
-      const previousYear = new Date(inputDate);
-      previousYear.setFullYear(inputDate.getFullYear() - 1);
+      const previousYear = new Date(inputDate)
+      previousYear.setFullYear(inputDate.getFullYear() - 1)
       const previousYearFormatted = this.formatDateStr(previousYear) // Format the date
       console.log('Navigating to same day, previous year:', previousYearFormatted)
       this.$router.push({ name: 'post', params: { date: previousYearFormatted } }) // Route to next day
@@ -401,7 +457,8 @@ export default {
         currentDate.setDate(currentDate.getDate() - 1)
 
         // Don't go before the blog's start date
-        if (currentDate < new Date(2010, 0, 1)) { // Assuming blog starts from Jan 1, 2010
+        if (currentDate < new Date(2010, 0, 1)) {
+          // Assuming blog starts from Jan 1, 2010
           console.log('Reached blog start date, stopping search')
           this.navigationLoading = false
           return null
@@ -425,260 +482,5 @@ export default {
       return null
     },
   },
-
 }
 </script>
-
-<style scoped>
-/* Base layout */
-.single-post {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 50px;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
-}
-
-/* Typography */
-.post-title {
-  font-size: 2em;
-  margin: 0;
-  padding: 0;
-  text-align: left;
-  text-transform: uppercase;
-}
-
-.markdown-container {
-  padding-top: 10px;
-  max-width: 100%;
-  font-size: 1.4em;
-  line-height: 1.6;
-}
-
-/* Location tag */
-.geotag {
-  font-size: 0.8em;
-  color: black;
-  margin-bottom: 5px;
-  text-decoration: none;
-}
-
-/* Images and figure styling */
-.figure-wrapper {
-  padding-top: 50px;
-  margin: 0;
-  position: relative;
-  display: inline-block;
-  max-width: 800px;
-  aspect-ratio: 1/1;
-  text-align: center;
-}
-
-.thumbnail {
-  width: 100%;
-  height: auto;
-  max-width: 800px;
-  border: 1px solid #333;
-  cursor: pointer;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.thumbnail:hover {
-  transform: scale(1.02);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-}
-
-.caption {
-  margin-top: 5px;
-  text-align: center;
-  display: block;
-  font-size: 0.8em;
-}
-
-.image-loading {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.2em;
-  color: #333;
-  padding: 0;
-  margin: 0;
-}
-
-@keyframes pulse {
-  0% { opacity: 0.6; }
-  50% { opacity: 1; }
-  100% { opacity: 0.6; }
-}
-
-/* Button styles */
-.toggle-buttons {
-  margin-top: 20px;
-  display: flex;
-  gap: 10px;
-  justify-content: center;
-}
-
-/* Common button styles */
-.exif-toggle-button,
-.azeye-toggle-button,
-.pagination-button,
-.close-modal-button {
-  padding: 8px 16px;
-  background-color: #f0f0f0;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.exif-toggle-button,
-.azeye-toggle-button {
-  padding: 6px 12px;
-  border: 1px solid #ddd;
-  font-size: 0.8em;
-}
-
-.exif-toggle-button:hover,
-.azeye-toggle-button:hover,
-.pagination-button:not(:disabled):hover,
-.close-modal-button:hover {
-  background-color: #e0e0e0;
-}
-
-.pagination-button {
-  border: 1px solid black;
-  min-width: 80px;
-}
-
-.pagination-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.close-modal-button {
-  border: none;
-  font-weight: bold;
-  font-size: 1rem;
-  color: black;
-  background-color: white;
-}
-
-/* Container styles */
-.exif-container,
-.azeye-container {
-  margin-top: 20px;
-  margin-bottom: 20px;
-  padding: 15px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  background-color: #e0e0e0;
-}
-
-/* Tags and metadata */
-.tags-container {
-  margin-top: 20px;
-  padding: 20px 0;
-  border-top: 1px solid #eee;
-}
-
-.post-date,
-.tag {
-  font-size: 0.8rem;
-  font-weight: bold;
-  text-decoration: none;
-}
-
-.post-date {
-  padding-right: 25px;
-}
-
-.post-date:hover {
-  color: lightblue;
-}
-
-.tag {
-  text-transform: uppercase;
-  margin: 0 5px;
-}
-
-.tag a {
-  color: black;
-  text-decoration: none;
-}
-
-.tag a:hover {
-  color: lightblue;
-}
-
-.tag-separator {
-  color: #ccc;
-  margin: 0 2px;
-}
-
-/* Pagination */
-.pagination-controls {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 40px;
-  padding: 0 20px;
-}
-
-/* Image Modal */
-.image-modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.9);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
-
-.modal-content {
-  position: relative;
-  max-width: 95%;
-  max-height: 95%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.full-resolution-image {
-  max-width: 100%;
-  max-height: calc(100vh - 100px);
-  object-fit: contain;
-}
-
-.close-button-container {
-  width: 100%;
-  display: flex;
-  justify-content: flex-end;
-  margin-bottom: 10px;
-}
-
-body.modal-open {
-  overflow: hidden;
-}
-
-/* Responsive design */
-@media (max-width: 768px) {
-  .single-post {
-    max-width: 600px;
-    margin: 0 auto;
-    padding: 10px;
-    box-shadow: none;
-  }
-
-  .markdown-container {
-    font-size: 0.8rem;
-  }
-
-  .full-resolution-image {
-    max-height: calc(100vh - 80px);
-  }
-}
-</style>
