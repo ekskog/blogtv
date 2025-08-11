@@ -42,5 +42,5 @@ jobs:
           IMAGE_NAME=ghcr.io/ekskog/blogtv
           IMAGE_TAG=$IMAGE_NAME:${{ env.SHORT_SHA }}
           echo "Resolved IMAGE_TAG: $IMAGE_TAG"
-          kubectl set image deployment/blogt-frontend blogt-frontend=$IMAGE_TAG --namespace=webapps --kubeconfig=$PWD/kubeconfig.yaml
-          kubectl rollout restart deployment/blogt-frontend --namespace=webapps --kubeconfig=$PWD/kubeconfig.yaml
+          kubectl set image deployment/blogt-frontend blogt-frontend=$IMAGE_TAG --namespace=blogt --kubeconfig=$PWD/kubeconfig.yaml
+          kubectl rollout restart deployment/blogt-frontend --namespace=blogt --kubeconfig=$PWD/kubeconfig.yaml
