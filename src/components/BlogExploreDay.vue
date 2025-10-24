@@ -139,7 +139,7 @@ export default {
     },
 
     async checkImageExists(day, month, year) {
-      const imageUrl = `https://objects.hbvu.su/blotpix/${year}/${month}/${day}.jpeg`;
+      const imageUrl = `https://objects.ekskog.xyz/blotpix/${year}/${month}/${day}.jpeg`;
 
       try {
         // Create a new Image object to check if the image exists

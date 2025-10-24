@@ -254,7 +254,7 @@ export default {
       try {
         this.loading = true
         this.imageLoading = true // Reset image loading state
-        const response = await fetch(`https://blogtbe.hbvu.su/posts/${date}`)
+        const response = await fetch(`https://blog-api.ekskog.xyz/posts/${date}`)
         if (!response.ok) {
           throw new Error('error fetching post')
         } else {
@@ -280,7 +280,7 @@ export default {
       const dateMatch = post.match(/Date:\s*(\d{2})(\d{2})(\d{4})/)
       if (dateMatch) {
         const [_, day, month, year] = dateMatch
-        return `https://objects.hbvu.su/blotpix/${year}/${month}/${day}.jpeg`
+        return `https://objects.ekskog.xyz/blotpix/${year}/${month}/${day}.jpeg`
       }
       console.error('Invalid Date format in metadata:', post)
       return ''
@@ -401,7 +401,7 @@ export default {
 
     async checkPostExists(date) {
       try {
-        const response = await fetch(`https://blogtbe.hbvu.su/posts/${date}`)
+        const response = await fetch(`https://blog-api.ekskog.xyz/posts/${date}`)
         return response.ok
       } catch (error) {
         console.error(`Error checking if post exists for ${date}:`, error)

@@ -116,7 +116,7 @@ export default {
       try {
         console.log('Performing search for tag:', this.searchTag);
         const response = await fetch(
-          `https://blogtbe.hbvu.su/tags/${encodeURIComponent(this.searchTag)}`,
+          `https://blog-api.ekskog.xyz/tags/${encodeURIComponent(this.searchTag)}`,
         );
         console.log('Response:', response);
         if (!response.ok) {
