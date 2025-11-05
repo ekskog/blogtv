@@ -7,12 +7,9 @@ a {
   color: inherit;
   text-decoration: underline;
   position: relative;
-  display: inline-block;
-  vertical-align: baseline; /* Add this */
+  display: inline; /* Change to inline */
   transition: color 0.3s ease;
-  overflow: hidden;
 }
-
 a::before {
   content: '';
   position: absolute;
@@ -21,18 +18,15 @@ a::before {
   width: 100%;
   height: 100%;
   z-index: -1;
-  background-color: #93c5fd; /* Tailwind blue-300 */
+  background-color: #93c5fd;
   transform: scaleX(0);
   transform-origin: left;
   transition: transform 0.3s ease;
 }
-
 a:hover {
   color: white;
   text-decoration: none;
-  text-decoration-color: #93c5fd;
 }
-
 a:hover::before {
   transform: scaleX(1);
 }
