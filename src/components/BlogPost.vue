@@ -89,7 +89,7 @@
       </div>
 
       <!-- Markdown Content -->
-      <div class="pt-2 text-base sm:text-[1.2em] md:text-[1.4em] leading-relaxed">
+      <div class="pt-8 text-base sm:text-[1.2em] md:text-[1.4em] leading-relaxed">
         <div v-html="renderMarkdown(removeGeotag(removeMetadata(post)))"></div>
       </div>
 
