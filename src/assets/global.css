@@ -7,9 +7,10 @@ a {
   color: inherit;
   text-decoration: underline;
   position: relative;
-  display: inline; /* Change to inline */
+  display: inline;
   transition: color 0.3s ease;
 }
+
 a::before {
   content: '';
   position: absolute;
@@ -22,11 +23,24 @@ a::before {
   transform: scaleX(0);
   transform-origin: left;
   transition: transform 0.3s ease;
+  pointer-events: none;
 }
+
+/* Custom tooltip */
+a[title]::after {
+  content: attr(title);
+  @apply absolute bottom-full left-1/2 -translate-x-1/2 px-3 py-1.5 bg-gray-800 text-white text-base whitespace-nowrap rounded opacity-0 pointer-events-none transition-opacity duration-200 mb-2 z-10;
+}
+
+a[title]:hover::after {
+  @apply opacity-100;
+}
+
 a:hover {
   color: white;
   text-decoration: none;
 }
+
 a:hover::before {
   transform: scaleX(1);
 }
