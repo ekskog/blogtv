@@ -1,7 +1,16 @@
 /* src/assets/global.css */
-body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+
+/* Load the font */
+@import url('https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+
+/* Apply Atkinson Hyperlegible Next globally */
+@layer base {
+  body {
+    font-family: "Atkinson Hyperlegible Next", sans-serif;
+  }
 }
+
+/* --- Your Custom CSS (unchanged) --- */
 
 a {
   color: inherit;
